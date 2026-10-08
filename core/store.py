@@ -143,7 +143,7 @@ def get_specimen(uid: str, sid: str) -> dict | None:
 
 def signed_url(path: str) -> str:
     if SB is None:
-        return f"/dev/images/{path}"            # 개발 모드 전용 경로
+        return f"/api/dev/images/{path}"        # 개발 모드 전용 경로 (프론트가 API 주소를 앞에 붙인다)
     r = SB.storage.from_(BUCKET).create_signed_url(path, SIGNED_URL_TTL)
     return r.get("signedURL") or r.get("signedUrl") or r.get("signed_url", "")
 

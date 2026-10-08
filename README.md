@@ -10,7 +10,7 @@ MaC(Memory & Color) 백엔드 레퍼런스 구현. 멘토링 기술백서 v1.0�
 
 | 백서 진단 | 코드 |
 |---|---|
-| F1 HEX를 LLM이 생성 | `core/llm.py`는 특징만 추출(`Features`), 색은 `core/synth.py`가 계산 |
+| F1 HEX를 LLM이 생성 | `core/llm.py`는 특징만 추출(`Features`, Claude 강제 도구 호출), 색은 `core/synth.py`가 계산 |
 | F2 기준표에 숫자 없음 | `data/color_kb.json` 항목마다 `lch`·`accent_lch`·`modifiers` |
 | F3 합성식 | `core/synth.py` 보정식(명도 대비·채도 배율·색상각 조화·색역 클리핑) |
 | F4 스키마 2개 | 단일 응답 스키마(아래). 면적비는 상수 |
@@ -24,7 +24,7 @@ MaC(Memory & Color) 백엔드 레퍼런스 구현. 멘토링 기술백서 v1.0�
 pip install -r requirements-dev.txt
 cp .env.example .env            # 값은 비워 둬도 됨 → stub LLM + ngram 검색 + 메모리 저장소
 uvicorn main:app --reload --port 8000
-python -m pytest -q             # 14개 테스트 (ΔE00 표준 시험쌍, 결정론, 검증, 마스킹, 크레딧, 권한)
+python -m pytest -q             # 20개 테스트 (MaC 14 + Color Oracle 6)
 python scripts/eval_tau.py      # 골드셋으로 검색 임계값 τ 평가
 ```
 
@@ -32,9 +32,9 @@ python scripts/eval_tau.py      # 골드셋으로 검색 임계값 τ 평가
 
 ## 실서비스 모드
 
-1. **Gemini**: `GEMINI_API_KEY` 설정 → 특징 추출이 구조화 출력(`response_schema`)·`temperature=0` 으로 동작.
+1. **Claude**: `ANTHROPIC_API_KEY` 설정 → 특징 추출이 강제 도구 호출(`report_features`, 축별 라벨 enum)·`temperature=0` 으로 동작. 모델은 `CLAUDE_MODEL`.
 2. **Supabase**: SQL Editor 에 `sql/schema.sql` 실행, Storage 에 비공개 버킷 `specimens` 생성, `.env` 에 URL·키 입력.
-3. **임베딩 RAG**: `python scripts/build_kb_embeddings.py` → `RETRIEVER=embedding`
+3. **임베딩 RAG (선택)**: Claude API에는 임베딩이 없어 `GEMINI_API_KEY`(+ `pip install google-genai`)가 따로 필요. `python scripts/build_kb_embeddings.py` → `RETRIEVER=embedding`
    (pgvector 사용 시 `--supabase` 후 `RETRIEVER=supabase`). **그다음 `scripts/eval_tau.py --retriever embedding` 으로 τ를 다시 정한다.**
 4. **암호화**: `MEMORY_ENC_KEY` 생성(아래) — 원문 보관(`keep_text`)과 컨시어지 연락처에 사용.
    `python -c "import os,base64;print(base64.b64encode(os.urandom(32)).decode())"`
@@ -51,6 +51,9 @@ python scripts/eval_tau.py      # 골드셋으로 검색 임계값 τ 평가
 | POST | `/api/concierge` | 선택 | 컨시어지 문의 (시간당 5회, 연락처 암호화) |
 | POST | `/auth/signup` · `/auth/login` · GET/PATCH/DELETE `/auth/me` | - / 필수 | elecai 패턴 인증 라우터 |
 | GET | `/health` | - | KB 버전·검색기·τ·LLM 모드·저장소 |
+| GET · POST | `/api/oracle` | - | Color Oracle 결정론 변환 (hex2oklch·oklch2hex·hex2lch·lch2hex·scale·step·selfcheck·tools) |
+| POST | `/api/palette` | 선택 | 문장 → 팔레트 (캐시 → 규칙 → 어휘사전 → 새 장면만 Claude 등급 1회). 게스트는 새 장면 LLM 하루 `ORACLE_LLM_DAILY`회 |
+| GET | `/api/palette/gallery` · `/api/palette/thumb` | - | 저장된 문장 썸네일 |
 
 응답 예 (`/api/analyze`):
 ```json
@@ -68,6 +71,8 @@ python scripts/eval_tau.py      # 골드셋으로 검색 임계값 τ 평가
 
 ```
 main.py                 보안 미들웨어 + 라우터 등록
+oracle/ color_oracle.py  OKLCH·LCH·HEX 변환·색역 매핑·자가 검산 / color_abstraction.py 규칙·등급표·썸네일
+        palette.py 문장→팔레트 / store.py 문장·낱말 메타데이터 / tools.py 디스패처
 core/  color.py         sRGB↔Lab↔LCh, CIEDE2000, 색역 클리핑
        kb.py            Color KB 로드, Resolver(키워드→라벨→검색≥τ→기본톤), 검색기 3종
        llm.py           Gemini 특징 추출(구조화 출력) / stub / 임베딩
@@ -93,4 +98,4 @@ examples/frontend_fetch.js  MaC.html 에서 호출하는 예
 - **유료 이미지 생성기** — `core/pipeline.py` 의 `ImageGenerator(palette, cache_key, feedback) -> PIL.Image` 를 구현해 `analyze(..., generator=)` 로 넘기면 검증 루프가 자동으로 붙는다. 실패가 이어지면 코드 그림으로 대체된다.
 - **이름 마스킹** — `core/pii.py` 2단계는 휴리스틱(조사 앞 2~3음절 + 예외 목록)이다. 정확도가 필요하면 형태소 분석기 고유명사로 교체.
 - **게스트 한도 카운터** — 지금은 프로세스 메모리. 인스턴스가 여러 개면 DB/Redis 로 옮긴다.
-- **개인정보** — 기억 문장·이메일이 Gemini·Resend(해외 사업자)로 전달된다. 수집·이용 동의와 처리 위탁·국외 이전 고지 필요 여부를 오픈 전에 점검.
+- **개인정보** — 기억 문장·이메일이 Anthropic(Claude)·Resend(해외 사업자)로 전달된다. 수집·이용 동의와 처리 위탁·국외 이전 고지 필요 여부를 오픈 전에 점검.

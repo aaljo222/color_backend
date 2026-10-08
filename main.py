@@ -5,6 +5,7 @@ main.py — MaC (Memory & Color) API
   1. CORS 화이트리스트          2. slowapi rate limit         3. User-Agent 크롤러 차단(UA_BLOCK=1)
   4. Cloudflare 경유 강제(옵션)   5. 접근 로그(IP 해시)          6. /docs · /openapi.json 비활성(prod)
 색채 파이프라인: core/pipeline.py (마스킹 → 특징 추출 → KB 해석 → LCh 합성 → 그림 → ΔE00 검증)
+Color Oracle:   routers/oracle_router.py (결정론 색 변환 · 문장 → 팔레트)
 """
 import hashlib, logging, os
 from dotenv import load_dotenv
@@ -20,6 +21,7 @@ from routers.analyze_router import router as analyze_router
 from routers.specimen_router import router as specimen_router
 from routers.concierge_router import router as concierge_router
 from routers.auth_router import router as auth_router
+from routers.oracle_router import router as oracle_router
 from utils.limiter import limiter, client_ip
 from core import store
 from core.kb import get_resolver
@@ -90,7 +92,11 @@ async def access_log(request: Request, call_next):
     return response
 
 
-app.add_middleware(CORSMiddleware, allow_origins=CORS_ORIGINS, allow_credentials=True,
+# Vercel 미리보기 주소(color-xxxx-leejaeohs-projects-....vercel.app)까지 허용하려면 정규식으로
+CORS_ORIGIN_REGEX = os.getenv("CORS_ORIGIN_REGEX") or None
+
+app.add_middleware(CORSMiddleware, allow_origins=CORS_ORIGINS, allow_origin_regex=CORS_ORIGIN_REGEX,
+                   allow_credentials=True,
                    allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
                    allow_headers=["Authorization", "Content-Type"], max_age=600)
 
@@ -98,10 +104,12 @@ app.include_router(auth_router)
 app.include_router(analyze_router)
 app.include_router(specimen_router)
 app.include_router(concierge_router)
+app.include_router(oracle_router)
 
 
 @app.get("/health")
 def health():
     r = get_resolver()
+    from oracle.store import get_store
     return {"status": "ok", "kb_version": r.kb.version, "retriever": r.retriever.name, "tau": r.tau,
-            "llm_mode": llm_mode(), "store": store.backend()}
+            "llm_mode": llm_mode(), "store": store.backend(), "oracle_store": get_store().name}

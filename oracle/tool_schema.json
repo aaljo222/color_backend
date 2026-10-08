@@ -1,0 +1,129 @@
+[
+ {
+  "name": "hex2oklch",
+  "description": "HEX 색을 OKLCH로 변환한다. 색 값은 기억으로 답하지 말고 반드시 이 도구 결과를 쓴다.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "hex": {
+     "type": "string",
+     "description": "#rrggbb 또는 #rgb"
+    }
+   },
+   "required": [
+    "hex"
+   ]
+  }
+ },
+ {
+  "name": "oklch2hex",
+  "description": "OKLCH(L 0~1, C 0~0.4, H 0~360)를 sRGB HEX로 변환한다. 화면에 못 그리는 색이면 밝기·색상을 지키고 채도만 줄이며 gamut_mapped=true를 돌려준다.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "L": {
+     "type": "number"
+    },
+    "C": {
+     "type": "number"
+    },
+    "H": {
+     "type": "number"
+    }
+   },
+   "required": [
+    "L",
+    "C",
+    "H"
+   ]
+  }
+ },
+ {
+  "name": "hex2lch",
+  "description": "HEX 색을 CIE LCH(D50, CSS lch())로 변환한다.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "hex": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "hex"
+   ]
+  }
+ },
+ {
+  "name": "lch2hex",
+  "description": "CIE LCH(L 0~100, C, H)를 sRGB HEX로 변환한다.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "L": {
+     "type": "number"
+    },
+    "C": {
+     "type": "number"
+    },
+    "H": {
+     "type": "number"
+    }
+   },
+   "required": [
+    "L",
+    "C",
+    "H"
+   ]
+  }
+ },
+ {
+  "name": "scale",
+  "description": "브랜드 HEX 하나로 50~900 단계 팔레트를 만든다(OKLCH에서 색상 고정, 밝기 사다리). CSS 변수와 단계별 HEX·OKLCH를 돌려준다.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "hex": {
+     "type": "string"
+    },
+    "name": {
+     "type": "string"
+    }
+   },
+   "required": [
+    "hex"
+   ]
+  }
+ },
+ {
+  "name": "step",
+  "description": "브랜드 HEX의 50~900 팔레트에서 한 단계의 색을 돌려준다(OKLCH 색상 고정, 단계별 밝기 고정). '600', '한 단계 진하게(+100)', '두 단계 연하게(-200)' 같은 요청은 반드시 이 도구로 계산한다.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "hex": {
+     "type": "string",
+     "description": "브랜드 원색 #rrggbb"
+    },
+    "step": {
+     "type": "integer",
+     "enum": [
+      50,
+      100,
+      200,
+      300,
+      400,
+      500,
+      600,
+      700,
+      800,
+      900
+     ]
+    }
+   },
+   "required": [
+    "hex",
+    "step"
+   ]
+  }
+ }
+]

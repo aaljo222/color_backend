@@ -1,0 +1,17 @@
+{
+ "_note": "시작용 어휘사전(사물·재료 → 등급). 등급만 적고 숫자는 color_abstraction 표가 정한다. 운영 중 LLM이 추상화한 새 단어는 저장소에 쌓인다.",
+ "concepts": {
+  "돌담":   {"hue": "주황", "lightness": 7, "chroma": 1},
+  "기와":   {"hue": "남색", "lightness": 2, "chroma": 1},
+  "은행잎": {"hue": "노랑", "lightness": 8, "chroma": 4},
+  "단풍":   {"hue": "빨강", "lightness": 4, "chroma": 4},
+  "하늘":   {"hue": "하늘", "lightness": 8, "chroma": 2},
+  "바다":   {"hue": "파랑", "lightness": 4, "chroma": 3},
+  "노을":   {"hue": "주황", "lightness": 6, "chroma": 4},
+  "숲":     {"hue": "초록", "lightness": 3, "chroma": 3},
+  "벚꽃":   {"hue": "분홍", "lightness": 9, "chroma": 2},
+  "눈":     {"hue": "무채", "lightness": 9, "chroma": 0},
+  "흙":     {"hue": "주황", "lightness": 4, "chroma": 2},
+  "밤하늘": {"hue": "남색", "lightness": 1, "chroma": 2}
+ }
+}

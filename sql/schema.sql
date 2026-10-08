@@ -13,6 +13,19 @@ create table if not exists public.profiles (
   updated_at timestamptz default now()
 );
 
+-- 1-1) 가입 시 프로필 자동 생성 (이메일·Google·카카오 모두) -----------------
+create or replace function public.handle_new_user() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  insert into public.profiles (id, email, name)
+  values (new.id, new.email, coalesce(new.raw_user_meta_data->>'name', new.raw_user_meta_data->>'full_name'))
+  on conflict (id) do nothing;
+  return new;
+end $$;
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created after insert on auth.users
+  for each row execute function public.handle_new_user();
+
 -- 2) 표본 (팔레트·특징·검증 결과. 원문 없음) ----------------------------------
 create table if not exists public.memory_specimens (
   id uuid primary key,
@@ -97,3 +110,26 @@ create policy "astral: 본인 조회" on public.astral_results for select using 
 
 -- 10) Storage: 'specimens' 비공개 버킷 (대시보드 Storage → New bucket → Public 끔) ----
 -- insert into storage.buckets (id, name, public) values ('specimens', 'specimens', false) on conflict do nothing;
+
+-- 11) Color Oracle — 문장 → 팔레트 메타데이터 (routers/oracle_router.py · oracle/store.py) ----------
+--     서버(service_role)만 접근. 사용자 정책 없음 = 프론트 직접 접근 불가.
+create table if not exists public.color_prompts (
+  key        text primary key,              -- 정규화한 문장
+  prompt     text not null,                 -- 처음 입력한 원문
+  result     jsonb not null,                -- 팔레트·등급·HEX·OKLCH·LCH·출처
+  source     text,                          -- rule | lexicon | llm
+  hits       integer not null default 1,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists color_prompts_updated on public.color_prompts (updated_at desc);
+create table if not exists public.color_lexicon (
+  concept    text primary key,
+  hue        text not null,
+  lightness  smallint not null check (lightness between 1 and 9),
+  chroma     smallint not null check (chroma between 0 and 5),
+  source     text not null default 'llm',   -- seed | llm | manual
+  created_at timestamptz not null default now()
+);
+alter table public.color_prompts enable row level security;
+alter table public.color_lexicon enable row level security;
