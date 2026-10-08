@@ -1,8 +1,9 @@
 """core/llm.py — 특징 추출(LLM) + 임베딩(선택).
 
 LLM_MODE = claude | stub   (ANTHROPIC_API_KEY 없으면 자동 stub)
-  - claude: Anthropic Messages API (SDK 1.x 는 temperature 인자가 없다), 도구 하나(report_features)를 강제 호출해
-            입력 스키마(= Features 의 JSON 스키마)로 형식을 고정한다. 색 값은 묻지 않는다.
+  - claude: Anthropic Messages API 의 구조화 출력(output_config.format = json_schema)으로
+            응답 형식을 스키마에 고정한다. 라벨은 축별 닫힌 목록(enum)이라 그 밖의 값을 낼 수 없다.
+            색 값은 묻지 않는다. (최신 모델은 tool_choice 강제·temperature 를 받지 않는다)
   - stub  : KB 키워드 스캔 기반 결정론 추출 — 키 없이 개발·테스트용 (품질은 낮음)
 
 임베딩(RETRIEVER=embedding|supabase)은 Claude API 에 임베딩 엔드포인트가 없어 별도 제공자를 쓴다.
@@ -49,8 +50,22 @@ def _claude():
     return _client
 
 
+def structured(system: str, user: str, schema: dict, max_tokens: int = 800, model: str | None = None) -> dict:
+    """구조화 출력 1회 호출 → dict. 스키마 밖 형식은 API 가 막고, 범위 검사는 호출한 쪽 게이트가 한다."""
+    import json
+    from anthropic import transform_schema
+    r = _claude().messages.create(
+        model=model or CLAUDE_MODEL, max_tokens=max_tokens, system=system,
+        messages=[{"role": "user", "content": user}],
+        output_config={"format": {"type": "json_schema", "schema": transform_schema(schema)}})
+    if getattr(r, "stop_reason", None) == "refusal":
+        raise RuntimeError("모델이 응답을 거절했습니다")
+    text = "".join(b.text for b in r.content if b.type == "text")
+    return json.loads(text)
+
+
 def _tool(labels: dict) -> dict:
-    """Features 스키마를 도구 입력 스키마로. label 은 축별 닫힌 목록(+빈 문자열)으로 제한."""
+    """Features 스키마. label 은 축별 닫힌 목록(+빈 문자열)으로 제한."""
     def axis(ids):
         return {"type": "object", "properties": {
             "phrase": {"type": "string", "description": "문장에 근거한 짧은 구"},
@@ -73,17 +88,12 @@ def extract_features(masked_text: str, kb) -> Features:
     from prompts.feature_prompt import build_feature_prompt
     labels = {a: [e["id"] for e in kb.by_axis[a]] for a in ("emotion", "time", "space", "quality")}
     labels["memory_quality"] = labels.pop("quality")
-    tool = _tool(labels)
+    schema = _tool(labels)["input_schema"]
     last = None
     for _ in range(2):                                   # 기획서 기준: 1회 재시도
         try:
-            r = _claude().messages.create(
-                model=CLAUDE_MODEL, max_tokens=800,
-                system=build_feature_prompt(labels), tools=[tool],
-                tool_choice={"type": "tool", "name": "report_features"},
-                messages=[{"role": "user", "content": f'기억 문장: "{masked_text}"'}])
-            block = next(b for b in r.content if b.type == "tool_use")
-            return Features.model_validate(block.input)
+            data = structured(build_feature_prompt(labels), f'기억 문장: "{masked_text}"', schema)
+            return Features.model_validate(data)
         except Exception as ex:
             last = ex
             logger.warning(f"[LLM] 추출 실패 재시도: {type(ex).__name__}")

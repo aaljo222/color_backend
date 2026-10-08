@@ -72,18 +72,16 @@ def _system(lexicon):
 
 
 def _call_claude(prompt, lexicon):
-    """강제 도구 1회 호출. 응답은 등급(enum·정수)뿐 — 숫자 색값을 쓸 자리가 없다."""
+    """구조화 출력 1회 호출. 응답은 등급(enum·정수)뿐 — 숫자 색값을 쓸 자리가 없다.
+    정수 범위(1~9, 0~5)는 API 스키마가 아니라 validate_descriptor 게이트가 걸러낸다."""
     try:
-        from core.llm import _claude
-        r = _claude().messages.create(model=MODEL, max_tokens=700, system=_system(lexicon),
-                                      tools=[ABSTRACT_TOOL], tool_choice={"type": "tool", "name": "abstract_colors"},
-                                      messages=[{"role": "user", "content": prompt}])
+        from core.llm import structured
+        out = structured(_system(lexicon), prompt, ABSTRACT_TOOL["input_schema"], max_tokens=700, model=MODEL)
     except Exception as e:
-        raise LLMError(f"Claude API 호출 실패: {type(e).__name__}")
-    for b in r.content:
-        if b.type == "tool_use" and b.name == "abstract_colors":
-            return b.input or {}
-    raise LLMError("LLM이 추상화 결과를 내지 않았습니다")
+        raise LLMError(f"Claude API 호출 실패: {type(e).__name__}: {str(e)[:200]}")
+    if not isinstance(out, dict):
+        raise LLMError("LLM이 추상화 결과를 내지 않았습니다")
+    return out
 
 
 # ── 오라클로 한 색 만들기 ───────────────────────────────────────────────────
@@ -169,7 +167,7 @@ def answer(prompt, refresh=False, call=None):
                 api_key = os.environ.get("ANTHROPIC_API_KEY")
                 if not api_key:
                     raise LLMError("처음 보는 장면이라 LLM이 필요한데 ANTHROPIC_API_KEY가 없습니다 (Vercel 환경변수)")
-                call = lambda p, lx: _call_claude(p, lx, api_key)
+                call = _call_claude
             raw = call(prompt, lexicon)
             llm_used = True
             items, seen = [], set()
