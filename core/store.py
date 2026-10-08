@@ -92,9 +92,8 @@ def save_specimen(uid: str | None, result: dict, png: bytes, keep_text: str | No
         _MEM["specimens"][sid] = row; _MEM["logs"][sid] = log
         _MEM["images"][row["image_path"]] = png; _MEM["images"][row["thumb_path"]] = thumb
     else:
-        st = SB.storage.from_(BUCKET)
-        st.upload(row["image_path"], png, {"content-type": "image/png"})
-        st.upload(row["thumb_path"], thumb, {"content-type": "image/png"})
+        if not _upload_images(row["image_path"], png, row["thumb_path"], thumb):
+            row["image_path"] = row["thumb_path"] = None   # 그림은 팔레트로 언제든 다시 그릴 수 있다 → 표본은 저장
         SB.table("memory_specimens").insert(row).execute()
         SB.table("generation_logs").insert(log).execute()
     if keep_text and uid:
@@ -105,6 +104,50 @@ def save_specimen(uid: str | None, result: dict, png: bytes, keep_text: str | No
         else:
             SB.table("memory_texts").insert(trow).execute()
     return sid
+
+
+_bucket_ok = False
+def _ensure_bucket() -> None:
+    """Storage 버킷이 없으면 비공개로 만든다 (service_role 키 필요). 한 번만 시도."""
+    global _bucket_ok
+    if _bucket_ok:
+        return
+    try:
+        SB.storage.get_bucket(BUCKET)
+    except Exception:
+        try:
+            SB.storage.create_bucket(BUCKET, options={"public": False})
+            logger.info(f"[store] Storage 버킷 '{BUCKET}' 생성")
+        except Exception as ex:
+            logger.warning(f"[store] 버킷 생성 실패: {type(ex).__name__}: {str(ex)[:120]}")
+    _bucket_ok = True
+
+
+def _upload_images(img_path: str, png: bytes, thumb_path: str, thumb: bytes) -> bool:
+    """그림 업로드. 실패해도 예외를 올리지 않는다 (크레딧을 쓴 표본 저장을 막지 않기 위해)."""
+    for attempt in range(2):
+        try:
+            if attempt:
+                _ensure_bucket()
+            st = SB.storage.from_(BUCKET)
+            st.upload(img_path, png, {"content-type": "image/png"})
+            st.upload(thumb_path, thumb, {"content-type": "image/png"})
+            return True
+        except Exception as ex:
+            logger.warning(f"[store] 그림 업로드 실패({attempt + 1}): {type(ex).__name__}: {str(ex)[:120]}")
+    return False
+
+
+def refund_credit(uid: str) -> None:
+    """저장이 실패했을 때 방금 쓴 크레딧 1을 되돌린다."""
+    try:
+        if SB is None:
+            _profile(uid)["credits"] += 1
+            return
+        p = _profile(uid)
+        SB.table("profiles").update({"credits": p.get("credits", 0) + 1}).eq("id", uid).execute()
+    except Exception as ex:
+        logger.error(f"[store] 크레딧 환불 실패 uid={uid[:8]}: {type(ex).__name__}")
 
 
 def _thumb(png: bytes) -> bytes:
@@ -141,7 +184,9 @@ def get_specimen(uid: str, sid: str) -> dict | None:
         "image_url": signed_url(r["image_path"]), "thumb_url": signed_url(r["thumb_path"])}
 
 
-def signed_url(path: str) -> str:
+def signed_url(path: str | None) -> str | None:
+    if not path:
+        return None                              # 그림 업로드가 실패했던 표본 → 프론트가 팔레트로 그린다
     if SB is None:
         return f"/api/dev/images/{path}"        # 개발 모드 전용 경로 (프론트가 API 주소를 앞에 붙인다)
     r = SB.storage.from_(BUCKET).create_signed_url(path, SIGNED_URL_TTL)

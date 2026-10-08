@@ -56,7 +56,12 @@ def analyze_memory(request: Request, req: AnalyzeRequest, payload: Optional[dict
         try:
             result["specimen_id"] = store.save_specimen(uid, result, png, req.memory if req.keep_text else None)
         except RuntimeError as ex:                     # MEMORY_ENC_KEY 없음 등
+            store.refund_credit(uid)
             raise HTTPException(status_code=400, detail=str(ex))
+        except Exception as ex:                        # DB 저장 실패 → 크레딧 돌려주고 결과는 그대로 보여 준다
+            store.refund_credit(uid)
+            logger.error(f"[analyze] 표본 저장 실패: {type(ex).__name__}: {str(ex)[:200]}")
+            result["save_error"] = "표본은 만들었지만 보관함에 저장하지 못했습니다. 크레딧은 차감되지 않았습니다."
     result.pop("_log", None)
     if img is not None and req.include_image:
         result["image_png_base64"] = base64.b64encode(_png(img)).decode()
