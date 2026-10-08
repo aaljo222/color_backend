@@ -1,0 +1,12 @@
+{"axis": "emotion", "phrase": "보고 싶은 마음", "expected": "longing_melancholy"}
+{"axis": "emotion", "phrase": "그립고 아쉬운", "expected": "longing_melancholy"}
+{"axis": "emotion", "phrase": "신나서 웃음이 났던", "expected": "joy_excitement"}
+{"axis": "emotion", "phrase": "마음이 편안하고 느긋했던", "expected": "calm_peace"}
+{"axis": "emotion", "phrase": "기대고 싶을 만큼 듬직한", "expected": "stability_affection"}
+{"axis": "emotion", "phrase": "처음 느낀 낯선 감정", "expected": null}
+{"axis": "space", "phrase": "모래사장 산책", "expected": "sea"}
+{"axis": "space", "phrase": "외할머니 집 마당", "expected": "grandma_house"}
+{"axis": "space", "phrase": "우주 정거장", "expected": null}
+{"axis": "time", "phrase": "해가 뉘엿뉘엿 질 무렵", "expected": "sunset"}
+{"axis": "time", "phrase": "자정 넘은 시간", "expected": "night"}
+{"axis": "quality", "phrase": "가물가물한", "expected": "faded"}
