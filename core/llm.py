@@ -1,7 +1,7 @@
 """core/llm.py — 특징 추출(LLM) + 임베딩(선택).
 
 LLM_MODE = claude | stub   (ANTHROPIC_API_KEY 없으면 자동 stub)
-  - claude: Anthropic Messages API, temperature 0, 도구 하나(report_features)를 강제 호출해
+  - claude: Anthropic Messages API (SDK 1.x 는 temperature 인자가 없다), 도구 하나(report_features)를 강제 호출해
             입력 스키마(= Features 의 JSON 스키마)로 형식을 고정한다. 색 값은 묻지 않는다.
   - stub  : KB 키워드 스캔 기반 결정론 추출 — 키 없이 개발·테스트용 (품질은 낮음)
 
@@ -78,7 +78,7 @@ def extract_features(masked_text: str, kb) -> Features:
     for _ in range(2):                                   # 기획서 기준: 1회 재시도
         try:
             r = _claude().messages.create(
-                model=CLAUDE_MODEL, max_tokens=800, temperature=0,
+                model=CLAUDE_MODEL, max_tokens=800,
                 system=build_feature_prompt(labels), tools=[tool],
                 tool_choice={"type": "tool", "name": "report_features"},
                 messages=[{"role": "user", "content": f'기억 문장: "{masked_text}"'}])

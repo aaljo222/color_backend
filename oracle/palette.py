@@ -75,7 +75,7 @@ def _call_claude(prompt, lexicon):
     """강제 도구 1회 호출. 응답은 등급(enum·정수)뿐 — 숫자 색값을 쓸 자리가 없다."""
     try:
         from core.llm import _claude
-        r = _claude().messages.create(model=MODEL, max_tokens=700, temperature=0, system=_system(lexicon),
+        r = _claude().messages.create(model=MODEL, max_tokens=700, system=_system(lexicon),
                                       tools=[ABSTRACT_TOOL], tool_choice={"type": "tool", "name": "abstract_colors"},
                                       messages=[{"role": "user", "content": prompt}])
     except Exception as e:

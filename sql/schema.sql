@@ -102,9 +102,13 @@ alter table public.concierge_requests enable row level security;
 alter table public.astral_results enable row level security;
 alter table public.color_kb enable row level security;
 
+drop policy if exists "profiles: 본인 조회" on public.profiles;
 create policy "profiles: 본인 조회" on public.profiles for select using (auth.uid() = id);
+drop policy if exists "specimens: 본인 조회" on public.memory_specimens;
 create policy "specimens: 본인 조회" on public.memory_specimens for select using (auth.uid() = user_id);
+drop policy if exists "texts: 본인 조회" on public.memory_texts;
 create policy "texts: 본인 조회" on public.memory_texts for select using (auth.uid() = user_id);
+drop policy if exists "astral: 본인 조회" on public.astral_results;
 create policy "astral: 본인 조회" on public.astral_results for select using (auth.uid() = user_id);
 -- generation_logs · concierge_requests · color_kb : 사용자 정책 없음 → 프론트 직접 접근 불가 (서버만)
 
