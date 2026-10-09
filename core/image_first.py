@@ -34,7 +34,7 @@ COVER_MIN = float(os.getenv("IMAGE_COVER_MIN", "0.80"))
 MAX_ATTEMPTS = int(os.getenv("IMAGE_MAX_ATTEMPTS", "2"))
 GEMINI_IMAGE_MODEL = os.getenv("GEMINI_IMAGE_MODEL", "gemini-3.1-flash-lite-image")
 ROLES = ("dominant", "supporting", "atmospheric", "accent")
-NAME_DE = float(os.getenv("IMAGE_NAME_DE", "15"))   # 가장 가까운 기준색이 이보다 멀면 '새 색'으로 표시
+NAME_DE = float(os.getenv("IMAGE_NAME_DE", "10"))   # 가장 가까운 기준색이 이보다 멀면 '새 색'으로 표시
 
 # 정서 등급별 허용 범위 (면적 가중 평균, CIE LCh). demo 값 — 사용자 평가로 확정할 것.
 AROUSAL_C = {1: (0, 26), 2: (6, 36), 3: (12, 50), 4: (22, 70), 5: (32, 110)}
@@ -101,6 +101,7 @@ def build_prompt(summary: str, res: dict, kb, objects: list, affect, feedback: s
     lines = [
         "색면추상화(color field painting) 한 점을 그린다. 세로 4:5.",
         "부드러운 가장자리의 큰 색면 3~6개가 겹치거나 번지는 구성. 글자·사람·사물의 형태·로고는 그리지 않는다.",
+        "화면 끝까지 채운다(full bleed). 액자·캔버스 테두리·흰 여백·벽·그림자를 그리지 않는다.",
         f"기억: {summary}",
         "기억의 분위기 (색 지식 KB 에서 검색):", *hints,
         f"기억 속 사물(형태 없이 색으로만 암시): {objs}",
@@ -119,6 +120,8 @@ def _paint_gemini(prompt: str) -> Image.Image:
         it = client.interactions.create(model=GEMINI_IMAGE_MODEL, input=prompt,
                                         response_format={"type": "image", "mime_type": "image/jpeg",
                                                          "aspect_ratio": "4:5", "image_size": "1K"})
+        if getattr(it, "output_image", None) is None or not it.output_image.data:
+            raise RuntimeError("Gemini 응답에 이미지가 없습니다")
         data = it.output_image.data
         raw = base64.b64decode(data) if isinstance(data, str) else data
     except AttributeError:                                          # 예전 SDK: generate_content
@@ -220,6 +223,10 @@ def measure(img: Image.Image, seed: int = 0) -> dict:
     lbl = d2.argmin(1)
     cents = np.array([lab[lbl == j].mean(0) if (lbl == j).any() else cents[j] for j in range(4)])
     ratios = np.bincount(lbl, minlength=4) / len(lab)
+    order3 = sorted(range(3), key=lambda j: -ratios[j])          # 재배정 뒤 면적이 바뀌므로 주조·보조·분위기를 다시 면적 순으로
+    perm = order3 + [3]
+    cents, ratios = cents[perm], ratios[perm]
+    lbl = np.array(perm).argsort()[lbl]
     if CORE_FRAC < 1:                                            # 핵심 픽셀만으로 색 값 다시 재기 (면적비는 그대로)
         core = []
         for j in range(4):

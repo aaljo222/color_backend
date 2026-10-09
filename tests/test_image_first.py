@@ -61,3 +61,11 @@ def test_painter_falls_back_when_gemini_fails(monkeypatch):     # GEMINI 키만 
     monkeypatch.setattr(imf, "_paint_gemini", lambda p: (_ for _ in ()).throw(ImportError("no google-genai")))
     a = analyze("비 오는 밤 창가에서 할머니를 떠올렸다", engine="image_first")
     assert a["verification"]["renderer"] == "image:stub"
+
+
+def test_roles_sorted_by_final_area():             # 재배정 뒤 주조 22% < 보조 34% 로 뒤집혀 보이던 문제 (2026-10-10 운영)
+    for seed in range(5):
+        img = imf._paint_stub("", seed, [{"role": r, "lch": [70 - 10 * i, 30 + 10 * i, 40 * i], "hex": "#C8A27A"}
+                                          for i, r in enumerate(imf.ROLES)])
+        r = imf.measure(img)["ratios"]
+        assert r[0] >= r[1] >= r[2]
