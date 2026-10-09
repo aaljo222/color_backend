@@ -49,6 +49,11 @@ def analyze(text: str, generator: Optional[ImageGenerator] = None, cache: Option
     resolver = get_resolver()
     kb = resolver.kb
     protect = {k for e in kb.items for k in e.get("keywords", [])}
+    try:                                                # 사물 사전 낱말(수박·옥수수…)도 가리면 안 된다 — 사물 색이 사라진다
+        from core.objects import _lexicon
+        protect |= set(_lexicon())
+    except Exception:
+        pass
     masked, mask_stats = mask(text, protect=protect)
     feats = extract_features(masked, kb)
     res = {

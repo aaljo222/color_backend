@@ -70,3 +70,10 @@ def test_log_keys_match_generation_logs_columns():          # eng-1.1 배포 때
     r = analyze("여름방학 할머니 댁 평상에서 먹던 수박과 옥수수의 기억")
     keys = {"specimen_id", "kb_version", "created_at"} | set(r["_log"].keys())
     assert keys <= LOG_COLUMNS, keys - LOG_COLUMNS
+
+
+def test_pii_keeps_objects_and_family_before_irang():     # '수박이랑'이 [이름]으로 가려져 사물 색이 사라진 회귀 (2026-10-10)
+    from core.pii import mask
+    from core.objects import _lexicon
+    out, _ = mask("동생이랑 수박이랑 옥수수 먹던 오후, 지수랑 놀았다", protect=set(_lexicon()))
+    assert "동생이랑" in out and "수박이랑" in out and "[이름]랑" in out   # 지수(사람 이름)는 여전히 가림

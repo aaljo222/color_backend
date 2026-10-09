@@ -38,7 +38,9 @@ def mask(text: str, extra_names: list[str] | None = None, protect: set[str] | No
 
     def _rep(m):
         w = m.group(1)
-        if w in _COMMON or w.startswith("[") or any(k in w or w in k for k in protect if len(k) >= 2):
+        stem = w[:-1] if len(w) >= 3 and w.endswith("이") else w   # '동생이랑'·'수박이랑' = 동생/수박 + 이랑
+        if (w in _COMMON or stem in _COMMON or w.startswith("[")
+                or any(k in x or x in k for k in protect if len(k) >= 2 for x in (w, stem))):
             return w
         stats["이름"] = stats.get("이름", 0) + 1
         return "[이름]"
