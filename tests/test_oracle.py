@@ -62,3 +62,60 @@ def test_palette_needs_key_for_new_scene(client, monkeypatch):
 
 def test_oracle_bot_blocked(client):
     assert client.get("/api/oracle", params={"op": "selfcheck"}, headers={"User-Agent": "curl/8.0"}).status_code == 403
+
+
+def test_similar_suggestions_ngram(client, monkeypatch):
+    """비슷한 문장 = 후보만. 결과(팔레트·키)는 바꾸지 않고, 규칙 문장은 후보에서 뺀다."""
+    from oracle import palette
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.setenv("SIMILAR_METHOD", "ngram")
+    monkeypatch.setattr(palette, "_call_claude", lambda p, l: (_ for _ in ()).throw(AssertionError("LLM 호출되면 안 됨")))
+    client.post("/api/palette", json={"prompt": "돌담길의 단풍"}, headers=UA)          # 사전 경로로 저장
+    client.post("/api/palette", json={"prompt": "#2f5d50"}, headers=UA)               # 규칙 경로로 저장
+    s = client.get("/api/palette/similar", params={"q": "돌담길 단풍 산책"}, headers=UA).json()
+    assert s["method"] == "ngram" and s["threshold"] == 0.35
+    keys = [x["key"] for x in s["items"]]
+    assert "돌담길의 단풍" in keys and "#2f5d50" not in keys
+    assert all(x["score"] >= 0.35 and x["thumbnail"].startswith("data:image/svg+xml") for x in s["items"])
+    assert client.get("/api/palette/similar", params={"q": "커피 한 잔"}, headers=UA).json()["items"] == []
+    r = client.post("/api/palette", json={"prompt": "돌담길의 단풍"}, headers=UA).json()
+    assert r["cached"] is True and all(x["key"] != r["key"] for x in r["similar"]["items"])   # 자기 자신은 빠진다
+
+
+def test_similar_embedding_mode_finds_paraphrase(client, monkeypatch):
+    """임베딩 모드: 글자가 안 겹쳐도 뜻이 가까우면 찾는다 (가짜 임베딩으로 경로만 검증)."""
+    from oracle import similar, store as st
+    monkeypatch.setenv("VOYAGE_API_KEY", "test")
+    monkeypatch.setenv("GEMINI_API_KEY", "test")
+    monkeypatch.delenv("SIMILAR_METHOD", raising=False)
+    monkeypatch.delenv("SIMILAR_PROVIDER", raising=False)
+    assert similar.provider() == "voyage" and similar.model_name() == "voyage:voyage-4:1024"   # 둘 다 있으면 Voyage
+    vecs = {"비 오는 창밖": [1, 0, 0], "창밖에 비가 내린다": [0.95, 0.1, 0], "커피 한 잔": [0, 0, 1]}
+    monkeypatch.setattr(similar, "embed", lambda text, kind="query": vecs.get(text))
+    s0 = st.get_store()
+    s0.put_prompt("비 오는 창밖", "비 오는 창밖", {"source": "llm", "palette": []})
+    similar.remember("비 오는 창밖", "비 오는 창밖")
+    out = similar.find("창밖에 비가 내린다")
+    assert out["method"] == "embedding" and [x["key"] for x in out["items"]] == ["비 오는 창밖"]
+    assert similar.find("커피 한 잔")["items"] == []
+    assert similar.ngram_sim("비 오는 창밖", "창밖에 비가 내린다") < 0.35       # ngram 이었다면 못 찾았을 쌍
+    monkeypatch.setenv("SIMILAR_PROVIDER", "gemini")                               # 모델을 바꾸면
+    assert similar.find("창밖에 비가 내린다")["items"] == []                       # 예전 모델 벡터와 섞지 않는다
+
+
+def test_voyage_call_shape(monkeypatch):
+    """Voyage 호출 인자: 저장=document · 검색=query · 차원 1024 (실제 SDK 시그니처로 검사)."""
+    import inspect, voyageai
+    from oracle import similar
+    seen = []
+    class Fake:
+        def embed(self, texts, **kw):
+            inspect.signature(voyageai.Client.embed).bind(None, texts, **kw)
+            seen.append(kw)
+            class R: embeddings = [[0.1] * 1024 for _ in texts]
+            return R()
+    monkeypatch.setenv("VOYAGE_API_KEY", "test")
+    monkeypatch.setattr(similar, "_voyage", Fake())
+    assert len(similar.embed_many(["돌담길"], "document")[0]) == 1024
+    similar.embed_many(["돌담"], "query")
+    assert [k["input_type"] for k in seen] == ["document", "query"] and seen[0]["model"] == "voyage-4" and seen[0]["output_dimension"] == 1024

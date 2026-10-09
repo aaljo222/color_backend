@@ -137,3 +137,25 @@ create table if not exists public.color_lexicon (
 );
 alter table public.color_prompts enable row level security;
 alter table public.color_lexicon enable row level security;
+
+-- 11-1) 색 문장 '비슷한 문장 추천' (oracle/similar.py) — 임베딩을 쓸 때만 필요 -----------
+--       같은 문장 = key(정규화 문장)로 찾고, 비슷한 문장 = 임베딩으로 후보만 보여 준다.
+--       차원 1024 = SIMILAR_DIM (Voyage voyage-4 기본값). 제공자를 바꿔도 1024로 받는다.
+--       embedding_model 이 다른 벡터끼리는 비교하지 않는다 (모델을 바꾸면 좌표가 전부 바뀐다).
+alter table public.color_prompts add column if not exists embedding vector(1024);
+alter table public.color_prompts add column if not exists embedding_model text;
+create index if not exists color_prompts_embedding on public.color_prompts
+  using hnsw (embedding vector_cosine_ops);
+drop function if exists public.match_color_prompts(vector, int, float);
+create or replace function public.match_color_prompts(query_embedding vector(1024), match_count int default 3,
+                                                      min_similarity float default 0.8, model text default null)
+returns table (key text, prompt text, source text, result jsonb, similarity float)
+language sql stable as $$
+  select p.key, p.prompt, p.source, p.result, 1 - (p.embedding <=> query_embedding) as similarity
+  from public.color_prompts p
+  where p.embedding is not null and coalesce(p.source, '') <> 'rule'
+    and (model is null or p.embedding_model = model)
+    and 1 - (p.embedding <=> query_embedding) >= min_similarity
+  order by p.embedding <=> query_embedding
+  limit match_count;
+$$;

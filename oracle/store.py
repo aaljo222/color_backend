@@ -43,6 +43,19 @@ class MemoryStore:
         for c, d in items.items():
             self.lexicon.setdefault(c, d)        # 처음 정해진 등급을 유지 (일관성)
 
+    def rows(self, limit=None, exclude_source=None):
+        """비슷한 문장 찾기용 후보 (key·prompt·source·palette·embedding)."""
+        out = [{"key": r["key"], "prompt": r["prompt"], "source": r["source"],
+                "palette": r["result"].get("palette", []), "embedding": r.get("embedding"),
+                "embedding_model": r.get("embedding_model")}
+               for r in self.prompts.values() if r["source"] != exclude_source]
+        return out[:limit] if limit else out
+
+    def set_embedding(self, key, vec, model):
+        if key in self.prompts:
+            self.prompts[key]["embedding"] = list(vec)
+            self.prompts[key]["embedding_model"] = model
+
     def gallery(self, limit=24):
         rows = sorted(self.prompts.values(), key=lambda r: r["updated_at"], reverse=True)[:limit]
         return [{"key": r["key"], "prompt": r["prompt"], "source": r["source"], "hits": r["hits"],
@@ -103,6 +116,35 @@ class SupabaseStore:
         if self._lex is not None:
             for c, d in items.items():
                 self._lex.setdefault(c, d)
+
+    def rows(self, limit=500, exclude_source=None):
+        try:
+            q = self.sb.table("color_prompts").select("key,prompt,source,result")
+            if exclude_source:
+                q = q.neq("source", exclude_source)
+            r = q.order("hits", desc=True).order("updated_at", desc=True).limit(limit).execute()
+            return [{"key": x["key"], "prompt": x["prompt"], "source": x["source"],
+                     "palette": (x["result"] or {}).get("palette", [])} for x in r.data or []]
+        except Exception as ex:
+            logger.warning(f"[oracle.store] rows 실패: {type(ex).__name__}")
+            return []
+
+    def set_embedding(self, key, vec, model):
+        try:
+            self.sb.table("color_prompts").update({"embedding": list(vec), "embedding_model": model}).eq("key", key).execute()
+        except Exception as ex:
+            logger.warning(f"[oracle.store] set_embedding 실패: {type(ex).__name__}")
+
+    def match_embedding(self, vec, k, min_sim, model):
+        """pgvector RPC (sql/schema.sql 11-1). 규칙 문장 제외 · 같은 임베딩 모델끼리만."""
+        try:
+            r = self.sb.rpc("match_color_prompts", {"query_embedding": list(vec), "match_count": k,
+                                                    "min_similarity": min_sim, "model": model}).execute()
+            return [{"key": x["key"], "prompt": x["prompt"], "source": x["source"], "score": x["similarity"],
+                     "palette": (x["result"] or {}).get("palette", [])} for x in r.data or []]
+        except Exception as ex:
+            logger.warning(f"[oracle.store] match_embedding 실패: {type(ex).__name__}")
+            return []
 
     def gallery(self, limit=24):
         try:

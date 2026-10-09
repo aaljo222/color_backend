@@ -198,6 +198,11 @@ def answer(prompt, refresh=False, call=None):
     }
     store.put_concepts(new_concepts)
     store.put_prompt(key, prompt, result, overwrite=refresh)
+    try:
+        from oracle import similar
+        similar.remember(key, prompt)                 # 임베딩을 쓸 때만 벡터 저장 (실패해도 결과엔 영향 없음)
+    except Exception:
+        pass
     return {**result, "cached": False, "thumbnail": _thumb_uri(prompt, palette)}
 
 

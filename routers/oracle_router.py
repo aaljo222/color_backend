@@ -3,6 +3,7 @@
   GET  /api/oracle?op=…            결정론 변환 (hex2oklch · oklch2hex · hex2lch · lch2hex · scale · step · selfcheck · tools)
   POST /api/oracle                 외부 LLM 의 tool_use 를 그대로 실행 {name, input}
   POST /api/palette                문장 → 팔레트 (캐시 → 규칙 → 어휘사전 → 처음 보는 장면만 Claude 등급 1회 → 오라클)
+  GET  /api/palette/similar?q=     비슷한 저장 문장 후보 (LLM 0회 · 결과를 바꾸지 않음)
   GET  /api/palette/gallery        저장된 문장 썸네일 목록
   GET  /api/palette/thumb?prompt=  저장된 문장의 썸네일 SVG
 게스트 허용 + rate limit. LLM 을 부르는 경로는 /api/palette 하나뿐이다.
@@ -13,7 +14,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import Response
 from pydantic import BaseModel, Field
-from oracle import tools, palette, color_abstraction as ca
+from oracle import tools, palette, similar, color_abstraction as ca
 from oracle.store import get_store
 from utils.limiter import limiter, client_ip
 from utils.auth import get_optional_payload
@@ -79,11 +80,26 @@ def palette_ask(request: Request, req: PaletteRequest, payload: Optional[dict] =
             raise palette.LLMError("오늘 새 장면 추상화 횟수를 다 썼어요. 로그인하면 계속할 수 있어요.")
         return palette._call_claude(p, lexicon)
     try:
-        return palette.answer(req.prompt, refresh=req.refresh, call=guarded)
+        out = palette.answer(req.prompt, refresh=req.refresh, call=guarded)
     except ValueError as e:
         raise HTTPException(400, detail=str(e))
     except palette.LLMError as e:
         raise HTTPException(502, detail=str(e))
+    out["similar"] = _with_thumbs(similar.find(req.prompt, k=3, exclude_key=out.get("key")))
+    return out
+
+
+def _with_thumbs(found: dict) -> dict:
+    for x in found["items"]:
+        x["thumbnail"] = palette._thumb_uri(x["prompt"], x.pop("palette"))
+    return found
+
+
+@router.get("/palette/similar")
+@limiter.limit("60/minute")
+def palette_similar(request: Request, q: str = "", k: int = 3):
+    """입력 중 추천: 이미 저장된 비슷한 문장. 누르면 그 문장의 저장 결과를 불러온다 (LLM 0회)."""
+    return _with_thumbs(similar.find(q[:300], k=max(1, min(k, 6))))
 
 
 @router.get("/palette/gallery")
