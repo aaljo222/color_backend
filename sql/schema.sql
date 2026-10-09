@@ -159,3 +159,16 @@ language sql stable as $$
   order by p.embedding <=> query_embedding
   limit match_count;
 $$;
+
+-- 12) 문장 고정 (core/sentence_lock.py · eng-2.1) — 같은 문장 = 같은 해시·HEX·색 이름 (재배포·서버 여러 대여도) ----
+--     key = 정규화한 마스킹 문장 + 엔진·화가·KB 버전의 해시 (원문 저장 안 함). 먼저 쓴 값이 이긴다(기본키).
+--     서버(service_role)만 접근 — 사용자 정책 없음. 그림은 Storage specimens/locks/{key}.png
+create table if not exists public.mac_sentence_locks (
+  key            text primary key,
+  payload        jsonb not null,             -- specimen_hash · cache_key · palette · affect · verification
+  image_path     text,
+  engine_version text,
+  kb_version     text,
+  created_at     timestamptz not null default now()
+);
+alter table public.mac_sentence_locks enable row level security;

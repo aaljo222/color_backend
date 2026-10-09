@@ -17,6 +17,7 @@ from core.affect import compute as compute_affect
 from core.render import render_color_field
 from core.verify import verify, feedback
 from core import image_first
+from core import sentence_lock
 
 logger = logging.getLogger("uvicorn")
 MAX_ATTEMPTS = int(os.getenv("VERIFY_MAX_ATTEMPTS", "3"))
@@ -55,6 +56,29 @@ def analyze(text: str, generator: Optional[ImageGenerator] = None, cache: Option
     except Exception:
         pass
     masked, mask_stats = mask(text, protect=protect)
+    if not sentence_lock.ENABLED:
+        return _compute(masked, mask_stats, resolver, kb, engine, generator, cache)
+    if engine == "image_first":
+        ev, painter = image_first.ENGINE_VERSION, image_first.painter_name()
+        painter = image_first.GEMINI_IMAGE_MODEL if painter == "gemini" else painter
+    else:
+        ev, painter = ENGINE_VERSION, "code"
+    lk = sentence_lock.key(masked, engine, ev, painter, kb.version)
+    with sentence_lock.guard(lk):                       # 같은 서버의 동시 요청은 줄을 세운다 → 한 번만 계산
+        locked = sentence_lock.get(lk)
+        if locked is None:
+            out = _compute(masked, mask_stats, resolver, kb, engine, generator, cache)
+            won = sentence_lock.put_if_absent(lk, sentence_lock.payload_of(out), sentence_lock._png(out.get("_image")))
+            if won.get("specimen_hash") == out["specimen_hash"] and won.get("palette") == out["palette"]:
+                return {**out, "sentence_lock": lk, "lock_hit": False}
+            locked = won                                # 다른 서버가 먼저 고정했다 → 그 값을 따른다
+    hit = {**locked, "sentence_lock": lk, "lock_hit": True, "cache_hit": True, "pii_masked": mask_stats,
+           "llm_mode": llm_mode(), "memory_summary": locked.get("memory_summary", "")}
+    hit["_image"] = image_first.IMAGE_CACHE.get(locked.get("cache_key")) or sentence_lock.image(lk)   # 없으면 라우터가 고정 팔레트로 코드 그림 (값은 그대로)
+    return hit
+
+
+def _compute(masked, mask_stats, resolver, kb, engine, generator, cache) -> dict:
     feats = extract_features(masked, kb)
     res = {
         "emotion": resolver.resolve("emotion", feats.emotion.phrase, feats.emotion.label),
