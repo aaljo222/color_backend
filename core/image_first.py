@@ -117,7 +117,7 @@ def _paint_gemini(prompt: str) -> Image.Image:
     client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
     try:                                                            # 새 Interactions API (2026 문서 기준)
         it = client.interactions.create(model=GEMINI_IMAGE_MODEL, input=prompt,
-                                        response_format={"type": "image", "mime_type": "image/png",
+                                        response_format={"type": "image", "mime_type": "image/jpeg",
                                                          "aspect_ratio": "4:5", "image_size": "1K"})
         data = it.output_image.data
         raw = base64.b64decode(data) if isinstance(data, str) else data
