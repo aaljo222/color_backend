@@ -1,4 +1,4 @@
-"""core/pipeline.py — 기억 문장 → 4색 표본 (마스킹 → 특징 추출 → KB 해석 → LCh 합성 → 그림 → 검증)."""
+"""core/pipeline.py — 기억 문장 → 4색 표본 (마스킹 → 특징 추출 → KB 해석 + 사물 등급 → LCh 합성 → 그림 → 검증)."""
 from __future__ import annotations
 import os, logging
 from typing import Callable, Optional
@@ -7,6 +7,7 @@ from core.kb import get_resolver
 from core.llm import extract_features, llm_mode
 from core.pii import mask
 from core.synth import synthesize, ENGINE_VERSION
+from core.objects import resolve_objects
 from core.render import render_color_field
 from core.verify import verify, feedback
 
@@ -46,7 +47,8 @@ def analyze(text: str, generator: Optional[ImageGenerator] = None, cache: Option
         "space": resolver.resolve("space", feats.space.phrase, feats.space.label),
         "quality": resolver.resolve("quality", feats.memory_quality.phrase, feats.memory_quality.label),
     }
-    syn = synthesize(res, kb)
+    objs = resolve_objects(feats.objects)               # 사물 → 등급 → 색 (사전 우선, 결정론)
+    syn = synthesize(res, kb, objs)
     key = syn["cache_key"]
     if cache is not None and key in cache:
         hit = dict(cache[key]); hit["cache_hit"] = True; hit["memory_summary"] = feats.memory_summary or hit.get("memory_summary", "")
@@ -64,7 +66,7 @@ def analyze(text: str, generator: Optional[ImageGenerator] = None, cache: Option
         "pii_masked": mask_stats,
         "cache_hit": False,
         "_image": img,                        # 라우터가 저장 후 제거
-        "_log": {"features": feats.model_dump(), "verify_rows": ver["rows"], "masked_text_len": len(masked)},
+        "_log": {"features": feats.model_dump(), "objects": [[o.name, *o.descriptor, o.how] for o in objs], "verify_rows": ver["rows"], "masked_text_len": len(masked)},
     }
     if cache is not None:
         cache[key] = {k: v for k, v in out.items() if not k.startswith("_")}

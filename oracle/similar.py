@@ -17,12 +17,13 @@
   차원 SIMILAR_DIM (기본 1024) = DB 컬럼 vector(1024) 와 같아야 한다.
   ★ 벡터마다 만든 모델 이름(embedding_model)을 같이 저장하고, 같은 모델끼리만 비교한다.
     모델을 바꾸면 좌표가 전부 바뀌므로 섞어 비교하면 점수가 무의미하다 → scripts/embed_prompts.py 로 다시 채운다.
-기준선 SIMILAR_MIN (기본 ngram 0.35 · embedding 0.80)
+기준선 SIMILAR_MIN (기본 ngram 0.35 · embedding 0.50)
   ngram 0.35: 예시 13쌍에서 "커피 한 잔↔녹차 한 잔"(0.20)은 막고 "덕수궁 돌담길↔돌담길 산책"(0.38)은 통과.
   "비 오는 창밖↔창밖에 비가 내린다"(0.10)처럼 어순·어미가 바뀌면 ngram 은 못 찾는다 → 임베딩이 필요한 이유.
-  embedding 0.80 은 아직 실측 전 기본값 — 임베딩을 켜면 사용 데이터로 다시 맞출 것.
+  embedding 0.50: 운영 실측(2026-10-09, voyage-4·1024) — "덕수궁 옆 오래된 돌담 길"→"덕수궁 돌담길" 0.651,
+  "네온사인 번화가의 밤"→"돌담과 하늘 느낌" 0.192. 저장 문장이 2개뿐이라 잠정값 — 쌓이면 /similar 의 best 로 다시 맞출 것.
 규칙(HEX·OKLCH 숫자·브랜드 단계)으로 풀린 문장은 후보에서 뺀다: 계산이 즉시라 추천할 이유가 없고,
-'#2f5d50'과 '#2f5d51'처럼 글자는 비슷해도 다른 색이라 혼란만 준다.
+'teal 600'(#007b7e)과 'teal 900'(#002a2b)처럼 글자는 비슷해도(ngram 0.55) 색은 전혀 달라 혼란만 준다.
 """
 from __future__ import annotations
 import logging, math, os, time
@@ -32,7 +33,7 @@ from oracle import color_abstraction as ca
 from oracle.store import get_store
 
 logger = logging.getLogger("uvicorn")
-DEFAULT_MIN = {"ngram": 0.35, "embedding": 0.80}
+DEFAULT_MIN = {"ngram": 0.35, "embedding": 0.50}
 MAX_CANDIDATES = 500          # ngram 은 서버에서 직접 비교 — 최근·인기 문장 이만큼만 본다
 
 
