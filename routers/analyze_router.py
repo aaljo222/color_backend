@@ -43,6 +43,9 @@ def analyze_memory(request: Request, req: AnalyzeRequest, payload: Optional[dict
     except RuntimeError as ex:
         logger.error(f"[analyze] {ex}")
         raise HTTPException(status_code=502, detail="색채 표본 추출에 실패했습니다. 문장을 조금 더 구체적으로 작성해 주세요.")
+    except Exception as ex:                      # 예상 못 한 오류도 502(JSON)로 — 처리 안 된 500은 CORS 헤더가 없어 브라우저엔 '연결 실패'로 보인다
+        logger.exception(f"[analyze] 예상하지 못한 오류: {type(ex).__name__}")
+        raise HTTPException(status_code=502, detail=f"표본을 만드는 중 서버 오류가 났습니다 ({type(ex).__name__}). 잠시 후 다시 시도해 주세요.")
 
     img = result.pop("_image", None)
     if img is None:                                               # 캐시 적중: 코드 그림은 결정론이라 다시 그리면 같다

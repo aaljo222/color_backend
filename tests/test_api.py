@@ -72,3 +72,10 @@ def test_concierge(client):
     assert r.status_code == 200
     from core import store
     assert store._MEM["concierge"][-1]["contact"] is None                                       # 연락처 암호화
+
+
+def test_unexpected_error_returns_502_json(client, monkeypatch):   # 처리 안 된 500은 CORS 헤더가 없어 프론트에 '연결 실패'로 보였다 (2026-10-10)
+    import routers.analyze_router as ar
+    monkeypatch.setattr(ar, "analyze", lambda *a, **k: (_ for _ in ()).throw(ModuleNotFoundError("No module named 'google'")))
+    r = client.post("/api/analyze", json={"memory": "비 오는 밤 창가에서 할머니를 떠올렸다", "include_image": False})
+    assert r.status_code == 502 and "ModuleNotFoundError" in r.json()["detail"]

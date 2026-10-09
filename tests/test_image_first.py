@@ -53,3 +53,11 @@ def test_pipeline_image_first_stub(monkeypatch):
 def test_palette_mode_unchanged():
     a = analyze("한여름 할머니 댁 마루에서 수박 먹던 오후", engine="palette")
     assert a["engine_version"] == "eng-1.2"
+
+
+def test_painter_falls_back_when_gemini_fails(monkeypatch):     # GEMINI 키만 있고 google-genai 미설치여도 502가 나지 않게
+    monkeypatch.setenv("PAINTER", "gemini"); monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    from core import image_first as imf
+    monkeypatch.setattr(imf, "_paint_gemini", lambda p: (_ for _ in ()).throw(ImportError("no google-genai")))
+    a = analyze("비 오는 밤 창가에서 할머니를 떠올렸다", engine="image_first")
+    assert a["verification"]["renderer"] == "image:stub"

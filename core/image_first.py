@@ -47,9 +47,31 @@ def painter_name() -> str:
     p = os.getenv("PAINTER", "").lower()
     if p in ("gemini", "claude_scene", "stub"):
         return p
-    if os.getenv("GEMINI_API_KEY"):
+    if os.getenv("GEMINI_API_KEY") and _has_genai():
         return "gemini"
     return "claude_scene" if os.getenv("ANTHROPIC_API_KEY") else "stub"
+
+
+def _has_genai() -> bool:
+    import importlib.util
+    try:
+        return importlib.util.find_spec("google.genai") is not None
+    except ModuleNotFoundError:
+        return False
+
+
+def paint_with_fallback(prompt: str, painter: str, seed: int, base_palette: list) -> tuple:
+    """화가 호출이 실패하면(키·패키지·네트워크) 다음 화가로: gemini → claude_scene → stub. 실제로 그린 화가를 돌려준다."""
+    order = ["gemini", "claude_scene", "stub"]
+    chain = order[order.index(painter):]
+    for i, name in enumerate(chain):
+        if name == "claude_scene" and not os.getenv("ANTHROPIC_API_KEY") and i > 0:
+            continue
+        try:
+            return paint(prompt, name, seed, base_palette), name
+        except Exception as ex:
+            logger.warning(f"[image_first] 화가 {name} 실패 → 다음 화가: {type(ex).__name__}: {str(ex)[:120]}")
+    raise RuntimeError("모든 화가가 실패했습니다")
 
 
 def cache_key(masked_text: str, painter: str) -> str:
@@ -261,10 +283,10 @@ def run(masked: str, summary: str, res: dict, kb, objects: list, affect, base_pa
     fb, tries, best = "", [], None
     for n in range(1, MAX_ATTEMPTS + 1):
         prompt = build_prompt(summary or masked[:40], res, kb, objects, affect, fb)
-        img = paint(prompt, painter, seed + n - 1, base_palette)
+        img, used = paint_with_fallback(prompt, painter, seed + n - 1, base_palette)
         m = measure(img)
         rv = review(m, affect)
-        tries.append({"attempt": n, **{k: rv[k] for k in ("ok", "fails", "chroma_w", "light_w")},
+        tries.append({"attempt": n, "painter": used, **{k: rv[k] for k in ("ok", "fails", "chroma_w", "light_w")},
                       "coverage": round(m["coverage"], 3)})
         if best is None or (rv["ok"], m["coverage"]) > (best[2]["ok"], best[1]["coverage"]):
             best = (img, m, rv)
@@ -285,7 +307,7 @@ def run(masked: str, summary: str, res: dict, kb, objects: list, affect, base_pa
                             "nearest": near}})
     IMAGE_CACHE[key] = img
     verification = {"status": "PASS" if rv["ok"] else "FAIL", "max_de00": round(m["de_p90"], 2),
-                    "max_ratio_err": 0.0, "attempts": len(tries), "renderer": f"image:{painter}",
+                    "max_ratio_err": 0.0, "attempts": len(tries), "renderer": f"image:{tries[-1]['painter']}",
                     "coverage": round(m["coverage"], 3), "review": rv,
                     "criteria": {"cover_de00": COVER_DE, "cover_min": COVER_MIN,
                                  "arousal_c": AROUSAL_C.get(affect.arousal) if affect else None,
