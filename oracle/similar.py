@@ -162,13 +162,14 @@ def find(text: str, k: int = 3, exclude_key: str | None = None) -> dict:
     exclude_key = exclude_key or ca.normalize(text)
     m = method()
     items: list[dict] = []
+    best = None                       # 기준선 아래라도 가장 가까운 문장 1개 — 기준선 맞출 때 보는 값 (화면에는 안 씀)
     if len(text) >= 2:
         q = embed(text) if m == "embedding" else None
         if q is None:
             m = "ngram"
         tau = threshold(m)
         if m == "embedding" and store.name == "supabase":
-            items = store.match_embedding(q, k + 1, tau, model_name())
+            items = store.match_embedding(q, k + 1, -1.0, model_name())   # 기준선은 아래에서 적용 (최고 점수를 보려고)
         else:
             for r in _candidates(store):
                 if m == "embedding":
@@ -178,14 +179,15 @@ def find(text: str, k: int = 3, exclude_key: str | None = None) -> dict:
                     s = _cos(q, v)
                 else:
                     s = ngram_sim(text, r["prompt"])
-                if s >= tau:
-                    items.append({**r, "score": s})
+                items.append({**r, "score": s})
         items = [x for x in items if x["key"] != exclude_key]
         items.sort(key=lambda x: (-x["score"], x["key"]))          # 같은 점수면 키 순 → 순서도 결정론
-        items = items[:k]
+        if items:
+            best = {"prompt": items[0]["prompt"], "score": round(float(items[0]["score"]), 3)}
+        items = [x for x in items if x["score"] >= tau][:k]
     else:
         tau = threshold(m)
-    return {"method": m, "threshold": tau, "model": model_name() if m == "embedding" else None,
+    return {"method": m, "threshold": tau, "model": model_name() if m == "embedding" else None, "best": best,
             "items": [{"key": x["key"], "prompt": x["prompt"], "source": x.get("source"),
                        "score": round(float(x["score"]), 3), "palette": x.get("palette") or []} for x in items]}
 
