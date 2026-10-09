@@ -9,7 +9,7 @@ httpx>=0.27,<1.0
 anthropic>=1.0,<2.0
 voyageai>=0.3.7       # 임베딩(비슷한 문장 추천) — Anthropic 은 자체 임베딩 모델이 없다
 # 선택: 임베딩 검색(RETRIEVER=embedding|supabase)을 쓸 때만
-# google-genai>=1.0,<2.0
+# google-genai>=1.0,<2.0   ← 임베딩 검색 또는 PAINTER=gemini(그림 먼저) 를 쓸 때 주석 해제
 numpy>=1.26
 scipy>=1.11
 scikit-learn>=1.4

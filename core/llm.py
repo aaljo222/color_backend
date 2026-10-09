@@ -11,7 +11,7 @@ LLM_MODE = claude | stub   (ANTHROPIC_API_KEY 없으면 자동 stub)
 """
 from __future__ import annotations
 import os, logging
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel, Field, field_validator
 
 logger = logging.getLogger("uvicorn")
@@ -36,12 +36,19 @@ class ObjectFeature(BaseModel):
     chroma: int = 0
 
 
+class AffectFeature(BaseModel):
+    """기억 전체의 정서 등급 (eng-1.2). 숫자 색 보정은 core/affect.py 표가 정한다."""
+    valence: int = 0          # 쾌 1(불쾌)~5(아주 좋음)
+    arousal: int = 0          # 각성 1(아주 차분)~5(아주 들뜸)
+
+
 class Features(BaseModel):
     emotion: AxisFeature
     time: AxisFeature
     space: AxisFeature
     memory_quality: AxisFeature
     objects: List[ObjectFeature] = Field(default_factory=list)
+    affect: Optional[AffectFeature] = None
     memory_summary: str = ""
 
     @field_validator("objects", mode="before")
@@ -98,8 +105,12 @@ def _tool(labels: dict) -> dict:
                 "lightness": {"type": "integer", "description": "밝기 등급 1(아주 어두움)~9(아주 밝음)"},
                 "chroma": {"type": "integer", "description": "채도 등급 0(무채)~5(아주 선명)"}},
                 "required": ["name", "hue", "lightness", "chroma"]}},
+            "affect": {"type": "object", "properties": {
+                "valence": {"type": "integer", "description": "쾌 등급 1(불쾌·슬픔)~5(아주 좋음)"},
+                "arousal": {"type": "integer", "description": "각성 등급 1(아주 차분·고요)~5(아주 들뜨고 생생)"}},
+                "required": ["valence", "arousal"]},
             "memory_summary": {"type": "string"}},
-            "required": ["emotion", "time", "space", "memory_quality", "objects", "memory_summary"]},
+            "required": ["emotion", "time", "space", "memory_quality", "objects", "affect", "memory_summary"]},
     }
 
 
@@ -140,8 +151,12 @@ def _stub_extract(text: str, kb) -> Features:
         objs = [{"name": w} for _, w in found[:3]]
     except Exception:
         objs = []
-    return Features(emotion=pick("emotion"), time=pick("time"), space=pick("space"),
-                    memory_quality=pick("quality"), objects=objs, memory_summary=text[:30])
+    from core.affect import stub_affect
+    emo = pick("emotion")
+    aff = stub_affect(text, kb.by_id.get(emo.label) or kb.by_id[kb.defaults["emotion"]])
+    return Features(emotion=emo, time=pick("time"), space=pick("space"),
+                    memory_quality=pick("quality"), objects=objs,
+                    affect={"valence": aff["valence"], "arousal": aff["arousal"]}, memory_summary=text[:30])
 
 
 def embed_texts(texts: list[str], task: str = "RETRIEVAL_DOCUMENT") -> list[list[float]]:
