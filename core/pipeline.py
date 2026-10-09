@@ -66,7 +66,8 @@ def analyze(text: str, generator: Optional[ImageGenerator] = None, cache: Option
         "pii_masked": mask_stats,
         "cache_hit": False,
         "_image": img,                        # 라우터가 저장 후 제거
-        "_log": {"features": feats.model_dump(), "objects": [[o.name, *o.descriptor, o.how] for o in objs], "verify_rows": ver["rows"], "masked_text_len": len(masked)},
+        "_log": {"features": {**feats.model_dump(), "resolved_objects": [[o.name, *o.descriptor, o.how] for o in objs]},
+                 "verify_rows": ver["rows"], "masked_text_len": len(masked)},   # 키 = generation_logs 열 이름 (새 열 추가 금지)
     }
     if cache is not None:
         cache[key] = {k: v for k, v in out.items() if not k.startswith("_")}

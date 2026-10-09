@@ -57,3 +57,16 @@ def test_legacy_string_objects_accepted():
     f = Features(emotion=AxisFeature(), time=AxisFeature(), space=AxisFeature(), memory_quality=AxisFeature(),
                  objects=["수박", "옥수수"])
     assert [o.name for o in f.objects] == ["수박", "옥수수"]
+
+
+def test_log_keys_match_generation_logs_columns():          # eng-1.1 배포 때 'objects' 키로 저장 실패한 회귀 방지
+    import re, pathlib
+    from core.pipeline import analyze
+    from core.store import LOG_COLUMNS
+    sql = pathlib.Path(__file__).resolve().parent.parent.joinpath("sql", "schema.sql").read_text(encoding="utf-8")
+    body = re.search(r"create table if not exists public\.generation_logs \((.*?)\);", sql, re.S).group(1)
+    cols = {ln.split()[0] for part in body.split("\n") for ln in part.split(",") if ln.strip() and not ln.strip().startswith("--")}
+    assert LOG_COLUMNS <= cols | {"id"}
+    r = analyze("여름방학 할머니 댁 평상에서 먹던 수박과 옥수수의 기억")
+    keys = {"specimen_id", "kb_version", "created_at"} | set(r["_log"].keys())
+    assert keys <= LOG_COLUMNS, keys - LOG_COLUMNS

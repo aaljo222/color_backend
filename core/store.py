@@ -79,6 +79,9 @@ def consume_credit(uid: str) -> bool:
 
 
 # ── 표본 저장 ────────────────────────────────────────────────────────────
+LOG_COLUMNS = {"specimen_id", "features", "verify_rows", "masked_text_len", "kb_version", "created_at"}   # sql/schema.sql 4)
+
+
 def save_specimen(uid: str | None, result: dict, png: bytes, keep_text: str | None) -> str:
     sid = str(uuid.uuid4())
     thumb = _thumb(png)
@@ -95,7 +98,10 @@ def save_specimen(uid: str | None, result: dict, png: bytes, keep_text: str | No
         if not _upload_images(row["image_path"], png, row["thumb_path"], thumb):
             row["image_path"] = row["thumb_path"] = None   # 그림은 팔레트로 언제든 다시 그릴 수 있다 → 표본은 저장
         SB.table("memory_specimens").insert(row).execute()
-        SB.table("generation_logs").insert(log).execute()
+        try:                                        # 운영 로그 실패가 사용자 표본 저장을 깨지 않게
+            SB.table("generation_logs").insert({k: v for k, v in log.items() if k in LOG_COLUMNS}).execute()
+        except Exception as ex:
+            logger.warning(f"[store] generation_logs 저장 실패(표본은 저장됨): {type(ex).__name__}: {str(ex)[:160]}")
     if keep_text and uid:
         enc = crypto.encrypt(keep_text)            # 키 없으면 예외 → 라우터가 400
         trow = {"specimen_id": sid, "user_id": uid, "text_enc": enc, "keep_consent": True, "created_at": _now()}
