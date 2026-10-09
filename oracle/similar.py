@@ -196,3 +196,29 @@ def remember(key: str, prompt: str) -> None:
     v = embed(prompt, kind="document")
     if v is not None:
         get_store().set_embedding(key, v, model_name())
+
+
+def backfill(limit: int = 500) -> int:
+    """지금 모델의 벡터가 없는 저장 문장을 채운다 (서버 시작 시 백그라운드로 1회).
+    처음 임베딩을 켰을 때, 또는 모델을 바꿨을 때 PC 에서 스크립트를 돌리지 않아도 된다."""
+    model = model_name()
+    if method() != "embedding" or model is None:
+        return 0
+    store = get_store()
+    rows = [r for r in store.rows_missing_embedding(model, limit)]
+    done = 0
+    for i in range(0, len(rows), 64):
+        part = rows[i:i + 64]
+        try:
+            vecs = embed_many([r["prompt"] for r in part], "document")
+        except Exception as ex:
+            logger.warning(f"[similar] 채우기 중단: {type(ex).__name__}: {str(ex)[:120]}")
+            break
+        for r, v in zip(part, vecs):
+            store.set_embedding(r["key"], v, model)
+            done += 1
+    invalidate()
+    if rows:
+        logger.info(f"[similar] 임베딩 채움 {done}/{len(rows)} · {model}")
+    return done
+

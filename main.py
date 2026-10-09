@@ -107,9 +107,19 @@ app.include_router(concierge_router)
 app.include_router(oracle_router)
 
 
+@app.on_event("startup")
+def _similar_backfill():
+    """임베딩을 쓰면, 벡터가 없는 저장 문장을 백그라운드로 채운다 (서버 응답은 막지 않는다)."""
+    import threading
+    from oracle import similar
+    if similar.method() == "embedding":
+        threading.Thread(target=similar.backfill, daemon=True).start()
+
+
 @app.get("/health")
 def health():
     r = get_resolver()
     from oracle.store import get_store
+    from oracle import similar
     return {"status": "ok", "kb_version": r.kb.version, "retriever": r.retriever.name, "tau": r.tau,
-            "llm_mode": llm_mode(), "store": store.backend(), "oracle_store": get_store().name}
+            "llm_mode": llm_mode(), "store": store.backend(), "oracle_store": get_store().name, "similar": {"method": similar.method(), "model": similar.model_name()}}

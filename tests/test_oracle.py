@@ -119,3 +119,18 @@ def test_voyage_call_shape(monkeypatch):
     assert len(similar.embed_many(["돌담길"], "document")[0]) == 1024
     similar.embed_many(["돌담"], "query")
     assert [k["input_type"] for k in seen] == ["document", "query"] and seen[0]["model"] == "voyage-4" and seen[0]["output_dimension"] == 1024
+
+
+def test_backfill_fills_missing_vectors(monkeypatch):
+    """임베딩을 켜면 벡터 없는 저장 문장을 채운다 · 규칙 문장은 건너뛴다 · 이미 같은 모델이면 다시 안 채운다."""
+    from oracle import similar, store as st
+    monkeypatch.setenv("VOYAGE_API_KEY", "test"); monkeypatch.delenv("SIMILAR_METHOD", raising=False)
+    monkeypatch.delenv("SIMILAR_PROVIDER", raising=False)
+    s0 = st.get_store()
+    s0.put_prompt("채우기 시험 문장", "채우기 시험 문장", {"source": "llm", "palette": []})
+    s0.put_prompt("#123456", "#123456", {"source": "rule", "palette": []})
+    monkeypatch.setattr(similar, "embed_many", lambda texts, kind="document": [[1.0, 0.0] for _ in texts])
+    n = similar.backfill()
+    assert n >= 1 and s0.prompts["채우기 시험 문장"]["embedding_model"] == "voyage:voyage-4:1024"
+    assert "embedding" not in s0.prompts["#123456"]
+    assert similar.backfill() == 0

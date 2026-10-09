@@ -51,6 +51,10 @@ class MemoryStore:
                for r in self.prompts.values() if r["source"] != exclude_source]
         return out[:limit] if limit else out
 
+    def rows_missing_embedding(self, model, limit=500):
+        return [{"key": r["key"], "prompt": r["prompt"]} for r in self.prompts.values()
+                if r["source"] != "rule" and r.get("embedding_model") != model][:limit]
+
     def set_embedding(self, key, vec, model):
         if key in self.prompts:
             self.prompts[key]["embedding"] = list(vec)
@@ -127,6 +131,16 @@ class SupabaseStore:
                      "palette": (x["result"] or {}).get("palette", [])} for x in r.data or []]
         except Exception as ex:
             logger.warning(f"[oracle.store] rows 실패: {type(ex).__name__}")
+            return []
+
+    def rows_missing_embedding(self, model, limit=500):
+        try:
+            r = (self.sb.table("color_prompts").select("key,prompt,embedding_model").neq("source", "rule")
+                 .limit(5000).execute())
+            return [{"key": x["key"], "prompt": x["prompt"]} for x in r.data or []
+                    if x.get("embedding_model") != model][:limit]
+        except Exception as ex:
+            logger.warning(f"[oracle.store] rows_missing_embedding 실패 (schema.sql 11-1 실행?): {type(ex).__name__}")
             return []
 
     def set_embedding(self, key, vec, model):
