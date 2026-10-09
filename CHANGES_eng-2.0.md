@@ -36,3 +36,8 @@ eng-1.x 는 팔레트를 KB 21항목에서 계산한 뒤 그 4색으로 그림�
 - 정서 범위·대표도 기준은 demo 값
 - 실제 Gemini/Claude 호출 결과는 배포 후 같은 6문장으로 다시 재야 한다
 - DB 스키마 변경 없음 (palette jsonb 안에 basis.nearest, generation_logs.features 안에 image_tries)
+
+## 2026-10-10 · IMAGE_AFFECT_GATE
+- 운영 사례: "초여름 낮 부모님과 산책하며 수박과 오이…" → 대표도 89% 합격, 그러나 각성 2(채도 6~36) 대비 그림 평균 채도 48.5 로 탈락. 재생성해도 Gemini가 채도를 충분히 낮추지 못함 (탈락 1회 = 그림 1장 비용).
+- `IMAGE_AFFECT_GATE=soft`: 정서 범위는 `review.notes` 에 참고로만 기록, 합격·재생성은 대표도로만 판정. `hard`(기본)는 기존 동작.
+- 화면: 범위 밖이면 "(이 그림 48.5 · 59.8 — 범위 밖, 참고만)".

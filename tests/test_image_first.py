@@ -69,3 +69,13 @@ def test_roles_sorted_by_final_area():             # 재배정 뒤 주조 22% < 
                                           for i, r in enumerate(imf.ROLES)])
         r = imf.measure(img)["ratios"]
         assert r[0] >= r[1] >= r[2]
+
+
+def test_affect_gate_soft_only_notes(monkeypatch):     # 선명한 그림이 각성 2 범위(≤36) 때문에 탈락하던 것을 참고로만 (IMAGE_AFFECT_GATE=soft)
+    from core.affect import compute
+    from core.kb import KB
+    emo = KB().by_id["warm_nostalgia"]
+    m = imf.measure(imf.render_scene({"background": "#F4BD61", "shapes": [{"kind": "rect", "x": 0, "y": .5, "w": 1, "h": .5, "color": "#DE6364", "softness": .2}]}))
+    monkeypatch.setattr(imf, "AFFECT_GATE", "hard"); assert not imf.review(m, compute({"valence": 4, "arousal": 2}, emo))["ok"]
+    monkeypatch.setattr(imf, "AFFECT_GATE", "soft"); rv = imf.review(m, compute({"valence": 4, "arousal": 2}, emo))
+    assert rv["ok"] and rv["notes"]

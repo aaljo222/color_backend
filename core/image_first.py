@@ -34,7 +34,9 @@ COVER_MIN = float(os.getenv("IMAGE_COVER_MIN", "0.80"))
 MAX_ATTEMPTS = int(os.getenv("IMAGE_MAX_ATTEMPTS", "2"))
 GEMINI_IMAGE_MODEL = os.getenv("GEMINI_IMAGE_MODEL", "gemini-3.1-flash-lite-image")
 ROLES = ("dominant", "supporting", "atmospheric", "accent")
-NAME_DE = float(os.getenv("IMAGE_NAME_DE", "10"))   # 가장 가까운 기준색이 이보다 멀면 '새 색'으로 표시
+NAME_DE = float(os.getenv("IMAGE_NAME_DE", "10"))
+# 정서 범위를 심사에 어떻게 쓰나: hard = 범위 밖이면 탈락·재생성(기본) / soft = 참고 표시만 (대표도만 합격 기준)
+AFFECT_GATE = os.getenv("IMAGE_AFFECT_GATE", "hard").lower()   # 가장 가까운 기준색이 이보다 멀면 '새 색'으로 표시
 
 # 정서 등급별 허용 범위 (면적 가중 평균, CIE LCh). demo 값 — 사용자 평가로 확정할 것.
 AROUSAL_C = {1: (0, 26), 2: (6, 36), 3: (12, 50), 4: (22, 70), 5: (32, 110)}
@@ -248,17 +250,18 @@ def review(m: dict, affect) -> dict:
     lch = [lab2lch(c) for c in m["centers"]]
     Cw = float(sum(r * c[1] for r, c in zip(m["ratios"], lch)))
     Lw = float(sum(r * c[0] for r, c in zip(m["ratios"], lch)))
-    fails = []
+    fails, notes = [], []
     if m["coverage"] < COVER_MIN:
         fails.append(f"색면을 더 단순하게(4색이 그림의 {m['coverage']*100:.0f}%만 대표, 목표 {COVER_MIN*100:.0f}%)")
     if affect is not None:
+        out = fails if AFFECT_GATE == "hard" else notes
         lo, hi = AROUSAL_C[affect.arousal]
         if not lo <= Cw <= hi:
-            fails.append(f"{'더 선명하게' if Cw < lo else '더 차분하게'}(평균 채도 {Cw:.0f}, 범위 {lo}~{hi})")
+            out.append(f"{'더 선명하게' if Cw < lo else '더 차분하게'}(평균 채도 {Cw:.0f}, 범위 {lo}~{hi})")
         lo, hi = VALENCE_L[affect.valence]
         if not lo <= Lw <= hi:
-            fails.append(f"{'더 밝게' if Lw < lo else '더 어둡게'}(평균 명도 {Lw:.0f}, 범위 {lo}~{hi})")
-    return {"ok": not fails, "fails": fails, "chroma_w": round(Cw, 1), "light_w": round(Lw, 1)}
+            out.append(f"{'더 밝게' if Lw < lo else '더 어둡게'}(평균 명도 {Lw:.0f}, 범위 {lo}~{hi})")
+    return {"ok": not fails, "fails": fails, "notes": notes, "chroma_w": round(Cw, 1), "light_w": round(Lw, 1)}
 
 
 # ── ⑤ 설명 (사후 검색) ───────────────────────────────────────────────────
@@ -293,7 +296,7 @@ def run(masked: str, summary: str, res: dict, kb, objects: list, affect, base_pa
         img, used = paint_with_fallback(prompt, painter, seed + n - 1, base_palette)
         m = measure(img)
         rv = review(m, affect)
-        tries.append({"attempt": n, "painter": used, **{k: rv[k] for k in ("ok", "fails", "chroma_w", "light_w")},
+        tries.append({"attempt": n, "painter": used, **{k: rv[k] for k in ("ok", "fails", "notes", "chroma_w", "light_w")},
                       "coverage": round(m["coverage"], 3)})
         if best is None or (rv["ok"], m["coverage"]) > (best[2]["ok"], best[1]["coverage"]):
             best = (img, m, rv)
