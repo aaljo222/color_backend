@@ -258,7 +258,7 @@ def review(m: dict, affect) -> dict:
     Lw = float(sum(r * c[0] for r, c in zip(m["ratios"], lch)))
     fails, notes = [], []
     if m["coverage"] < COVER_MIN:
-        fails.append(f"색면을 더 단순하게(4색이 그림의 {m['coverage']*100:.0f}%만 대표, 목표 {COVER_MIN*100:.0f}%)")
+        fails.append(f"색면을 더 단순하게(4색이 그림의 {m['coverage']*100:.1f}%만 대표, 목표 {COVER_MIN*100:.0f}%)")   # .0f 면 79.9% 가 '80%만 대표, 목표 80%' 로 보였다
     if affect is not None:
         out = fails if AFFECT_GATE == "hard" else notes
         lo, hi = AROUSAL_C[affect.arousal]
@@ -302,7 +302,7 @@ def run(masked: str, summary: str, res: dict, kb, objects: list, affect, base_pa
         img, used = paint_with_fallback(prompt, painter, seed + n - 1, base_palette)
         m = measure(img)
         rv = review(m, affect)
-        tries.append({"attempt": n, "painter": used, **{k: rv[k] for k in ("ok", "fails", "notes", "chroma_w", "light_w")},
+        tries.append({"attempt": n, "painter": used, "prompt": prompt,     # 지시문도 로그에 (코퍼스 보강이 실제로 들어갔는지 확인용, 마스킹된 요약만 포함) **{k: rv[k] for k in ("ok", "fails", "notes", "chroma_w", "light_w")},
                       "coverage": round(m["coverage"], 3)})
         if best is None or (rv["ok"], m["coverage"]) > (best[2]["ok"], best[1]["coverage"]):
             best = (img, m, rv)
