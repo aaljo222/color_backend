@@ -116,3 +116,8 @@ def palette_thumb(request: Request, prompt: str):
         raise HTTPException(404, detail="저장된 문장이 아닙니다")
     return Response(ca.thumbnail_svg(hit["prompt"], hit["palette"]), media_type="image/svg+xml",
                     headers={"Cache-Control": "public, max-age=300"})
+
+
+# ── Astral Color (사주 컬러) — main.py 를 고치지 않으려고 이 라우터 밑에 붙인다 → /api/astral ──
+from routers.astral_router import router as _astral_router  # noqa: E402
+router.include_router(_astral_router)

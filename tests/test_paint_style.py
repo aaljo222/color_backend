@@ -68,3 +68,21 @@ def test_specimen_locked_before_style_change_keeps_its_values(monkeypatch):
     assert b["specimen_hash"] == a["specimen_hash"] and b["palette"] == a["palette"]
     c = pipeline.analyze("겨울밤 할머니 집에서 귤 까먹던 기억", cache=store.CACHE, engine="image_first")
     assert c["verification"]["criteria"]["style"] == "gestural" and c["verification"]["criteria"]["cover_min"] == 0.55
+
+
+def test_objects_go_to_painter_as_color_words_not_names():
+    from core.objects import resolve_objects
+    objs = resolve_objects([{"name": "수박"}, {"name": "옥수수"}], learn=False)
+    p = imf.build_prompt("여름 오후의 기억", _res(), get_resolver().kb, objs, AFF, "", None, "gestural")
+    line = next(l for l in p.splitlines() if l.startswith("기억 속 사물의 색"))
+    assert "수박" not in line and "옥수수" not in line
+    assert "선명한 빨강" in line and "선명한 아주 연한 노랑" in line          # 수박(빨강·5·4), 옥수수(노랑·8·4)
+    assert imf.NO_FORMS in p and "그 안의 사람·사물을 그리지 않는다" in p
+    assert not HEX.search(p)
+
+
+def test_color_words_table():
+    assert imf.color_words(("빨강", 5, 4)) == "선명한 빨강"
+    assert imf.color_words(("무채", 9, 0)) == "흰색"
+    assert imf.color_words(("남색", 2, 1)) == "탁한 짙은 남색"
+    assert imf.color_words(("하늘", 8, 2)) == "부드러운 아주 연한 하늘색"
