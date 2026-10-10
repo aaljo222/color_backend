@@ -151,33 +151,21 @@ def build_prompt(summary: str, res: dict, kb, objects: list, affect, feedback: s
         e = kb.by_id[res[axis].kb_id]
         if res[axis].how != "fallback":
             hints.append(f"- {axis}: {e.get('description', e['name'])}")
-        # 바꾸기 전: objs = ", ".join(o.name for o in objects) or "없음"
     obj_colors = list(dict.fromkeys(color_words(o.descriptor) for o in objects))   # 같은 색 말은 한 번만
     lines = [
         *STYLE_LINES[style],
         "화면 끝까지 채운다(full bleed). 액자·캔버스 테두리·흰 여백·벽·그림자를 그리지 않는다.",
-        NO_FORMS,                                                                                  # 추가
-        f"기억 (분위기만 참고한다 — 그 안의 사람·사물을 그리지 않는다): {summary}",               # 바뀜
+        NO_FORMS,
+        f"기억 (분위기만 참고한다 — 그 안의 사람·사물을 그리지 않는다): {summary}",
         "기억의 분위기 (색 지식 KB 에서 검색):", *hints,
         *(["비슷한 장면과 그 색 (코퍼스 검색, eng-2.2):", *rag_lines] if (rag_lines := _rag_lines(grounding)) else []),
-        f"기억 속 사물의 색 (이름·모양 없이 색 얼룩으로만): {', '.join(obj_colors)}" if obj_colors else "",   # 바뀜
-        _words(affect),
-        f"붓질의 에너지: {ENERGY[affect.arousal]}" if (style == "gestural" and affect is not None) else "",
-    ]
-    lines = [
-        *STYLE_LINES[style],
-        "화면 끝까지 채운다(full bleed). 액자·캔버스 테두리·흰 여백·벽·그림자를 그리지 않는다.",
-        f"기억: {summary}",
-        "기억의 분위기 (색 지식 KB 에서 검색):", *hints,
-        *(["비슷한 장면과 그 색 (코퍼스 검색, eng-2.2):", *rag_lines] if (rag_lines := _rag_lines(grounding)) else []),
-        f"기억 속 사물(형태 없이 색으로만 암시): {objs}",
+        f"기억 속 사물의 색 (이름·모양 없이 색 얼룩으로만): {', '.join(obj_colors)}" if obj_colors else "",
         _words(affect),
         f"붓질의 에너지: {ENERGY[affect.arousal]}" if (style == "gestural" and affect is not None) else "",
     ]
     if feedback:
         lines.append(f"수정 지시: {feedback}")
     return "\n".join(x for x in lines if x)
-
 
 def _rag_lines(grounding):
     from core.rag import prompt_lines
