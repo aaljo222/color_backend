@@ -1,0 +1,423 @@
+From b7ddf4eb2c8b807b7f9eb610ff20b80fbcb2017c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?=EC=9D=B4=EC=9E=AC=EC=98=A4?= <aaljo2@gmail.com>
+Date: Sat, 10 Oct 2026 11:44:26 +0000
+Subject: [PATCH] =?UTF-8?q?eng-2.3=20=EA=B0=99=EC=9D=80=20=EB=AC=B8?=
+ =?UTF-8?q?=EC=9E=A5=EA=B8=89=20=EA=B3=A0=EC=A0=95=20+=20=ED=95=B4?=
+ =?UTF-8?q?=EC=8B=9C=EB=8A=94=20=EB=AC=B8=EC=9E=A5=C2=B74=EC=83=89?=
+ =?UTF-8?q?=EC=97=90=EC=84=9C=20=ED=83=9C=EC=96=B4=EB=82=A8?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- core/sentence_class.py: Kiwi 내용 형태소 모음이 같으면 같은 문장급 (조사·어미·시제·어순 무시, 부정 유지)
+- 조회: 문장 키 → 문장급 키 → 계산. 두 키에 같은 값 고정
+- specimen_hash = sha256(문장급 키 + 역할·HEX·LCh·색 이름·면적비), verify_hash 로 재계산 검증
+- 테스트 76개 통과, 기존 고정 표본은 그대로
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01MA6HLojYSgMbU3kiHDQXFK
+---
+ .env.example                 |  2 +
+ CHANGES_eng-2.3.md           | 59 +++++++++++++++++++++++++
+ core/pipeline.py             | 42 +++++++++++++-----
+ core/sentence_class.py       | 60 +++++++++++++++++++++++++
+ core/sentence_lock.py        | 41 ++++++++++++++++-
+ requirements.txt             |  1 +
+ tests/test_sentence_class.py | 86 ++++++++++++++++++++++++++++++++++++
+ tests/test_sentence_lock.py  |  4 +-
+ 8 files changed, 281 insertions(+), 14 deletions(-)
+ create mode 100644 CHANGES_eng-2.3.md
+ create mode 100644 core/sentence_class.py
+ create mode 100644 tests/test_sentence_class.py
+
+diff --git a/.env.example b/.env.example
+index 1e9f3b4..f241fba 100644
+--- a/.env.example
++++ b/.env.example
+@@ -73,5 +73,7 @@ CORPUS_TAU=
+ # 임베딩을 켜려면: VOYAGE_API_KEY 등록(본인 키) → python scripts/build_corpus_embeddings.py → data/corpus_embeddings.json
+ # ── 문장 고정 (eng-2.1) — 같은 문장 = 같은 해시·HEX·색 이름. sql/schema.sql 12) 실행 필요 ──
+ SENTENCE_LOCK=1
++# eng-2.3 같은 문장급(조사·어미·시제·어순만 다름)도 같은 표본. 0 이면 정확히 같은 문장만
++SENTENCE_CLASS=1
+ # 1 이면 LLM 요약(memory_summary)도 고정값에 저장 (기본 0 = 원문·요약 저장 안 함)
+ LOCK_KEEP_SUMMARY=0
+diff --git a/CHANGES_eng-2.3.md b/CHANGES_eng-2.3.md
+new file mode 100644
+index 0000000..9033ee7
+--- /dev/null
++++ b/CHANGES_eng-2.3.md
+@@ -0,0 +1,59 @@
++# eng-2.3 — 같은 문장급 고정 + 해시는 '문장 + 4색'에서 태어난다
++
++## 왜 (2026-10-10 팀장 피드백)
++> 같은 문장이나 같은 문장급이면 해시·헥스·색상·색상명이 흔들리지 않으면 좋겠습니다.
++> 문장·헥스·색상·색상명이 하나의 hash 를 탄생시킵니다.
++
++eng-2.1 의 문장 고정은 문장부호·띄어쓰기만 무시했다. "엄마와 함께 수박을 먹은"과 "엄마랑 같이 수박 먹었던"은 다른 키라
++LLM·화가를 다시 불렀고, 색이 달라질 수 있었다. 또 표본 해시는 계산 경로의 키(cache_key) 앞 12자라, 해시만 보고는
++'이 문장에 이 4색'이 맞는지 확인할 방법이 없었다.
++
++## 무엇
++### ① 같은 문장급 (core/sentence_class.py)
++형태소 분석(Kiwi)으로 뽑은 **내용 형태소의 모음이 같으면 같은 문장급**이다.
++- 남김: 명사 · 동사/형용사 어간 · 어근 · 부사 · 숫자 · 부정(안·못·않)
++- 버림: 조사 · 어미(시제 '었', '던/은' 포함) · 문장부호 · 띄어쓰기 · 어순 / 같은 뜻 부사 '같이=함께'
++
++| 문장 A | 문장 B | 판정 |
++|---|---|---|
++| 초여름에 엄마와 함께 수박을 먹은 기억 | 초여름 엄마랑 같이 수박 먹었던 기억 | 같음 |
++| 바쁜 아빠와 놀이공원에서 솜사탕 먹고 웃던 5월의 오후 | 5월 오후 바쁜 아빠랑 놀이공원에서 솜사탕을 먹고 웃었던 | 같음 |
++| 할머니 집 마루에서 수박 먹던 여름 | 여름에 할머니 집 마루에서 수박을 먹었다 | 같음 |
++| 초여름에 엄마와 함께 수박을 먹은 기억 | 초여름에 **아빠**와 함께 수박을 먹은 기억 | 다름 |
++| 초여름에 엄마와 함께 수박을 먹은 기억 | 초여름**과 가을**에 수박을 먹고 **배가 불렀던** 기억 | 다름 |
++| 초여름에 엄마와 함께 수박을 먹은 기억 | 초여름에 **어머니**와 함께 수박을 먹은 기억 | 다름 (뜻 동의어는 묶지 않음) |
++| 수박을 먹은 기억 | 수박을 먹지 **않은** 기억 | 다름 (부정은 남김) |
++
++조회 순서 (core/pipeline.py): 정확한 문장 키 → **문장급 키** → 없으면 계산. 계산하면 문장급 키에 먼저 고정하고 문장 키에도 같은 값을 쓴다.
++문장급으로 찾은 문장은 그 문장 키에도 고정되어 다음부터는 바로 찾는다. 같은 문장급 동시 요청은 문장급 키로 줄을 세워 한 번만 계산한다.
++
++### ② 해시가 문장 + 4색에서 태어난다 (core/sentence_lock.py)
++```
++specimen_hash = "MaC-" + sha256([ "hash-2", 문장급 키(없으면 문장 키),
++                                  [역할, HEX, LCh(소수 1자리), 색 이름, 면적비] × 4 ])[:12]
++```
++- 고정 행(payload)에 `hash_of`(문장 키)를 같이 저장 → `verify_hash(payload)` 로 누구나 다시 계산해 위변조를 확인
++- HEX 하나, 색 이름 하나만 바뀌어도 해시가 맞지 않는다 (테스트로 고정)
++- 문장 원문은 여전히 저장하지 않는다 (키는 해시)
++
++## 이미 고정된 표본은?
++바꾸지 않는다. 예전 표본(예: MaC-38cc23d11242)은 저장된 해시·값 그대로 나온다. 새로 고정되는 문장부터 문장급·새 해시가 적용된다.
++
++## 배포 전 할 일
++- `requirements.txt` 에 `kiwipiepy==0.24.0` 추가됨 → Railway 재배포 시 설치 (모델 약 105MB, 프로세스 메모리 약 300MB 늘어남 — 실측)
++- DB 변경 없음 (`mac_sentence_locks` 에 문장 키·문장급 키 두 행이 생긴다)
++- 끄려면 `SENTENCE_CLASS=0` (정확히 같은 문장만 고정, eng-2.1 과 같음)
++
++## 확인 (tests/test_sentence_class.py · 6개, 전체 76개 통과)
++- 문장급 판정 (같음·다름·부정)
++- 같은 문장급 두 번째 요청 → 같은 해시·HEX·LCh·색 이름, LLM 호출 1회, `lock_via=class`
++- 다른 문장급 → 다른 해시
++- 해시 = 문장 키 + 4색 다시 계산과 일치, HEX·색 이름 변조 시 불일치
++- 같은 문장급 4요청 동시 → 1번 계산
++- 형태소 분석기가 없으면 문장급 없이 정확한 문장 고정은 그대로
++
++## 한계
++- '문장급'은 낱말이 같은 문장까지다. 낱말이 다른 비슷한 기억("엄마와 수박" ↔ "어머니와 수박", 오늘 화면의 두 수박 문장)은 다른 표본이다.
++  이것까지 묶으면 다른 기억이 같은 색이 되는 오합침이 생긴다 → 계속 '비슷한 문장 추천'(값은 안 바꿈)으로 둔다. 묶을 범위를 넓힐지는 팀이 정할 일
++- 어순은 무시하므로 "엄마가 아빠를 업은" ↔ "아빠가 엄마를 업은" 같은 문장은 같은 문장급이 된다(조사로만 갈리는 경우). 기억 문장에서 드물지만 0 은 아니다
++- 형태소 분석이 틀리면 판정도 틀린다. 분석기 버전을 고정했고, 버전이 바뀌면 문장급 키도 바뀐다(정확한 문장 키는 그대로)
+diff --git a/core/pipeline.py b/core/pipeline.py
+index 6a74d7b..f06d6d3 100644
+--- a/core/pipeline.py
++++ b/core/pipeline.py
+@@ -63,28 +63,46 @@ def analyze(text: str, generator: Optional[ImageGenerator] = None, cache: Option
+     if rag is not None:                                 # 코퍼스 사물 이름(참외·솜사탕…)도 이름으로 오인해 가리면 안 된다
+         protect |= set(rag.corpus.object_names())
+     masked, mask_stats = mask(text, protect=protect)
+-    if not sentence_lock.ENABLED:
+-        return _compute(masked, mask_stats, resolver, kb, engine, generator, cache)
+     if engine == "image_first":
+         ev, painter = image_first.ENGINE_VERSION, image_first.painter_name()
+         painter = image_first.GEMINI_IMAGE_MODEL if painter == "gemini" else painter
+     else:
+         ev, painter = ENGINE_VERSION, "code"
+-    lk = sentence_lock.key(masked, engine, ev, painter, kb.version)
+-    with sentence_lock.guard(lk):                       # 같은 서버의 동시 요청은 줄을 세운다 → 한 번만 계산
+-        locked = sentence_lock.get(lk)
++    lk = sentence_lock.key(masked, engine, ev, painter, kb.version)            # 정확히 같은 문장 (문장부호·공백 무시)
++    ck = sentence_lock.class_key(masked, engine, ev, painter, kb.version)      # 같은 문장급 (조사·어미·시제·어순 무시, eng-2.3)
++    hk = ck or lk                                                              # 해시가 태어나는 문장 키
++    if not sentence_lock.ENABLED:
++        return _with_hash(_compute(masked, mask_stats, resolver, kb, engine, generator, cache), hk)
++    with sentence_lock.guard(hk):                       # 같은 문장급의 동시 요청은 줄을 세운다 → 한 번만 계산
++        locked, via = sentence_lock.get(lk), "sentence"
++        if locked is None and ck:
++            locked, via = sentence_lock.get(ck), "class"
++            if locked is not None:                      # 문장급으로 찾았다 → 이 문장 키에도 같은 값을 고정 (다음엔 바로 찾게)
++                locked = sentence_lock.put_if_absent(lk, locked, None)
+         if locked is None:
+-            out = _compute(masked, mask_stats, resolver, kb, engine, generator, cache)
+-            won = sentence_lock.put_if_absent(lk, sentence_lock.payload_of(out), sentence_lock._png(out.get("_image")))
++            out = _with_hash(_compute(masked, mask_stats, resolver, kb, engine, generator, cache), hk)
++            png = sentence_lock._png(out.get("_image"))
++            first = ck or lk
++            won = sentence_lock.put_if_absent(first, sentence_lock.payload_of(out), png)   # 문장급 키가 먼저 → 같은 급 문장은 이 값을 따른다
++            if ck:
++                won = sentence_lock.put_if_absent(lk, won, png if won.get("palette") == out["palette"] else None)
+             if won.get("specimen_hash") == out["specimen_hash"] and won.get("palette") == out["palette"]:
+-                return {**out, "sentence_lock": lk, "lock_hit": False}
+-            locked = won                                # 다른 서버가 먼저 고정했다 → 그 값을 따른다
+-    hit = {**locked, "sentence_lock": lk, "lock_hit": True, "cache_hit": True, "pii_masked": mask_stats,
+-           "llm_mode": llm_mode(), "memory_summary": locked.get("memory_summary", "")}
+-    hit["_image"] = image_first.IMAGE_CACHE.get(locked.get("cache_key")) or sentence_lock.image(lk)   # 없으면 라우터가 고정 팔레트로 코드 그림 (값은 그대로)
++                return {**out, "sentence_lock": lk, "sentence_class": ck, "lock_hit": False}
++            locked, via = won, "race"                   # 다른 서버가 먼저 고정했다 → 그 값을 따른다
++    hit = {**locked, "sentence_lock": lk, "sentence_class": ck, "lock_hit": True, "lock_via": via, "cache_hit": True,
++           "pii_masked": mask_stats, "llm_mode": llm_mode(), "memory_summary": locked.get("memory_summary", "")}
++    hit["_image"] = (image_first.IMAGE_CACHE.get(locked.get("cache_key")) or sentence_lock.image(lk)
++                     or (sentence_lock.image(ck) if ck else None))   # 없으면 라우터가 고정 팔레트로 코드 그림 (값은 그대로)
+     return hit
+ 
+ 
++def _with_hash(out: dict, sentence_key: str) -> dict:
++    """표본 해시 = 문장 키 + 4색(역할·HEX·LCh·이름·면적비)에서 태어난다 (eng-2.3). 캐시 적중 결과에도 같은 식."""
++    out["specimen_hash"] = sentence_lock.content_hash(sentence_key, out["palette"])
++    out["hash_of"] = sentence_key
++    return out
++
++
+ def _compute(masked, mask_stats, resolver, kb, engine, generator, cache) -> dict:
+     feats = extract_features(masked, kb)
+     res = {
+diff --git a/core/sentence_class.py b/core/sentence_class.py
+new file mode 100644
+index 0000000..b634e70
+--- /dev/null
++++ b/core/sentence_class.py
+@@ -0,0 +1,60 @@
++"""core/sentence_class.py — '같은 문장급' 판정 (eng-2.3): 조사·어미·시제·어순·띄어쓰기만 다른 문장은 같은 문장으로 본다.
++
++팀장 기준 (2026-10-10): "같은 문장이나 같은 문장급이면 해시·헥스·색상·색상명이 흔들리지 않으면 좋겠다."
++eng-2.1 의 문장 키는 문장부호·공백만 지웠다. 그래서 아래 둘이 다른 키였다.
++  "초여름에 엄마와 함께 수박을 먹은 기억"
++  "초여름 엄마랑 같이 수박 먹었던 기억"
++여기서 '문장급' = 형태소 분석(Kiwi)으로 뽑은 내용 형태소의 모음(multiset)이 같다.
++  남긴다 : 명사(NNG·NNP·NNB) · 동사·형용사 어간(VV·VA) · 어근(XR) · 부사(MAG) · 숫자(SN) · 외국어(SL) · 부정(안·못·않·못하·말)
++  버린다 : 조사(J*) · 어미(E*: 시제 '었'·관형 '던/은' 포함) · 문장부호 · 띄어쓰기 · 어순
++  같은 뜻 부사 몇 개만 묶는다 : 같이=함께 (작은 표, 늘리려면 팀이 정한다)
++지키는 선
++  · 낱말(명사·용언)이 하나라도 다르면 다른 문장이다: "엄마와"↔"아빠와", "먹은"↔"먹지 않은", "초여름"↔"초여름과 가을"
++  · 뜻이 비슷한 다른 낱말(엄마↔어머니)은 묶지 않는다 — 그건 '비슷한 문장 추천'(값은 안 바꿈)의 일이다
++  · 형태소 분석기 버전이 키에 들어간다. 분석기가 바뀌면 문장급 키가 바뀌고, 정확히 같은 문장 키는 그대로라 기존 고정값은 유지된다
++Kiwi(kiwipiepy) 가 없으면 None → 문장급 고정 없이 eng-2.1 처럼 정확한 문장만 고정한다.
++"""
++from __future__ import annotations
++import logging, os
++from functools import lru_cache
++from typing import Optional
++
++logger = logging.getLogger("uvicorn")
++ENABLED = os.getenv("SENTENCE_CLASS", "1") == "1"
++KEEP_TAGS = {"NNG", "NNP", "NNB", "VV", "VA", "XR", "MAG", "SN", "SL", "NR", "MM"}
++NEGATION = {"안", "못", "않", "못하", "말"}
++SYNONYM = {"같이": "함께"}
++
++
++@lru_cache(maxsize=1)
++def _kiwi():
++    try:
++        from kiwipiepy import Kiwi
++        import kiwipiepy
++        # 오타·다어절 사전을 끈다: 메모리 절약(~520→~330MB 실측) + 오타 교정이 끼어들지 않게 (결정론). 설정도 키에 넣는다
++        return Kiwi(load_typo_dict=False, load_multi_dict=False), f"kiwi-{kiwipiepy.__version__}-notypo-nomulti"
++    except Exception as ex:                               # 설치 안 됨 → 문장급 없이 (정확한 문장 고정은 그대로)
++        logger.warning(f"[sentence_class] 형태소 분석기 없음 → 문장급 고정 끔: {type(ex).__name__}")
++        return None, None
++
++
++def analyzer() -> Optional[str]:
++    return _kiwi()[1] if ENABLED else None
++
++
++def content_tokens(text: str) -> Optional[list[str]]:
++    """문장 → 정렬된 내용 형태소 목록 (태그 포함). 분석기가 없으면 None."""
++    if not ENABLED:
++        return None
++    kiwi, _ = _kiwi()
++    if kiwi is None:
++        return None
++    out = []
++    for t in kiwi.tokenize(text):
++        tag = t.tag.split("-")[0]                          # 'VV-R'(규칙 활용 표시) → 'VV'
++        form = t.form
++        if form in NEGATION and (tag in ("MAG", "VX", "VV")):
++            out.append(f"NEG:{'못' if form.startswith('못') else '안'}")
++        elif tag in KEEP_TAGS:
++            out.append(f"{tag[:2]}:{SYNONYM.get(form, form)}")
++    return sorted(out)
+diff --git a/core/sentence_lock.py b/core/sentence_lock.py
+index 2b5a9f1..d9fd833 100644
+--- a/core/sentence_lock.py
++++ b/core/sentence_lock.py
+@@ -13,6 +13,13 @@
+ 개인정보
+   원문은 저장하지 않는다(키는 해시). LLM 요약(memory_summary)은 기본으로 저장하지 않는다 — LOCK_KEEP_SUMMARY=1 일 때만.
+ 끄기: SENTENCE_LOCK=0
++
++eng-2.3 (2026-10-10 팀장 피드백 "같은 문장급이면 흔들리지 않게 · 문장·헥스·색상·색상명이 하나의 hash 를 탄생")
++  ① 문장급 키 = sha256( 내용 형태소 모음(core/sentence_class) · 엔진·버전·화가·KB · 분석기 버전 )
++     조회 순서: 정확한 문장 키 → 문장급 키 → 없으면 계산. 계산하면 두 키 모두에 같은 값을 고정한다.
++  ② 표본 해시 = sha256( 문장급 키(없으면 문장 키) · 4색의 역할·HEX·LCh·색 이름·면적비 )
++     해시가 '문장 + 값'에서 태어난다 → 행 하나(키·payload)만 있으면 누구나 다시 계산해 위변조를 확인할 수 있다 (verify_hash)
++     이미 고정된 예전 표본은 저장된 해시를 그대로 쓴다 (바꾸지 않는다)
+ """
+ from __future__ import annotations
+ import hashlib, io, json, logging, os, re, threading
+@@ -40,6 +47,38 @@ def key(masked_text: str, engine: str, engine_version: str, painter: str, kb_ver
+     return hashlib.sha256(blob.encode()).hexdigest()[:24]
+ 
+ 
++HASH_VERSION = "hash-2"
++
++
++def class_key(masked_text: str, engine: str, engine_version: str, painter: str, kb_version: str) -> Optional[str]:
++    """같은 문장급 키. 형태소 분석기가 없거나 내용 형태소가 비면 None (정확한 문장 키만 쓴다)."""
++    from core import sentence_class
++    toks = sentence_class.content_tokens(masked_text)
++    if not toks:
++        return None
++    blob = json.dumps(["class", toks, engine, engine_version, painter, kb_version, sentence_class.analyzer(), LOCK_VERSION],
++                      ensure_ascii=False)
++    return "c" + hashlib.sha256(blob.encode()).hexdigest()[:23]
++
++
++def hash_material(sentence_key: str, palette: list) -> list:
++    """해시가 태어나는 재료: 문장 키 + 4색 (역할·HEX·LCh 소수 1자리·색 이름·면적비). 그 밖의 값(근거·검증)은 넣지 않는다."""
++    return [HASH_VERSION, sentence_key,
++            [[p["role"], p["hex"].upper(), [round(float(x), 1) for x in p.get("lch", [])], p.get("color_name", ""),
++              round(float(p.get("area_ratio", 0)), 3)] for p in palette]]
++
++
++def content_hash(sentence_key: str, palette: list) -> str:
++    blob = json.dumps(hash_material(sentence_key, palette), ensure_ascii=False, separators=(",", ":"))
++    return "MaC-" + hashlib.sha256(blob.encode()).hexdigest()[:12]
++
++
++def verify_hash(payload: dict) -> bool:
++    """고정 행이 위변조되지 않았는지: payload 의 hash_of(문장 키)와 4색으로 해시를 다시 계산해 비교."""
++    k = payload.get("hash_of")
++    return bool(k) and content_hash(k, payload.get("palette") or []) == payload.get("specimen_hash")
++
++
+ def guard(k: str) -> threading.Lock:
+     with _GUARDS_LOCK:
+         return _GUARDS.setdefault(k, threading.Lock())
+@@ -53,7 +92,7 @@ def _sb():
+ def payload_of(result: dict) -> dict:
+     """고정할 값만 고른다 (그림·로그·원문 제외)."""
+     keep = ("specimen_hash", "cache_key", "kb_version", "engine_version", "palette", "affect", "verification",
+-            "grounding")                          # eng-2.2: 어느 코퍼스 문단·연구로 계산했는지도 같이 고정 (원문 없음)
++            "grounding", "hash_of")               # eng-2.2: 어느 코퍼스 문단·연구로 계산했는지도 같이 고정 (원문 없음)
+     p = {k: result[k] for k in keep if k in result}
+     if KEEP_SUMMARY:
+         p["memory_summary"] = result.get("memory_summary", "")
+diff --git a/requirements.txt b/requirements.txt
+index f127669..829188e 100644
+--- a/requirements.txt
++++ b/requirements.txt
+@@ -15,3 +15,4 @@ scipy>=1.11
+ scikit-learn>=1.4
+ pillow>=10.0
+ cryptography>=42.0
++kiwipiepy==0.24.0     # eng-2.3 '같은 문장급' 형태소 분석 (모델 ~105MB, 메모리 ~300MB). 버전을 고정한다 — 바뀌면 문장급 키가 바뀐다
+diff --git a/tests/test_sentence_class.py b/tests/test_sentence_class.py
+new file mode 100644
+index 0000000..319f2a8
+--- /dev/null
++++ b/tests/test_sentence_class.py
+@@ -0,0 +1,86 @@
++"""eng-2.3 — 같은 문장급이면 같은 해시·HEX·색상·색 이름 / 해시는 문장 + 4색에서 태어난다 (팀장 기준 2026-10-10)."""
++import itertools, threading, time
++import pytest
++from core import pipeline, sentence_lock, sentence_class, store, image_first
++from core.llm import _stub_extract
++from core.kb import get_resolver
++
++A = "초여름에 엄마와 함께 수박을 먹은 기억"
++A2 = "초여름 엄마랑 같이 수박 먹었던 기억."          # 조사·어미·시제·띄어쓰기·부사 동의어만 다름
++B = "초여름에 아빠와 함께 수박을 먹은 기억"          # 사람이 다름 → 다른 문장
++C = "초여름과 가을에 수박을 먹고 배가 불렀던 기억"     # 낱말이 다름 → 다른 문장
++
++
++@pytest.fixture(autouse=True)
++def clean(monkeypatch):
++    sentence_lock._MEM.clear(); store.CACHE.clear(); image_first.IMAGE_CACHE.clear()
++    monkeypatch.setattr(sentence_lock, "ENABLED", True)
++    yield
++
++
++def _wobbly_llm(monkeypatch, calls):
++    """다시 읽을 때마다 감정 라벨이 바뀌는 LLM 대역 → 고정이 없으면 값이 흔들린다."""
++    emos = itertools.cycle([e["id"] for e in get_resolver().kb.by_axis["emotion"]])
++    def fake(masked, kb):
++        calls.append(masked); time.sleep(0.02)
++        f = _stub_extract(masked, kb); f.emotion.label = next(emos); f.emotion.phrase = ""
++        return f
++    monkeypatch.setattr(pipeline, "extract_features", fake)
++
++
++def _sig(r):
++    return r["specimen_hash"], [(p["hex"], p["color_name"], tuple(p["lch"])) for p in r["palette"]]
++
++
++def test_content_tokens_define_same_class():
++    t = sentence_class.content_tokens
++    assert t(A) == t(A2)
++    assert t(A) != t(B) and t(A) != t(C)
++    assert t("수박을 먹은 기억") != t("수박을 먹지 않은 기억")              # 부정은 남긴다
++    assert t("수박을 먹지 않은 기억") == t("수박을 안 먹은 기억")           # 부정 표현 두 가지는 같다
++
++
++def test_same_class_sentence_gets_same_specimen(monkeypatch):
++    calls = []; _wobbly_llm(monkeypatch, calls)
++    a = pipeline.analyze(A, cache=store.CACHE)
++    store.CACHE.clear()                                                    # 재시작과 같은 조건
++    b = pipeline.analyze(A2, cache=store.CACHE)
++    assert _sig(a) == _sig(b) and b["lock_hit"] and b["lock_via"] == "class"
++    assert len(calls) == 1                                                 # 두 번째는 LLM 0회
++    c = pipeline.analyze(A2, cache=store.CACHE)                            # 이제는 정확한 문장 키로 바로
++    assert c["lock_via"] == "sentence" and _sig(c) == _sig(a)
++
++
++def test_different_class_gets_its_own_specimen(monkeypatch):
++    calls = []; _wobbly_llm(monkeypatch, calls)
++    a, b = pipeline.analyze(A, cache=store.CACHE), pipeline.analyze(B, cache=store.CACHE)
++    assert a["sentence_class"] != b["sentence_class"] and a["specimen_hash"] != b["specimen_hash"]
++    assert len(calls) == 2
++
++
++def test_hash_is_born_from_sentence_and_colors():
++    r = pipeline.analyze(A, cache=store.CACHE)
++    assert r["specimen_hash"] == sentence_lock.content_hash(r["hash_of"], r["palette"])
++    payload = sentence_lock.get(r["sentence_class"])
++    assert sentence_lock.verify_hash(payload)
++    tampered = {**payload, "palette": [dict(payload["palette"][0], hex="#000000"), *payload["palette"][1:]]}
++    assert not sentence_lock.verify_hash(tampered)                         # HEX 하나만 바뀌어도 해시가 맞지 않는다
++    renamed = {**payload, "palette": [dict(payload["palette"][0], color_name="다른 이름"), *payload["palette"][1:]]}
++    assert not sentence_lock.verify_hash(renamed)                          # 색 이름도 해시의 재료
++
++
++def test_class_equal_sentences_at_the_same_time_compute_once(monkeypatch):
++    calls = []; _wobbly_llm(monkeypatch, calls)
++    out = []
++    ts = [threading.Thread(target=lambda s=s: out.append(pipeline.analyze(s, cache=store.CACHE))) for s in (A, A2, A, A2)]
++    [t.start() for t in ts]; [t.join() for t in ts]
++    assert len(calls) == 1 and len({repr(_sig(r)) for r in out}) == 1
++
++
++def test_without_analyzer_exact_sentence_lock_still_works(monkeypatch):
++    monkeypatch.setattr(sentence_class, "_kiwi", lambda: (None, None))
++    calls = []; _wobbly_llm(monkeypatch, calls)
++    a = pipeline.analyze(A, cache=store.CACHE); store.CACHE.clear()
++    b = pipeline.analyze(A + " ", cache=store.CACHE)
++    assert a["sentence_class"] is None and _sig(a) == _sig(b) and len(calls) == 1
++    assert a["hash_of"] == a["sentence_lock"]
+diff --git a/tests/test_sentence_lock.py b/tests/test_sentence_lock.py
+index 00ae0de..fdcc6ee 100644
+--- a/tests/test_sentence_lock.py
++++ b/tests/test_sentence_lock.py
+@@ -78,7 +78,9 @@ def test_image_first_redraw_keeps_values(monkeypatch):
+ 
+ def test_lock_keeps_no_text():
+     pipeline.analyze(S, cache=store.CACHE)
+-    (row,) = sentence_lock._MEM.values()
++    rows = list(sentence_lock._MEM.values())          # eng-2.3: 문장 키 + 문장급 키, 같은 값 2행
++    assert len(rows) == 2 and rows[0]["payload"] == rows[1]["payload"]
++    row = rows[0]
+     blob = repr(row["payload"])
+     # eng-2.2: '솜사탕'은 이제 코퍼스 사물이라 색 이름으로 표본에 나온다(수박·옥수수와 같은 설계). 그 밖의 원문 낱말은 없어야 한다.
+     assert S not in blob and "memory_summary" not in row["payload"]
+-- 
+2.43.0
+
