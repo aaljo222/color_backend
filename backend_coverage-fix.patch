@@ -1,0 +1,43 @@
+From b7670283271aa9c0ba9ae6061e0dbb5b72eb0eec Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?=EC=9D=B4=EC=9E=AC=EC=98=A4?= <aaljo2@gmail.com>
+Date: Sat, 10 Oct 2026 11:31:42 +0000
+Subject: [PATCH] =?UTF-8?q?image=5Ffirst:=20=EB=8C=80=ED=91=9C=EB=8F=84=20?=
+ =?UTF-8?q?=EC=86=8C=EC=88=98=201=EC=9E=90=EB=A6=AC=20=ED=91=9C=EC=8B=9C(7?=
+ =?UTF-8?q?9.9%=EA=B0=80=2080%=EB=A1=9C=20=EB=B3=B4=EC=9D=B4=EB=8D=98=20?=
+ =?UTF-8?q?=EB=AC=B8=EC=A0=9C)=20=C2=B7=20=EC=A7=80=EC=8B=9C=EB=AC=B8?=
+ =?UTF-8?q?=EC=9D=84=20=EB=A1=9C=EA=B7=B8=EC=97=90=20=EB=82=A8=EA=B9=80?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01MA6HLojYSgMbU3kiHDQXFK
+---
+ core/image_first.py | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/core/image_first.py b/core/image_first.py
+index 5d874c4..71edca2 100644
+--- a/core/image_first.py
++++ b/core/image_first.py
+@@ -258,7 +258,7 @@ def review(m: dict, affect) -> dict:
+     Lw = float(sum(r * c[0] for r, c in zip(m["ratios"], lch)))
+     fails, notes = [], []
+     if m["coverage"] < COVER_MIN:
+-        fails.append(f"색면을 더 단순하게(4색이 그림의 {m['coverage']*100:.0f}%만 대표, 목표 {COVER_MIN*100:.0f}%)")
++        fails.append(f"색면을 더 단순하게(4색이 그림의 {m['coverage']*100:.1f}%만 대표, 목표 {COVER_MIN*100:.0f}%)")   # .0f 면 79.9% 가 '80%만 대표, 목표 80%' 로 보였다
+     if affect is not None:
+         out = fails if AFFECT_GATE == "hard" else notes
+         lo, hi = AROUSAL_C[affect.arousal]
+@@ -302,7 +302,7 @@ def run(masked: str, summary: str, res: dict, kb, objects: list, affect, base_pa
+         img, used = paint_with_fallback(prompt, painter, seed + n - 1, base_palette)
+         m = measure(img)
+         rv = review(m, affect)
+-        tries.append({"attempt": n, "painter": used, **{k: rv[k] for k in ("ok", "fails", "notes", "chroma_w", "light_w")},
++        tries.append({"attempt": n, "painter": used, "prompt": prompt,     # 지시문도 로그에 (코퍼스 보강이 실제로 들어갔는지 확인용, 마스킹된 요약만 포함) **{k: rv[k] for k in ("ok", "fails", "notes", "chroma_w", "light_w")},
+                       "coverage": round(m["coverage"], 3)})
+         if best is None or (rv["ok"], m["coverage"]) > (best[2]["ok"], best[1]["coverage"]):
+             best = (img, m, rv)
+-- 
+2.43.0
+
