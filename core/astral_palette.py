@@ -7,7 +7,8 @@
 원칙
   · Astral 이 계산한 4색 HEX 는 바꾸지 않는다 (사주 계산값·색은 Astral 엔진이 정한다)
   · 보완색은 계산기가 정한다 (LLM 없음, 결정론): OKLCH 에서 색상 +180°, 명도는 원색에서 멀어지게, 채도는 범위 안으로
-  · 8색 사이 ΔE00 이 MIN_DE 보다 작으면 보완색의 명도를 한 칸씩 더 벌린다 (원색은 그대로)
+  · 8색 사이 ΔE00 이 MIN_DE 보다 작으면 보완색의 명도를 더 벌리고, 그래도 겹치면 색상을 ±30°·±55° 비튼다 (원색은 그대로)
+  · 조각용 무채색은 8색 중 하나와 너무 비슷하면(ΔE00 < 8) 다른 무채색으로 바꾼다
 """
 from __future__ import annotations
 
@@ -40,8 +41,8 @@ def color_name(L: float, C: float, h: float) -> str:
     tone = "아주 연한 " if L >= 0.86 else "밝은 " if L >= 0.74 else "" if L >= 0.52 else "짙은 "
     sat = "부드러운 " if C < 0.08 else "" if C < 0.12 else "선명한 "
     hue = _hue_name(h)
-    if tone == "짙은 " and hue == "하늘색":                       # '짙은 하늘색'은 어색하다 → 파랑 쪽 이름
-        hue = "파랑"
+    if tone == "짙은 " and hue == "하늘색":                       # '짙은 하늘색'은 어색하다 → 청록 쪽이면 청록, 아니면 파랑
+        hue = "청록" if h < 228 else "파랑"
     return f"{sat}{tone}{hue}".strip()
 
 
@@ -50,10 +51,10 @@ def _ok(hex_: str) -> tuple[float, float, float]:
     return o["L"], o["C"], (o["H"] or 0.0)
 
 
-def complement(hex_: str, extra: int = 0) -> dict:
-    """보완색 1개. extra = 명도를 더 벌린 횟수 (겹침 해소용)."""
+def complement(hex_: str, extra: int = 0, dh: float = 0.0) -> dict:
+    """보완색 1개. extra = 명도를 더 벌린 횟수, dh = 반대편(+180°)에서 색상을 비튼 각도 (겹침 해소용)."""
     L, C, H = _ok(hex_)
-    h2 = (H + 180.0) % 360.0
+    h2 = (H + 180.0 + dh) % 360.0
     dark = L >= 0.62
     L2 = L - (L_SHIFT_DARK + 0.06 * extra) if dark else L + (L_SHIFT_LIGHT + 0.06 * extra)
     L2 = min(L_MAX, max(L_MIN, L2))
@@ -63,22 +64,47 @@ def complement(hex_: str, extra: int = 0) -> dict:
     return {"hex": hx, "oklch": [round(L3, 4), round(C3, 4), round(h3, 2)], "name": color_name(L3, C3, h3)}
 
 
+HUE_TRIES = (0.0, 30.0, -30.0, 55.0, -55.0)    # 겹치면 반대편에서 이만큼 비틀어 본다 (명도 먼저, 그다음 색상)
+PATCH_NEUTRAL_MIN_DE = 8.0                      # 조각용 무채색이 8색 중 하나와 이보다 가까우면 다른 무채색으로
+PATCH_NEUTRALS = [NEUTRALS[0], NEUTRALS[1], {"key": "silver", "name": "은회색", "hex": "#A9A6A0"}, NEUTRALS[2]]
+
+
+def _min_de(lab, others) -> float:
+    return min((delta_e_2000(lab, o) for o in others), default=999.0)
+
+
 def build(colors: list[dict]) -> dict:
-    """Astral report['colors'] (역할 4개) → {base, complement, neutrals, min_de00}. 결정론."""
+    """Astral report['colors'] (역할 4개) → {base, complement, neutrals, patch_neutrals, min_de00}. 결정론.
+
+    보완색 고르기: 반대편 색상에서 명도를 0~3칸 벌려 보고(extra), 그래도 다른 색과 ΔE00 < MIN_DE 이면
+    색상을 ±30°, ±55° 비틀어 본다. 기준을 넘는 첫 후보를 쓰고, 끝까지 없으면 가장 멀리 떨어진 후보를 쓴다.
+    (비슷한 두 원색 — 예: 산호빛·노을빛 — 의 보완색이 똑같은 짙은 청록으로 겹치는 것을 막는다)
+    """
     base = [c for r in ROLES for c in colors if c["role"] == r]
     labs = [hex2lab(c["hex"]) for c in base]
-    comps, extras = [], [0, 0, 0, 0]
-    for i, c in enumerate(base):
-        for _ in range(4):
-            cand = complement(c["hex"], extras[i])
-            lab = hex2lab(cand["hex"])
-            others = labs + [hex2lab(x["hex"]) for x in comps]
-            if min(delta_e_2000(lab, o) for o in others) >= MIN_DE or extras[i] >= 3:
+    comps = []
+    for c in base:
+        others = labs + [hex2lab(x["hex"]) for x in comps]
+        best, best_de = None, -1.0
+        for dh in HUE_TRIES:
+            for extra in range(4):
+                cand = complement(c["hex"], extra, dh)
+                de = _min_de(hex2lab(cand["hex"]), others)
+                if de > best_de:
+                    best, best_de = cand, de
+                if de >= MIN_DE:
+                    break
+            if best_de >= MIN_DE:
                 break
-            extras[i] += 1
-        comps.append({"role": f"{c['role']} 보완", "of": c["role"], **cand})
+        comps.append({"role": f"{c['role']} 보완", "of": c["role"], **best})
     all_hex = [c["hex"] for c in base] + [c["hex"] for c in comps]
-    min_de = min(delta_e_2000(hex2lab(a), hex2lab(b)) for i, a in enumerate(all_hex) for b in all_hex[i + 1:])
+    all_lab = [hex2lab(h) for h in all_hex]
+    min_de = min(delta_e_2000(a, b) for i, a in enumerate(all_lab) for b in all_lab[i + 1:])
+    # 조각 사이사이에 넣을 무채색 3개: 8색 중 하나와 너무 비슷한 무채색(예: 백자빛 옆 지백)은 건너뛴다
+    far = [n for n in PATCH_NEUTRALS if _min_de(hex2lab(n["hex"]), all_lab) >= PATCH_NEUTRAL_MIN_DE]
+    near = sorted((n for n in PATCH_NEUTRALS if n not in far), key=lambda n: -_min_de(hex2lab(n["hex"]), all_lab))
+    patch = (far + near)[:3]                                     # 모자라면 그나마 먼 것부터
+    patch.sort(key=lambda n: -_ok(n["hex"])[0])                  # 밝은 것부터 (n0 넓은 띠 = 가장 밝은 무채색)
     return {"base": [{"role": c["role"], "name": c["name"], "hex": c["hex"].upper(), "basis": c.get("basis")} for c in base],
-            "complement": comps, "neutrals": NEUTRALS, "min_de00": round(min_de, 1),
-            "rule": "보완색 = OKLCH 색상 +180°, 명도는 원색에서 멀어지게, 채도 0.05~0.13 · 8색 ΔE00 ≥ 12 목표"}
+            "complement": comps, "neutrals": NEUTRALS, "patch_neutrals": patch, "min_de00": round(min_de, 1),
+            "rule": "보완색 = OKLCH 색상 +180°(겹치면 ±30°·±55°), 명도는 원색에서 멀어지게, 채도 0.05~0.13 · 8색 ΔE00 ≥ 12 목표"}

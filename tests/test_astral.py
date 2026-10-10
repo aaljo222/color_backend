@@ -44,3 +44,14 @@ def test_complement_is_opposite_hue_and_far_in_lightness():
 def test_palette_is_deterministic():
     cols = c.post("/api/astral/report-preview", json=P, headers=UA).json()["colors"]
     assert astral_palette.build(cols) == astral_palette.build(cols)
+
+
+def test_similar_base_colors_do_not_share_one_complement():
+    # 산호빛·노을빛처럼 비슷한 원색 둘 → 보완색이 같은 짙은 청록으로 겹치면 안 된다 (1995-03-21 여성 사례)
+    cols = [{"role": "고유색", "name": "백자빛", "hex": "#E6E2D9"}, {"role": "재능색", "name": "자줏빛", "hex": "#847391"},
+            {"role": "관계색", "name": "산호빛", "hex": "#C86E60"}, {"role": "균형색", "name": "저녁 노을빛", "hex": "#DBA09A"}]
+    pal = astral_palette.build(cols)
+    comps = [hex2lab(x["hex"]) for x in pal["complement"]]
+    assert min(delta_e_2000(a, b) for i, a in enumerate(comps) for b in comps[i + 1:]) >= astral_palette.MIN_DE
+    # 백자빛 옆에 지백(ΔE00≈3) 조각을 넣지 않는다
+    assert "지백" not in [n["name"] for n in pal["patch_neutrals"]] and len(pal["patch_neutrals"]) == 3
