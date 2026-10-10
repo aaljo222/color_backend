@@ -30,7 +30,14 @@ W, H = 720, 900
 K_CLUSTERS = int(os.getenv("IMAGE_K", "6"))
 COVER_DE = float(os.getenv("IMAGE_COVER_DE", "10"))
 CORE_FRAC = float(os.getenv("IMAGE_CORE_FRAC", "0.4"))   # 군집마다 중심에 가까운 픽셀 이 비율만으로 색을 잰다 (번진 경계 = 섞인 색 제외)
-COVER_MIN = float(os.getenv("IMAGE_COVER_MIN", "0.80"))
+# 화풍 (eng-2.4): color_field = 큰 색면이 번지는 색면추상(eng-2.0) / gestural = 붓질이 보이는 표현적 추상 (2026-10-10 레퍼런스)
+PAINT_STYLE = os.getenv("PAINT_STYLE", "gestural").lower()
+STYLES = ("color_field", "gestural")
+# 4색 대표도 기준은 화풍마다 다르다. gestural 0.55 = 레퍼런스 14점을 이 심사기로 잰 값에서 12/14 가 통과하는 선
+#   (실측 중앙값 66%, 최소 42%, 80% 이상은 4/14 — 붓질 그림은 섞인 중간색이 많아 4색이 덜 대표한다)
+COVER_MIN_BY_STYLE = {"color_field": float(os.getenv("IMAGE_COVER_MIN", "0.80")),
+                      "gestural": float(os.getenv("IMAGE_COVER_MIN_GESTURAL", "0.55"))}
+COVER_MIN = COVER_MIN_BY_STYLE["color_field"]
 MAX_ATTEMPTS = int(os.getenv("IMAGE_MAX_ATTEMPTS", "2"))
 GEMINI_IMAGE_MODEL = os.getenv("GEMINI_IMAGE_MODEL", "gemini-3.1-flash-lite-image")
 ROLES = ("dominant", "supporting", "atmospheric", "accent")
@@ -43,6 +50,16 @@ AROUSAL_C = {1: (0, 26), 2: (6, 36), 3: (12, 50), 4: (22, 70), 5: (32, 110)}
 VALENCE_L = {1: (15, 58), 2: (22, 68), 3: (32, 82), 4: (42, 92), 5: (52, 98)}
 
 IMAGE_CACHE: dict = {}        # cache_key → PIL.Image (프로세스 캐시: 같은 기억 = 같은 그림)
+
+
+def style_name() -> str:
+    return PAINT_STYLE if PAINT_STYLE in STYLES else "gestural"
+
+
+def painter_tag(painter: str, style: str | None = None) -> str:
+    """키에 들어가는 화가 이름. color_field 는 예전 키 그대로(이미 고정된 표본을 그대로 찾게), 다른 화풍은 '+화풍'."""
+    style = style or style_name()
+    return painter if style == "color_field" else f"{painter}+{style}"
 
 
 def painter_name() -> str:
@@ -62,7 +79,7 @@ def _has_genai() -> bool:
         return False
 
 
-def paint_with_fallback(prompt: str, painter: str, seed: int, base_palette: list) -> tuple:
+def paint_with_fallback(prompt: str, painter: str, seed: int, base_palette: list, style: str = "color_field") -> tuple:
     """화가 호출이 실패하면(키·패키지·네트워크) 다음 화가로: gemini → claude_scene → stub. 실제로 그린 화가를 돌려준다."""
     order = ["gemini", "claude_scene", "stub"]
     chain = order[order.index(painter):]
@@ -70,16 +87,16 @@ def paint_with_fallback(prompt: str, painter: str, seed: int, base_palette: list
         if name == "claude_scene" and not os.getenv("ANTHROPIC_API_KEY") and i > 0:
             continue
         try:
-            return paint(prompt, name, seed, base_palette), name
+            return paint(prompt, name, seed, base_palette, style), name
         except Exception as ex:
             logger.warning(f"[image_first] 화가 {name} 실패 → 다음 화가: {type(ex).__name__}: {str(ex)[:120]}")
     raise RuntimeError("모든 화가가 실패했습니다")
 
 
-def cache_key(masked_text: str, painter: str) -> str:
+def cache_key(masked_text: str, painter: str, style: str | None = None) -> str:
     """원문이 아니라 해시만 남는다. 그림이 문장 자체에 달려 있으므로 마스킹된 문장을 키에 쓴다."""
     norm = " ".join(masked_text.split())
-    model = GEMINI_IMAGE_MODEL if painter == "gemini" else painter
+    model = painter_tag(GEMINI_IMAGE_MODEL if painter == "gemini" else painter, style)
     blob = json.dumps([norm, painter, model, ENGINE_VERSION, K_CLUSTERS], ensure_ascii=False)
     return hashlib.sha256(blob.encode()).hexdigest()[:16]
 
@@ -93,7 +110,26 @@ def _words(affect) -> str:
     return f"정서: {v} · {a} (쾌 {affect.valence}/5, 각성 {affect.arousal}/5)"
 
 
-def build_prompt(summary: str, res: dict, kb, objects: list, affect, feedback: str = "", grounding: dict | None = None) -> str:
+# 화풍 설명 — 작가 이름·작품 제목은 넣지 않는다 (특징만 말로). 숫자 색값도 넣지 않는다
+STYLE_LINES = {
+    "color_field": [
+        "색면추상화(color field painting) 한 점을 그린다. 세로 4:5.",
+        "부드러운 가장자리의 큰 색면 3~6개가 겹치거나 번지는 구성. 글자·사람·사물의 형태·로고는 그리지 않는다.",
+    ],
+    "gestural": [
+        "표현적 추상화(expressive abstract painting) 한 점을 그린다. 캔버스에 아크릴, 세로 4:5.",
+        "빠르고 굵은 붓질 자국이 보이는 질감. 젖은 물감이 서로 섞이며 번지고, 붓질의 방향이 화면에 리듬을 만든다.",
+        "중심 하나에 모이지 않고 화면 전체에 색이 흩어진 구성. 작은 물감 튐·점과 짧은 붓질 악센트를 몇 군데 둔다.",
+        "글자·사람·사물의 형태·로고는 그리지 않는다. 사물은 색과 붓질로만 암시한다.",
+    ],
+}
+ENERGY = {1: "붓질은 적고 느리게, 넓은 면 위주", 2: "붓질은 부드럽고 차분하게", 3: "붓질은 보통 빠르기로",
+          4: "붓질은 경쾌하고 빠르게, 튐을 조금", 5: "붓질은 아주 활기차게, 튐과 악센트를 많이"}
+
+
+def build_prompt(summary: str, res: dict, kb, objects: list, affect, feedback: str = "", grounding: dict | None = None,
+                 style: str | None = None) -> str:
+    style = style or style_name()
     hints = []
     for axis in ("emotion", "time", "space"):
         e = kb.by_id[res[axis].kb_id]
@@ -101,14 +137,14 @@ def build_prompt(summary: str, res: dict, kb, objects: list, affect, feedback: s
             hints.append(f"- {axis}: {e.get('description', e['name'])}")
     objs = ", ".join(o.name for o in objects) or "없음"
     lines = [
-        "색면추상화(color field painting) 한 점을 그린다. 세로 4:5.",
-        "부드러운 가장자리의 큰 색면 3~6개가 겹치거나 번지는 구성. 글자·사람·사물의 형태·로고는 그리지 않는다.",
+        *STYLE_LINES[style],
         "화면 끝까지 채운다(full bleed). 액자·캔버스 테두리·흰 여백·벽·그림자를 그리지 않는다.",
         f"기억: {summary}",
         "기억의 분위기 (색 지식 KB 에서 검색):", *hints,
         *(["비슷한 장면과 그 색 (코퍼스 검색, eng-2.2):", *rag_lines] if (rag_lines := _rag_lines(grounding)) else []),
         f"기억 속 사물(형태 없이 색으로만 암시): {objs}",
         _words(affect),
+        f"붓질의 에너지: {ENERGY[affect.arousal]}" if (style == "gestural" and affect is not None) else "",
     ]
     if feedback:
         lines.append(f"수정 지시: {feedback}")
@@ -147,7 +183,18 @@ _SCENE_SCHEMA = {"type": "object", "properties": {
         "x": {"type": "number"}, "y": {"type": "number"}, "w": {"type": "number"}, "h": {"type": "number"},
         "color": {"type": "string", "description": "#RRGGBB"},
         "softness": {"type": "number", "description": "가장자리 번짐 0(선명)~1(아주 번짐)"}},
-        "required": ["kind", "x", "y", "w", "h", "color", "softness"]}}},
+        "required": ["kind", "x", "y", "w", "h", "color", "softness"]}},
+    # eng-2.4 gestural: 붓질(꺾은선 굵은 획)과 물감 튐. color_field 에서는 비워도 된다
+    "strokes": {"type": "array", "maxItems": 40, "items": {"type": "object", "properties": {
+        "points": {"type": "array", "maxItems": 6, "items": {"type": "object", "properties": {
+            "x": {"type": "number"}, "y": {"type": "number"}}, "required": ["x", "y"]}},
+        "width": {"type": "number", "description": "붓 폭, 화면 폭 대비 0.005~0.08"},
+        "color": {"type": "string", "description": "#RRGGBB"},
+        "softness": {"type": "number", "description": "0(선명)~1(번짐)"}},
+        "required": ["points", "width", "color", "softness"]}},
+    "flecks": {"type": "array", "maxItems": 40, "items": {"type": "object", "properties": {
+        "x": {"type": "number"}, "y": {"type": "number"}, "r": {"type": "number", "description": "반지름, 화면 폭 대비 0.003~0.02"},
+        "color": {"type": "string", "description": "#RRGGBB"}}, "required": ["x", "y", "r", "color"]}}},
     "required": ["background", "shapes"]}
 
 
@@ -172,22 +219,134 @@ def render_scene(scene: dict, seed: int = 0) -> Image.Image:
         soft = max(0.0, min(1.0, float(s.get("softness", 0.3))))
         mask = mask.filter(ImageFilter.GaussianBlur(4 + soft * 40))
         canvas = Image.composite(Image.new("RGB", (W, H), s["color"]), canvas, mask)
+    if scene.get("strokes"):                                                    # gestural: 바탕도 붓으로 문지른 결
+        canvas = _underpaint(canvas, seed)
+    canvas = _strokes(canvas, scene.get("strokes") or [], scene.get("flecks") or [], seed)
     rng = np.random.default_rng(seed)
     arr = np.asarray(canvas, float) + rng.normal(0, 2.5, (H, W, 3))            # 캔버스 결
     return Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(1.0))
 
 
-def _paint_claude(prompt: str, seed: int) -> Image.Image:
+def _clip01(v) -> float:
+    try:
+        return max(0.0, min(1.0, float(v)))
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def _spline(pts: list, step: float = 2.0) -> np.ndarray:
+    """꺾은점 → 부드러운 곡선 (Catmull-Rom). 붓은 꺾이지 않고 휘어 지나간다."""
+    p = np.array([pts[0], *pts, pts[-1]], float)
+    out = []
+    for i in range(1, len(p) - 2):
+        p0, p1, p2, p3 = p[i - 1], p[i], p[i + 1], p[i + 2]
+        n = max(2, int(np.linalg.norm(p2 - p1) / step))
+        t = np.linspace(0, 1, n, endpoint=False)[:, None]
+        out.append(0.5 * ((2 * p1) + (-p0 + p2) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t ** 2 + (-p0 + 3 * p1 - 3 * p2 + p3) * t ** 3))
+    out.append(p[-2][None, :])
+    return np.vstack(out)
+
+
+def _hex_rgb(h: str) -> np.ndarray:
+    return np.array([int(h[i:i + 2], 16) for i in (1, 3, 5)], float)
+
+
+def _underpaint(canvas: Image.Image, seed: int, n: int = 140) -> Image.Image:
+    """바탕 문지르기: 넓은 붓 n번을 바탕 위에 끌고 간다. 붓에 묻는 색 = 시작점의 바탕색(±명암) → 젖은 물감이 끌려가며 섞이는 결.
+    색은 바탕에서 집어 오므로 화면 구성(색면 배치)은 그대로, 매끈한 그라데이션만 붓 자국이 된다. 결정론."""
+    rng = np.random.default_rng(seed + 104729)
+    src = np.asarray(canvas.convert("RGB"), float)
+    strokes = []
+    for _ in range(n):
+        x0, y0 = rng.uniform(-0.05, 1.05), rng.uniform(-0.05, 1.05)
+        ang, length = rng.uniform(0, np.pi), rng.uniform(0.12, 0.35)
+        bend = rng.uniform(-0.25, 0.25)
+        pts = [{"x": x0 + np.cos(ang + bend * k) * length * k / 3, "y": y0 + np.sin(ang + bend * k) * length * k / 3 * 0.8}
+               for k in range(4)]
+        px = int(np.clip(x0, 0, 0.999) * W); py = int(np.clip(y0, 0, 0.999) * H)
+        c = np.clip(src[py, px] + rng.uniform(-14, 12), 0, 255).astype(int)
+        strokes.append({"points": pts, "width": rng.uniform(0.04, 0.08), "color": "#%02X%02X%02X" % tuple(c),
+                        "softness": rng.uniform(0.45, 0.8)})
+    return _strokes(canvas, strokes, [], seed + 1, limit=n)
+
+
+def _strokes(canvas: Image.Image, strokes: list, flecks: list, seed: int = 0, limit: int = 40) -> Image.Image:
+    """붓질 = 곡선을 따라 지나가는 붓털 여러 가닥. 가닥마다 밝기·투명도가 조금씩 다르고, 끝으로 갈수록 가늘어지며,
+    물감이 마르는 곳에서 끊긴다(드라이 브러시). 물감 튐은 작은 얼룩. 시드가 같으면 같은 그림(결정론).
+    잘못된 값은 버린다(검증 게이트)."""
+    rng = np.random.default_rng(seed + 7919)
+    layer = canvas.convert("RGBA"); layer.putalpha(0)       # 투명 칸의 색 = 바탕색 → 흐림 처리 때 검은 테두리가 생기지 않는다
+    d = ImageDraw.Draw(layer)
+    for s in strokes[:limit]:
+        pts = [(_clip01(p.get("x")) * W, _clip01(p.get("y")) * H) for p in (s.get("points") or [])[:6] if isinstance(p, dict)]
+        if len(pts) < 2 or not _hex_ok(s.get("color")):
+            continue
+        wpx = max(3.0, max(0.005, min(0.08, float(s.get("width") or 0.02))) * W)
+        path = _spline(pts)
+        if len(path) < 3:
+            continue
+        tang = np.gradient(path, axis=0)
+        tang /= np.linalg.norm(tang, axis=1, keepdims=True) + 1e-9
+        normal = np.stack([-tang[:, 1], tang[:, 0]], 1)
+        u = np.linspace(0, 1, len(path))
+        taper = np.clip(1.0 - 0.45 * u ** 2, 0.55, 1)                             # 끝으로 갈수록 조금 가늘게 (나뭇잎 모양이 되지 않게 약하게)
+        base = _hex_rgb(s["color"])
+        soft = _clip01(s.get("softness", 0.3))
+        n_br = int(np.clip(wpx / 2.2, 5, 22))
+        for b in range(n_br):
+            off = (b / (n_br - 1) - 0.5) * wpx
+            shade = rng.normal(0, 7)                                              # 가닥마다 아주 조금 다른 명암 (테두리처럼 보이지 않게 작게)
+            col = tuple(int(c) for c in np.clip(base + shade, 0, 255))
+            alpha = int(rng.uniform(120, 215) * (1 - 0.35 * soft))
+            bw = max(2, int(wpx / n_br * rng.uniform(2.0, 3.2)))                  # 가닥이 겹쳐 면이 되게
+            line = path + normal * (off * taper[:, None]) + rng.normal(0, 0.6, path.shape)
+            dry = rng.uniform(0.75, 1.0)                                          # 이 가닥이 끝까지 가는 비율
+            keep = u <= dry                                                       # 끝에서만 마른다 (중간 점 끊김 없음)
+            seg = []
+            for ok, q in zip(keep, line):
+                if ok:
+                    seg.append(tuple(q))
+                elif len(seg) > 1:
+                    d.line(seg, fill=col + (alpha,), width=bw, joint="curve"); seg = []
+                else:
+                    seg = []
+            if len(seg) > 1:
+                d.line(seg, fill=col + (alpha,), width=bw, joint="curve")
+    for f in flecks[:40]:
+        if not _hex_ok(f.get("color")):
+            continue
+        x, y = _clip01(f.get("x")) * W, _clip01(f.get("y")) * H
+        r = max(1.5, max(0.003, min(0.02, float(f.get("r") or 0.008))) * W)
+        col = tuple(int(c) for c in _hex_rgb(f["color"]))
+        for _ in range(3):                                                        # 한 방울 = 겹친 얼룩 몇 개
+            dx, dy, rr = rng.normal(0, r * 0.35), rng.normal(0, r * 0.35), r * rng.uniform(0.5, 1.0)
+            d.ellipse([x + dx - rr, y + dy - rr * 0.8, x + dx + rr, y + dy + rr * 0.8], fill=col + (int(rng.uniform(180, 240)),))
+    layer = layer.filter(ImageFilter.GaussianBlur(1.1))
+    return Image.alpha_composite(canvas.convert("RGBA"), layer).convert("RGB")
+
+
+_SYSTEM = {
+    "color_field": ("당신은 색면추상 화가입니다. 그림을 직접 그리는 대신 색면 구성을 JSON 으로 냅니다. "
+                    "좌표 x,y,w,h 는 화면 비율(0~1), 색은 #RRGGBB. 큰 면 3~6개, 서로 겹치고 번지게. "
+                    "기억의 분위기와 정서 등급에 맞는 색을 직접 고르십시오. 비슷한 색만 반복하지 마십시오."),
+    "gestural": ("당신은 표현적 추상화를 그리는 화가입니다. 그림을 직접 그리는 대신 구성을 JSON 으로 냅니다. "
+                 "좌표는 화면 비율(0~1), 색은 #RRGGBB. 먼저 shapes 로 화면 전체를 덮는 부드러운 바탕 색면 3~5개(softness 0.6 이상), "
+                 "그 위에 strokes 로 빠르고 굵은 붓질 15~30개(점 3~5개 꺾은선, 방향을 섞어 리듬을 만들 것), "
+                 "flecks 로 작은 물감 튐 5~20개. 중심 하나에 모으지 말고 화면 전체에 흩어지게. "
+                 "기억의 분위기와 정서 등급에 맞는 색을 직접 고르고, 바탕보다 진한 색 하나를 악센트로 몇 군데만 쓰십시오."),
+}
+
+
+def _paint_claude(prompt: str, seed: int, style: str = "color_field") -> Image.Image:
     from core.llm import structured
-    system = ("당신은 색면추상 화가입니다. 그림을 직접 그리는 대신 색면 구성을 JSON 으로 냅니다. "
-              "좌표 x,y,w,h 는 화면 비율(0~1), 색은 #RRGGBB. 큰 면 3~6개, 서로 겹치고 번지게. "
-              "기억의 분위기와 정서 등급에 맞는 색을 직접 고르십시오. 비슷한 색만 반복하지 마십시오.")
-    scene = structured(system, prompt, _SCENE_SCHEMA, max_tokens=900)
+    scene = structured(_SYSTEM.get(style, _SYSTEM["color_field"]), prompt, _SCENE_SCHEMA,
+                       max_tokens=2600 if style == "gestural" else 900)
     return render_scene(scene, seed)
 
 
-def _paint_stub(prompt: str, seed: int, base_palette: list) -> Image.Image:
-    """키 없이 도는 테스트 대역: eng-1.x 팔레트를 색상 ±30°, 채도 ×0.7~1.6 으로 흔들어 색면을 배치."""
+def _paint_stub(prompt: str, seed: int, base_palette: list, style: str = "color_field") -> Image.Image:
+    """키 없이 도는 테스트 대역: eng-1.x 팔레트를 색상 ±30°, 채도 ×0.7~1.6 으로 흔들어 색면을 배치.
+    gestural 이면 그 위에 같은 팔레트로 붓질 18개·튐 10개를 얹는다 (결정론, 품질 평가용 아님)."""
     rng = np.random.default_rng(seed)
     shapes = []
     for p in base_palette:
@@ -196,15 +355,24 @@ def _paint_stub(prompt: str, seed: int, base_palette: list) -> Image.Image:
         shapes.append({"kind": "rect" if rng.random() < 0.7 else "ellipse", "x": rng.uniform(0, .3), "y": rng.uniform(0, .75),
                        "w": rng.uniform(.6, 1), "h": rng.uniform(.18, .45) * (1.6 if p["role"] == "dominant" else 1),
                        "color": hx, "softness": rng.uniform(.2, .8)})
-    return render_scene({"background": base_palette[0]["hex"], "shapes": shapes}, seed)
+    scene = {"background": base_palette[0]["hex"], "shapes": shapes}
+    if style == "gestural":
+        hexes = [lch_to_hex_clipped((p["lch"][0], p["lch"][1] * 1.2, p["lch"][2]))[0] for p in base_palette]
+        scene["strokes"] = [{"points": [{"x": x, "y": y} for x, y in zip(np.cumsum(rng.uniform(-.12, .12, 4)) + rng.uniform(.1, .9),
+                                                                    np.cumsum(rng.uniform(-.08, .08, 4)) + rng.uniform(.1, .9))],
+                             "width": rng.uniform(.012, .05), "color": hexes[int(rng.integers(len(hexes)))],
+                             "softness": rng.uniform(.1, .5)} for _ in range(18)]
+        scene["flecks"] = [{"x": rng.uniform(0, 1), "y": rng.uniform(0, 1), "r": rng.uniform(.003, .012),
+                            "color": hexes[-1]} for _ in range(10)]
+    return render_scene(scene, seed)
 
 
-def paint(prompt: str, painter: str, seed: int, base_palette: list) -> Image.Image:
+def paint(prompt: str, painter: str, seed: int, base_palette: list, style: str = "color_field") -> Image.Image:
     if painter == "gemini":
         return _paint_gemini(prompt)
     if painter == "claude_scene":
-        return _paint_claude(prompt, seed)
-    return _paint_stub(prompt, seed, base_palette)
+        return _paint_claude(prompt, seed, style)
+    return _paint_stub(prompt, seed, base_palette, style)
 
 
 # ── ③ 측정 ───────────────────────────────────────────────────────────────
@@ -252,13 +420,14 @@ def measure(img: Image.Image, seed: int = 0) -> dict:
 
 
 # ── ④ 심사 ───────────────────────────────────────────────────────────────
-def review(m: dict, affect) -> dict:
+def review(m: dict, affect, style: str = "color_field") -> dict:
+    cover_min = COVER_MIN_BY_STYLE.get(style, COVER_MIN)
     lch = [lab2lch(c) for c in m["centers"]]
     Cw = float(sum(r * c[1] for r, c in zip(m["ratios"], lch)))
     Lw = float(sum(r * c[0] for r, c in zip(m["ratios"], lch)))
     fails, notes = [], []
-    if m["coverage"] < COVER_MIN:
-        fails.append(f"색면을 더 단순하게(4색이 그림의 {m['coverage']*100:.1f}%만 대표, 목표 {COVER_MIN*100:.0f}%)")   # .0f 면 79.9% 가 '80%만 대표, 목표 80%' 로 보였다
+    if m["coverage"] < cover_min:
+        fails.append(f"색면을 더 단순하게(4색이 그림의 {m['coverage']*100:.1f}%만 대표, 목표 {cover_min*100:.0f}%)")   # .0f 면 79.9% 가 '80%만 대표, 목표 80%' 로 보였다
     if affect is not None:
         out = fails if AFFECT_GATE == "hard" else notes
         lo, hi = AROUSAL_C[affect.arousal]
@@ -293,16 +462,18 @@ def nearest(lab, refs) -> dict:
 
 # ── 전체 ─────────────────────────────────────────────────────────────────
 def run(masked: str, summary: str, res: dict, kb, objects: list, affect, base_palette: list, grounding: dict | None = None) -> dict:
-    painter = painter_name()
-    key = cache_key(masked, painter)
+    painter, style = painter_name(), style_name()
+    key = cache_key(masked, painter, style)
     seed = int(key[:8], 16)
     fb, tries, best = "", [], None
     for n in range(1, MAX_ATTEMPTS + 1):
-        prompt = build_prompt(summary or masked[:40], res, kb, objects, affect, fb, grounding)
-        img, used = paint_with_fallback(prompt, painter, seed + n - 1, base_palette)
+        prompt = build_prompt(summary or masked[:40], res, kb, objects, affect, fb, grounding, style)
+        img, used = paint_with_fallback(prompt, painter, seed + n - 1, base_palette, style)
         m = measure(img)
-        rv = review(m, affect)
-        tries.append({"attempt": n, "painter": used, "prompt": prompt,     # 지시문도 로그에 (코퍼스 보강이 실제로 들어갔는지 확인용, 마스킹된 요약만 포함) **{k: rv[k] for k in ("ok", "fails", "notes", "chroma_w", "light_w")},
+        rv = review(m, affect, style)
+        # 지시문도 로그에 남긴다 (코퍼스 보강·화풍이 실제로 들어갔는지 확인용, 마스킹된 요약만 포함)
+        tries.append({"attempt": n, "painter": used, "style": style, "prompt": prompt,
+                      **{k: rv[k] for k in ("ok", "fails", "notes", "chroma_w", "light_w")},
                       "coverage": round(m["coverage"], 3)})
         if best is None or (rv["ok"], m["coverage"]) > (best[2]["ok"], best[1]["coverage"]):
             best = (img, m, rv)
@@ -325,8 +496,8 @@ def run(masked: str, summary: str, res: dict, kb, objects: list, affect, base_pa
     verification = {"status": "PASS" if rv["ok"] else "FAIL", "max_de00": round(m["de_p90"], 2),
                     "max_ratio_err": 0.0, "attempts": len(tries), "renderer": f"image:{tries[-1]['painter']}",
                     "coverage": round(m["coverage"], 3), "review": rv,
-                    "criteria": {"cover_de00": COVER_DE, "cover_min": COVER_MIN,
+                    "criteria": {"cover_de00": COVER_DE, "cover_min": COVER_MIN_BY_STYLE[style], "style": style,
                                  "arousal_c": AROUSAL_C.get(affect.arousal) if affect else None,
                                  "valence_l": VALENCE_L.get(affect.valence) if affect else None}}
     return {"palette": palette, "cache_key": key, "image": img, "verification": verification,
-            "tries": tries, "painter": painter}
+            "tries": tries, "painter": painter, "style": style}

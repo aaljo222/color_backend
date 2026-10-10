@@ -63,9 +63,15 @@ def analyze(text: str, generator: Optional[ImageGenerator] = None, cache: Option
     if rag is not None:                                 # 코퍼스 사물 이름(참외·솜사탕…)도 이름으로 오인해 가리면 안 된다
         protect |= set(rag.corpus.object_names())
     masked, mask_stats = mask(text, protect=protect)
+    legacy = []                                          # 화풍을 바꾸기 전(color_field)에 이미 고정된 표본을 찾는 키 (eng-2.4)
     if engine == "image_first":
         ev, painter = image_first.ENGINE_VERSION, image_first.painter_name()
         painter = image_first.GEMINI_IMAGE_MODEL if painter == "gemini" else painter
+        tag = image_first.painter_tag(painter)
+        if tag != painter:
+            legacy = [k for k in (sentence_lock.key(masked, engine, ev, painter, kb.version),
+                                  sentence_lock.class_key(masked, engine, ev, painter, kb.version)) if k]
+        painter = tag
     else:
         ev, painter = ENGINE_VERSION, "code"
     lk = sentence_lock.key(masked, engine, ev, painter, kb.version)            # 정확히 같은 문장 (문장부호·공백 무시)
@@ -79,6 +85,14 @@ def analyze(text: str, generator: Optional[ImageGenerator] = None, cache: Option
             locked, via = sentence_lock.get(ck), "class"
             if locked is not None:                      # 문장급으로 찾았다 → 이 문장 키에도 같은 값을 고정 (다음엔 바로 찾게)
                 locked = sentence_lock.put_if_absent(lk, locked, None)
+        for old in legacy:                              # 화풍 바뀌기 전에 고정된 같은 문장 → 그 값을 그대로 (같은 문장 = 같은 값)
+            if locked is not None:
+                break
+            locked = sentence_lock.get(old)
+            if locked is not None:
+                via = "legacy"
+                legacy_img = sentence_lock.image(old)
+                locked = sentence_lock.put_if_absent(lk, locked, sentence_lock._png(legacy_img))
         if locked is None:
             out = _with_hash(_compute(masked, mask_stats, resolver, kb, engine, generator, cache), hk)
             png = sentence_lock._png(out.get("_image"))
@@ -118,7 +132,7 @@ def _compute(masked, mask_stats, resolver, kb, engine, generator, cache) -> dict
     grounding = rag.ground(res, objs, aff) if rag is not None else None   # 이 표본에 쓰인 문단·연구만 (결정론)
     version, extra = ENGINE_VERSION, {}
     if engine == "image_first":
-        key = image_first.cache_key(masked, image_first.painter_name())
+        key = image_first.cache_key(masked, image_first.painter_name(), image_first.style_name())
     else:
         key = syn["cache_key"]
     if cache is not None and key in cache:
@@ -131,7 +145,7 @@ def _compute(masked, mask_stats, resolver, kb, engine, generator, cache) -> dict
         syn = {**syn, "palette": out["palette"]}
         img, ver = out["image"], {**out["verification"], "rows": []}
         version = image_first.ENGINE_VERSION
-        extra = {"image_tries": out["tries"], "painter": out["painter"]}
+        extra = {"image_tries": out["tries"], "painter": out["painter"], "paint_style": out["style"]}
     else:
         img, ver = generate_with_verification(syn["palette"], key, generator)
     out = {
