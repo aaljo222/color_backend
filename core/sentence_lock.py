@@ -13,6 +13,13 @@
 개인정보
   원문은 저장하지 않는다(키는 해시). LLM 요약(memory_summary)은 기본으로 저장하지 않는다 — LOCK_KEEP_SUMMARY=1 일 때만.
 끄기: SENTENCE_LOCK=0
+
+eng-2.3 (2026-10-10 팀장 피드백 "같은 문장급이면 흔들리지 않게 · 문장·헥스·색상·색상명이 하나의 hash 를 탄생")
+  ① 문장급 키 = sha256( 내용 형태소 모음(core/sentence_class) · 엔진·버전·화가·KB · 분석기 버전 )
+     조회 순서: 정확한 문장 키 → 문장급 키 → 없으면 계산. 계산하면 두 키 모두에 같은 값을 고정한다.
+  ② 표본 해시 = sha256( 문장급 키(없으면 문장 키) · 4색의 역할·HEX·LCh·색 이름·면적비 )
+     해시가 '문장 + 값'에서 태어난다 → 행 하나(키·payload)만 있으면 누구나 다시 계산해 위변조를 확인할 수 있다 (verify_hash)
+     이미 고정된 예전 표본은 저장된 해시를 그대로 쓴다 (바꾸지 않는다)
 """
 from __future__ import annotations
 import hashlib, io, json, logging, os, re, threading
@@ -40,6 +47,38 @@ def key(masked_text: str, engine: str, engine_version: str, painter: str, kb_ver
     return hashlib.sha256(blob.encode()).hexdigest()[:24]
 
 
+HASH_VERSION = "hash-2"
+
+
+def class_key(masked_text: str, engine: str, engine_version: str, painter: str, kb_version: str) -> Optional[str]:
+    """같은 문장급 키. 형태소 분석기가 없거나 내용 형태소가 비면 None (정확한 문장 키만 쓴다)."""
+    from core import sentence_class
+    toks = sentence_class.content_tokens(masked_text)
+    if not toks:
+        return None
+    blob = json.dumps(["class", toks, engine, engine_version, painter, kb_version, sentence_class.analyzer(), LOCK_VERSION],
+                      ensure_ascii=False)
+    return "c" + hashlib.sha256(blob.encode()).hexdigest()[:23]
+
+
+def hash_material(sentence_key: str, palette: list) -> list:
+    """해시가 태어나는 재료: 문장 키 + 4색 (역할·HEX·LCh 소수 1자리·색 이름·면적비). 그 밖의 값(근거·검증)은 넣지 않는다."""
+    return [HASH_VERSION, sentence_key,
+            [[p["role"], p["hex"].upper(), [round(float(x), 1) for x in p.get("lch", [])], p.get("color_name", ""),
+              round(float(p.get("area_ratio", 0)), 3)] for p in palette]]
+
+
+def content_hash(sentence_key: str, palette: list) -> str:
+    blob = json.dumps(hash_material(sentence_key, palette), ensure_ascii=False, separators=(",", ":"))
+    return "MaC-" + hashlib.sha256(blob.encode()).hexdigest()[:12]
+
+
+def verify_hash(payload: dict) -> bool:
+    """고정 행이 위변조되지 않았는지: payload 의 hash_of(문장 키)와 4색으로 해시를 다시 계산해 비교."""
+    k = payload.get("hash_of")
+    return bool(k) and content_hash(k, payload.get("palette") or []) == payload.get("specimen_hash")
+
+
 def guard(k: str) -> threading.Lock:
     with _GUARDS_LOCK:
         return _GUARDS.setdefault(k, threading.Lock())
@@ -53,7 +92,7 @@ def _sb():
 def payload_of(result: dict) -> dict:
     """고정할 값만 고른다 (그림·로그·원문 제외)."""
     keep = ("specimen_hash", "cache_key", "kb_version", "engine_version", "palette", "affect", "verification",
-            "grounding")                          # eng-2.2: 어느 코퍼스 문단·연구로 계산했는지도 같이 고정 (원문 없음)
+            "grounding", "hash_of")               # eng-2.2: 어느 코퍼스 문단·연구로 계산했는지도 같이 고정 (원문 없음)
     p = {k: result[k] for k in keep if k in result}
     if KEEP_SUMMARY:
         p["memory_summary"] = result.get("memory_summary", "")

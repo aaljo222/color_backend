@@ -15,3 +15,4 @@ scipy>=1.11
 scikit-learn>=1.4
 pillow>=10.0
 cryptography>=42.0
+kiwipiepy==0.24.0     # eng-2.3 '같은 문장급' 형태소 분석 (모델 ~105MB, 메모리 ~300MB). 버전을 고정한다 — 바뀌면 문장급 키가 바뀐다

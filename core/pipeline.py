@@ -63,26 +63,44 @@ def analyze(text: str, generator: Optional[ImageGenerator] = None, cache: Option
     if rag is not None:                                 # 코퍼스 사물 이름(참외·솜사탕…)도 이름으로 오인해 가리면 안 된다
         protect |= set(rag.corpus.object_names())
     masked, mask_stats = mask(text, protect=protect)
-    if not sentence_lock.ENABLED:
-        return _compute(masked, mask_stats, resolver, kb, engine, generator, cache)
     if engine == "image_first":
         ev, painter = image_first.ENGINE_VERSION, image_first.painter_name()
         painter = image_first.GEMINI_IMAGE_MODEL if painter == "gemini" else painter
     else:
         ev, painter = ENGINE_VERSION, "code"
-    lk = sentence_lock.key(masked, engine, ev, painter, kb.version)
-    with sentence_lock.guard(lk):                       # 같은 서버의 동시 요청은 줄을 세운다 → 한 번만 계산
-        locked = sentence_lock.get(lk)
+    lk = sentence_lock.key(masked, engine, ev, painter, kb.version)            # 정확히 같은 문장 (문장부호·공백 무시)
+    ck = sentence_lock.class_key(masked, engine, ev, painter, kb.version)      # 같은 문장급 (조사·어미·시제·어순 무시, eng-2.3)
+    hk = ck or lk                                                              # 해시가 태어나는 문장 키
+    if not sentence_lock.ENABLED:
+        return _with_hash(_compute(masked, mask_stats, resolver, kb, engine, generator, cache), hk)
+    with sentence_lock.guard(hk):                       # 같은 문장급의 동시 요청은 줄을 세운다 → 한 번만 계산
+        locked, via = sentence_lock.get(lk), "sentence"
+        if locked is None and ck:
+            locked, via = sentence_lock.get(ck), "class"
+            if locked is not None:                      # 문장급으로 찾았다 → 이 문장 키에도 같은 값을 고정 (다음엔 바로 찾게)
+                locked = sentence_lock.put_if_absent(lk, locked, None)
         if locked is None:
-            out = _compute(masked, mask_stats, resolver, kb, engine, generator, cache)
-            won = sentence_lock.put_if_absent(lk, sentence_lock.payload_of(out), sentence_lock._png(out.get("_image")))
+            out = _with_hash(_compute(masked, mask_stats, resolver, kb, engine, generator, cache), hk)
+            png = sentence_lock._png(out.get("_image"))
+            first = ck or lk
+            won = sentence_lock.put_if_absent(first, sentence_lock.payload_of(out), png)   # 문장급 키가 먼저 → 같은 급 문장은 이 값을 따른다
+            if ck:
+                won = sentence_lock.put_if_absent(lk, won, png if won.get("palette") == out["palette"] else None)
             if won.get("specimen_hash") == out["specimen_hash"] and won.get("palette") == out["palette"]:
-                return {**out, "sentence_lock": lk, "lock_hit": False}
-            locked = won                                # 다른 서버가 먼저 고정했다 → 그 값을 따른다
-    hit = {**locked, "sentence_lock": lk, "lock_hit": True, "cache_hit": True, "pii_masked": mask_stats,
-           "llm_mode": llm_mode(), "memory_summary": locked.get("memory_summary", "")}
-    hit["_image"] = image_first.IMAGE_CACHE.get(locked.get("cache_key")) or sentence_lock.image(lk)   # 없으면 라우터가 고정 팔레트로 코드 그림 (값은 그대로)
+                return {**out, "sentence_lock": lk, "sentence_class": ck, "lock_hit": False}
+            locked, via = won, "race"                   # 다른 서버가 먼저 고정했다 → 그 값을 따른다
+    hit = {**locked, "sentence_lock": lk, "sentence_class": ck, "lock_hit": True, "lock_via": via, "cache_hit": True,
+           "pii_masked": mask_stats, "llm_mode": llm_mode(), "memory_summary": locked.get("memory_summary", "")}
+    hit["_image"] = (image_first.IMAGE_CACHE.get(locked.get("cache_key")) or sentence_lock.image(lk)
+                     or (sentence_lock.image(ck) if ck else None))   # 없으면 라우터가 고정 팔레트로 코드 그림 (값은 그대로)
     return hit
+
+
+def _with_hash(out: dict, sentence_key: str) -> dict:
+    """표본 해시 = 문장 키 + 4색(역할·HEX·LCh·이름·면적비)에서 태어난다 (eng-2.3). 캐시 적중 결과에도 같은 식."""
+    out["specimen_hash"] = sentence_lock.content_hash(sentence_key, out["palette"])
+    out["hash_of"] = sentence_key
+    return out
 
 
 def _compute(masked, mask_stats, resolver, kb, engine, generator, cache) -> dict:

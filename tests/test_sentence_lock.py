@@ -78,7 +78,9 @@ def test_image_first_redraw_keeps_values(monkeypatch):
 
 def test_lock_keeps_no_text():
     pipeline.analyze(S, cache=store.CACHE)
-    (row,) = sentence_lock._MEM.values()
+    rows = list(sentence_lock._MEM.values())          # eng-2.3: 문장 키 + 문장급 키, 같은 값 2행
+    assert len(rows) == 2 and rows[0]["payload"] == rows[1]["payload"]
+    row = rows[0]
     blob = repr(row["payload"])
     # eng-2.2: '솜사탕'은 이제 코퍼스 사물이라 색 이름으로 표본에 나온다(수박·옥수수와 같은 설계). 그 밖의 원문 낱말은 없어야 한다.
     assert S not in blob and "memory_summary" not in row["payload"]
