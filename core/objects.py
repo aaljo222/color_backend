@@ -5,6 +5,7 @@ eng-1.1 은 사물 색을 강조색에 쓴다. 단, LLM은 여전히 숫자 색�
 
   LLM  → 사물마다 '등급'만 (색상 계열 13개 · 밝기 1~9 · 채도 0~5)   ← Color Oracle 과 같은 등급 체계
   사전 → 이미 아는 사물이면 LLM 등급을 버리고 사전 등급 (같은 낱말 = 같은 색)
+  코퍼스 → 사전에 없으면 data/corpus/objects.jsonl 의 등급 (eng-2.2). 코퍼스 등급은 사전에 적지 않는다(초안이 고쳐질 수 있다)
   계산 → 등급 → OKLCH 표 → HEX → CIE LCh  (oracle.color_abstraction / oracle.color_oracle, 결정론)
 
 사전은 Color Oracle 과 같은 color_lexicon 을 쓴다 (Supabase, 없으면 메모리 + lexicon_seed.json).
@@ -27,7 +28,7 @@ class ObjectColor:
     name: str                       # 문장 속 사물 이름 (예: 수박)
     descriptor: tuple               # (hue, lightness, chroma) 등급
     lch: tuple                      # CIE LCh (synth 와 같은 공간)
-    how: str                        # lexicon | grade
+    how: str                        # lexicon | corpus | grade
 
 
 def _key(name: str) -> str:
@@ -62,6 +63,16 @@ def descriptor_to_lch(d: dict) -> tuple:
     return (round(l, 2), round(c, 2), round(h, 2))
 
 
+def _corpus_object(name: str):
+    try:
+        from core.rag import get_rag
+        rag = get_rag()
+        return rag.object_of(name) if rag is not None else None
+    except Exception as ex:
+        logger.warning(f"[objects] 코퍼스 조회 실패: {type(ex).__name__}")
+        return None
+
+
 def resolve_objects(objects: list, lexicon: Optional[dict] = None, learn: bool = True) -> list[ObjectColor]:
     """LLM 이 낸 사물 목록 → 색. 이름이 비었거나 등급이 범위 밖이고 사전에도 없으면 버린다(검증 게이트)."""
     lex = lexicon if lexicon is not None else _lexicon()
@@ -75,9 +86,13 @@ def resolve_objects(objects: list, lexicon: Optional[dict] = None, learn: bool =
         k = _key(name)
         if not k or k in seen:
             continue
+        cp = _corpus_object(name) if k not in lex else None
         if k in lex:                                           # 사전 우선
             d = {x: lex[k][x] for x in ("hue", "lightness", "chroma")}
             how = "lexicon"
+        elif cp is not None:                                   # 다음은 코퍼스 (모델 등급보다 우선 → 같은 낱말 = 같은 색)
+            d = {x: cp[x] for x in ("hue", "lightness", "chroma")}
+            how = "corpus"
         else:
             d = ca.validate_descriptor(o)
             if d is None:

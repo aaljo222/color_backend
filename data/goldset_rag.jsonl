@@ -1,0 +1,43 @@
+{"axis": "emotion", "phrase": "엄마 품처럼 아늑했던", "expected": "warm_nostalgia"}
+{"axis": "emotion", "phrase": "온 가족이 모여 정다웠던", "expected": "warm_nostalgia"}
+{"axis": "emotion", "phrase": "어릴 때 생각나서 뭉클한", "expected": "warm_nostalgia"}
+{"axis": "emotion", "phrase": "너무 들떠서 잠도 안 오던", "expected": "joy_excitement"}
+{"axis": "emotion", "phrase": "기뻐서 펄쩍펄쩍 뛰던", "expected": "joy_excitement"}
+{"axis": "emotion", "phrase": "한가롭고 느긋하던", "expected": "calm_peace"}
+{"axis": "emotion", "phrase": "숨 돌리며 쉬던 차분한", "expected": "calm_peace"}
+{"axis": "emotion", "phrase": "아버지가 지켜 줘서 안심되던", "expected": "stability_affection"}
+{"axis": "emotion", "phrase": "믿고 기댈 수 있던", "expected": "stability_affection"}
+{"axis": "emotion", "phrase": "다시 못 볼 사람이라 먹먹한", "expected": "longing_melancholy"}
+{"axis": "emotion", "phrase": "떠나보내고 허전했던", "expected": "longing_melancholy"}
+{"axis": "emotion", "phrase": "홀로 밤새 책에 빠져 있던", "expected": "quiet_solitude"}
+{"axis": "emotion", "phrase": "분노로 손이 떨리던", "expected": null}
+{"axis": "emotion", "phrase": "시험지를 받아 든 긴장", "expected": null}
+{"axis": "time", "phrase": "해가 머리 위에 있던 한낮", "expected": "afternoon"}
+{"axis": "time", "phrase": "볕이 쨍쨍하던 두 시쯤", "expected": "afternoon"}
+{"axis": "time", "phrase": "하늘이 붉게 타던 해 질 녘", "expected": "sunset"}
+{"axis": "time", "phrase": "해 떨어지기 직전", "expected": "sunset"}
+{"axis": "time", "phrase": "다들 잠든 한밤중", "expected": "night"}
+{"axis": "time", "phrase": "별 보며 걷던 깜깜한 때", "expected": "night"}
+{"axis": "time", "phrase": "동이 트던 무렵", "expected": "morning"}
+{"axis": "time", "phrase": "눈 비비며 일어난 이른 시각", "expected": "morning"}
+{"axis": "time", "phrase": "손이 시리던 한겨울", "expected": "winter"}
+{"axis": "time", "phrase": "세상이 하얗게 덮인 날", "expected": "winter"}
+{"axis": "time", "phrase": "벚꽃 지고 초록이 짙어지던 오월 말", "expected": null}
+{"axis": "space", "phrase": "관람차가 돌던 유원지", "expected": "amusement_park"}
+{"axis": "space", "phrase": "퍼레이드 보던 테마 공원", "expected": "amusement_park"}
+{"axis": "space", "phrase": "수평선 보이던 해수욕장", "expected": "sea"}
+{"axis": "space", "phrase": "배가 들어오던 포구", "expected": "sea"}
+{"axis": "space", "phrase": "전봇대 늘어선 오르막 길목", "expected": "alley"}
+{"axis": "space", "phrase": "낡은 대문 늘어선 좁은 길", "expected": "alley"}
+{"axis": "space", "phrase": "빗방울 맺힌 유리창 앞", "expected": "rain_window"}
+{"axis": "space", "phrase": "장대비 쏟아지던 정자 아래", "expected": "rain_window"}
+{"axis": "space", "phrase": "닭 키우던 큰댁", "expected": "grandma_house"}
+{"axis": "space", "phrase": "감나무 서 있던 시골 마당", "expected": "grandma_house"}
+{"axis": "space", "phrase": "분필 가루 날리던 반", "expected": "school"}
+{"axis": "space", "phrase": "시험 끝난 강당", "expected": "school"}
+{"axis": "space", "phrase": "진달래 흐드러진 언덕", "expected": "flower_road"}
+{"axis": "space", "phrase": "공항 출국장", "expected": null}
+{"axis": "space", "phrase": "병원 대기실", "expected": null}
+{"axis": "quality", "phrase": "한 장면도 안 잊힌", "expected": "vivid"}
+{"axis": "quality", "phrase": "안개처럼 뿌연", "expected": "faded"}
+{"axis": "quality", "phrase": "꺼내 보면 미소 나는", "expected": "cherished"}

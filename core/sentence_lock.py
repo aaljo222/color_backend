@@ -52,7 +52,8 @@ def _sb():
 
 def payload_of(result: dict) -> dict:
     """고정할 값만 고른다 (그림·로그·원문 제외)."""
-    keep = ("specimen_hash", "cache_key", "kb_version", "engine_version", "palette", "affect", "verification")
+    keep = ("specimen_hash", "cache_key", "kb_version", "engine_version", "palette", "affect", "verification",
+            "grounding")                          # eng-2.2: 어느 코퍼스 문단·연구로 계산했는지도 같이 고정 (원문 없음)
     p = {k: result[k] for k in keep if k in result}
     if KEEP_SUMMARY:
         p["memory_summary"] = result.get("memory_summary", "")

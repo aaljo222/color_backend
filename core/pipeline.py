@@ -3,6 +3,9 @@
 ENGINE_MODE (요청마다 engine 으로 바꿀 수 있음)
   palette     (eng-1.2) 마스킹 → 특징 추출 → KB 해석 + 사물 등급 + 정서 등급 → LCh 합성 → 그림 → 검증
   image_first (eng-2.0) 마스킹 → 특징 추출 → KB 해석(프롬프트 보강) → 그림 → 그림에서 HEX 측정 → 심사
+코퍼스 RAG (eng-2.2, core/rag.py — CORPUS_RAG=0 이면 끔)
+  KB 해석에 '코퍼스 장면 문단' 단계 · 사전에 없는 사물은 코퍼스 등급 · 그림 지시문에 장면 묘사
+  · 응답 grounding(쓰인 문단과 적용 규칙의 연구 인용)
 """
 from __future__ import annotations
 import os, logging
@@ -18,6 +21,7 @@ from core.render import render_color_field
 from core.verify import verify, feedback
 from core import image_first
 from core import sentence_lock
+from core.rag import get_rag
 
 logger = logging.getLogger("uvicorn")
 MAX_ATTEMPTS = int(os.getenv("VERIFY_MAX_ATTEMPTS", "3"))
@@ -55,6 +59,9 @@ def analyze(text: str, generator: Optional[ImageGenerator] = None, cache: Option
         protect |= set(_lexicon())
     except Exception:
         pass
+    rag = get_rag()
+    if rag is not None:                                 # 코퍼스 사물 이름(참외·솜사탕…)도 이름으로 오인해 가리면 안 된다
+        protect |= set(rag.corpus.object_names())
     masked, mask_stats = mask(text, protect=protect)
     if not sentence_lock.ENABLED:
         return _compute(masked, mask_stats, resolver, kb, engine, generator, cache)
@@ -89,6 +96,8 @@ def _compute(masked, mask_stats, resolver, kb, engine, generator, cache) -> dict
     objs = resolve_objects(feats.objects)               # 사물 → 등급 → 색 (사전 우선, 결정론)
     aff = compute_affect(feats.affect, kb.by_id[res["emotion"].kb_id])   # 쾌·각성 등급 → 채도 배율·명도 변화 (결정론)
     syn = synthesize(res, kb, objs, aff)
+    rag = get_rag()
+    grounding = rag.ground(res, objs, aff) if rag is not None else None   # 이 표본에 쓰인 문단·연구만 (결정론)
     version, extra = ENGINE_VERSION, {}
     if engine == "image_first":
         key = image_first.cache_key(masked, image_first.painter_name())
@@ -100,7 +109,7 @@ def _compute(masked, mask_stats, resolver, kb, engine, generator, cache) -> dict
             hit["_image"] = image_first.IMAGE_CACHE[key]          # 그림 먼저: 같은 기억 = 같은 그림
         return hit
     if engine == "image_first":
-        out = image_first.run(masked, feats.memory_summary, res, kb, objs, aff, syn["palette"])
+        out = image_first.run(masked, feats.memory_summary, res, kb, objs, aff, syn["palette"], grounding)
         syn = {**syn, "palette": out["palette"]}
         img, ver = out["image"], {**out["verification"], "rows": []}
         version = image_first.ENGINE_VERSION
@@ -118,10 +127,13 @@ def _compute(masked, mask_stats, resolver, kb, engine, generator, cache) -> dict
         "affect": syn["affect"],
         "verification": {k: ver[k] for k in ("status", "max_de00", "max_ratio_err", "attempts", "renderer", "criteria",
                                              "coverage", "review") if k in ver},
+        "grounding": grounding,
         "pii_masked": mask_stats,
         "cache_hit": False,
         "_image": img,                        # 라우터가 저장 후 제거
-        "_log": {"features": {**feats.model_dump(), "resolved_objects": [[o.name, *o.descriptor, o.how] for o in objs], **extra},
+        "_log": {"features": {**feats.model_dump(), "resolved_objects": [[o.name, *o.descriptor, o.how] for o in objs],
+                              "resolved_axes": {a: [r.kb_id, r.how, r.score, r.ref] for a, r in res.items()},
+                              "corpus_version": grounding["corpus_version"] if grounding else None, **extra},
                  "verify_rows": ver["rows"], "masked_text_len": len(masked)},   # 키 = generation_logs 열 이름 (새 열 추가 금지)
     }
     if cache is not None:

@@ -80,7 +80,9 @@ def test_lock_keeps_no_text():
     pipeline.analyze(S, cache=store.CACHE)
     (row,) = sentence_lock._MEM.values()
     blob = repr(row["payload"])
-    assert "솜사탕" not in blob and "memory_summary" not in row["payload"]
+    # eng-2.2: '솜사탕'은 이제 코퍼스 사물이라 색 이름으로 표본에 나온다(수박·옥수수와 같은 설계). 그 밖의 원문 낱말은 없어야 한다.
+    assert S not in blob and "memory_summary" not in row["payload"]
+    assert all(w not in blob for w in ("바쁜", "웃던"))          # 근거의 코퍼스 문단 글자는 원문이 아니다 (예: 코퍼스 "점심 먹고…")
 
 
 def test_different_sentence_different_lock():

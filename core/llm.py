@@ -148,6 +148,12 @@ def _stub_extract(text: str, kb) -> Features:
     try:                                              # 사전에 있는 사물 낱말이 문장에 나오면 그 순서대로 (최대 3개)
         from core.objects import _lexicon
         found = sorted((text.find(w), w) for w in _lexicon() if len(w) >= 2 and text.find(w) >= 0)
+        from core.rag import get_rag                   # eng-2.2: 사전에 없는 사물은 코퍼스 사물 이름에서도 찾는다
+        rag = get_rag()
+        if rag is not None:
+            have = {w for _, w in found}
+            found = sorted(found + [(text.find(w), w) for w in rag.objects_in(text, limit=3)
+                                    if w not in have and not any(w in h or h in w for h in have)])
         objs = [{"name": w} for _, w in found[:3]]
     except Exception:
         objs = []

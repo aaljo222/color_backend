@@ -14,7 +14,7 @@ MaC(Memory & Color) 백엔드 레퍼런스 구현. 멘토링 기술백서 v1.0�
 | F2 기준표에 숫자 없음 | `data/color_kb.json` 항목마다 `lch`·`accent_lch`·`modifiers` |
 | F3 합성식 | `core/synth.py` 보정식(명도 대비·채도 배율·색상각 조화·색역 클리핑) |
 | F4 스키마 2개 | 단일 응답 스키마(아래). 면적비는 상수 |
-| F5 RAG 아님 | `core/kb.py` Resolver + 검색기 3종(ngram / embedding / supabase pgvector) |
+| F5 RAG 아님 | `core/kb.py` Resolver + 검색기 3종(ngram / embedding / supabase pgvector) · **eng-2.2 코퍼스 RAG** `core/corpus.py`·`core/rag.py` (`data/corpus/`) |
 | F6 재현성 | `cache_key = hash(KB id 조합, KB 버전, 엔진 버전)` |
 | F7 자기보고 confidence | `basis`(해석 경로·점수) + `verification`(측정 ΔE00)으로 대체 |
 
@@ -26,6 +26,7 @@ cp .env.example .env            # 값은 비워 둬도 됨 → stub LLM + ngram 
 uvicorn main:app --reload --port 8000
 python -m pytest -q             # 20개 테스트 (MaC 14 + Color Oracle 6)
 python scripts/eval_tau.py      # 골드셋으로 검색 임계값 τ 평가
+python scripts/eval_rag.py --sweep   # 코퍼스 RAG: KB만 vs 코퍼스 정답률, τc 정하기 (eng-2.2)
 ```
 
 > UA 차단이 켜져 있어 `curl` 기본 User-Agent 는 403 이다. 개발 중엔 `-H 'User-Agent: Mozilla/5.0 dev'` 를 붙이거나 `UA_BLOCK=0`.
@@ -85,12 +86,17 @@ core/  color.py         sRGB↔Lab↔LCh, CIEDE2000, 색역 클리핑
 prompts/feature_prompt.py   색을 묻지 않는 특징 추출 프롬프트
 data/color_kb.json      데모 KB (수치는 예시값 · status=demo)
 data/goldset.jsonl      τ 평가용 골드셋 (팀이 계속 추가)
+data/corpus/            코퍼스 (eng-2.2): scenes.jsonl 장면 문단→KB 항목 · objects.jsonl 사물 등급 · research.jsonl 연구 근거
+data/goldset_rag.jsonl  코퍼스 RAG 평가용 추가 골드셋 (작성자 편향 있음 — 사용자 문장으로 교체할 것)
+core/corpus.py · rag.py 코퍼스 로드·검증 / 검색(ngram·임베딩)·근거 묶음(grounding)
 sql/schema.sql          테이블·RLS·pgvector·크레딧 RPC
 scripts/                eval_tau.py · build_kb_embeddings.py · migrate_association.py
 examples/frontend_fetch.js  MaC.html 에서 호출하는 예
 ```
 
 ## 팀이 채워야 할 것 (데모와 실서비스의 차이)
+
+- **코퍼스 초안 검토 (eng-2.2)** — `data/corpus/scenes.jsonl`·`objects.jsonl` 은 `status: draft`(작성: 개발 초안). 코퍼스 팀원이 문단과 등급을 보고 `confirmed` 로 바꾼다. 문단을 고치면 코퍼스 버전이 자동으로 바뀌고, 그 뒤 새로 고정되는 문장부터 반영된다. `research.jsonl` 은 출처를 확인한 연구만 `confirmed` 로 넣는다(검증 게이트가 url 없는 문단을 막는다).
 
 - **Color KB 수치** — `data/color_kb.json` 의 `lch`·계수는 구조 시연용 예시값이다. 코퍼스 팀원이 근거 자료(`source`)와 함께 확정하고 `status: confirmed` 로 바꾼다. 기존 기준표는 `python scripts/migrate_association.py prompts/color_association.py` 로 골격을 뽑을 수 있다.
 - **τ·ΔE 기준** — 골드셋(`data/goldset.jsonl`)과 사용자 5명 테스트로 정한다. 현재 ngram 기본 τ=0.25 는 데모 골드셋에서 오연결 0 이 되는 최저값.

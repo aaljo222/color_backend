@@ -1,0 +1,45 @@
+{"id": "ob-001", "name": "참외", "aliases": [], "hue": "노랑", "lightness": 8, "chroma": 4, "text": "노란 껍질에 흰 줄이 있는 여름 과일", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-002", "name": "귤", "aliases": ["감귤", "밀감"], "hue": "주황", "lightness": 7, "chroma": 4, "text": "겨울 이불 속에서 까먹던 주황 과일", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-003", "name": "홍시", "aliases": ["감"], "hue": "주황", "lightness": 5, "chroma": 4, "text": "늦가을 말랑하게 익은 붉은 주황 감", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-004", "name": "딸기", "aliases": [], "hue": "빨강", "lightness": 5, "chroma": 5, "text": "새빨갛게 익은 봄 과일", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-005", "name": "포도", "aliases": ["청포도"], "hue": "보라", "lightness": 3, "chroma": 3, "text": "짙은 보랏빛 송이 과일", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-006", "name": "오이", "aliases": [], "hue": "초록", "lightness": 5, "chroma": 3, "text": "시원한 초록 여름 채소", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-007", "name": "솜사탕", "aliases": [], "hue": "분홍", "lightness": 9, "chroma": 2, "text": "놀이공원에서 사 먹던 연분홍 솜사탕", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-008", "name": "떡볶이", "aliases": [], "hue": "빨강", "lightness": 4, "chroma": 4, "text": "학교 앞 분식집의 빨간 떡볶이", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-009", "name": "군고구마", "aliases": ["고구마"], "hue": "주황", "lightness": 4, "chroma": 3, "text": "겨울 길거리 드럼통에서 굽던 고구마", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-010", "name": "붕어빵", "aliases": [], "hue": "주황", "lightness": 6, "chroma": 3, "text": "노릇하게 구운 겨울 간식", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-011", "name": "아이스크림", "aliases": ["하드", "빙과"], "hue": "분홍", "lightness": 9, "chroma": 1, "text": "여름날 녹아내리던 하얀빛 아이스크림", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-012", "name": "케이크", "aliases": ["생일케이크"], "hue": "분홍", "lightness": 9, "chroma": 1, "text": "생크림을 바른 생일 케이크", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-013", "name": "해바라기", "aliases": [], "hue": "노랑", "lightness": 7, "chroma": 5, "text": "해를 향해 핀 커다란 노란 꽃", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-014", "name": "개나리", "aliases": [], "hue": "노랑", "lightness": 8, "chroma": 5, "text": "봄 담장을 덮는 샛노란 꽃", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-015", "name": "진달래", "aliases": [], "hue": "자주", "lightness": 6, "chroma": 4, "text": "봄 산에 피는 진분홍 꽃", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-016", "name": "장미", "aliases": [], "hue": "빨강", "lightness": 4, "chroma": 5, "text": "붉은 장미꽃", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-017", "name": "라벤더", "aliases": [], "hue": "보라", "lightness": 6, "chroma": 3, "text": "연보랏빛 향기 나는 꽃", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-018", "name": "유채꽃", "aliases": ["유채"], "hue": "노랑", "lightness": 8, "chroma": 5, "text": "제주 들판을 덮는 노란 꽃", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-019", "name": "수국", "aliases": [], "hue": "파랑", "lightness": 6, "chroma": 3, "text": "장마철 피는 푸르스름한 꽃송이", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-020", "name": "잔디", "aliases": ["잔디밭"], "hue": "초록", "lightness": 5, "chroma": 4, "text": "공원과 운동장에 깔린 풀밭", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-021", "name": "갈대", "aliases": ["억새"], "hue": "노랑", "lightness": 6, "chroma": 2, "text": "가을 강가에 흔들리는 누런 풀", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-022", "name": "모래", "aliases": ["모래사장", "백사장"], "hue": "주황", "lightness": 8, "chroma": 2, "text": "해변의 밝은 베이지 모래", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-023", "name": "파도", "aliases": ["물결"], "hue": "청록", "lightness": 6, "chroma": 3, "text": "부서지는 푸른 물결", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-024", "name": "호수", "aliases": [], "hue": "청록", "lightness": 5, "chroma": 2, "text": "잔잔한 물빛 호수", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-025", "name": "구름", "aliases": [], "hue": "무채", "lightness": 9, "chroma": 0, "text": "하늘에 뜬 흰 구름", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-026", "name": "달", "aliases": ["달빛", "보름달"], "hue": "노랑", "lightness": 9, "chroma": 2, "text": "밤하늘에 뜬 연노란 달", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-027", "name": "별", "aliases": ["별빛"], "hue": "노랑", "lightness": 9, "chroma": 1, "text": "밤하늘에 반짝이는 별", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-028", "name": "가로등", "aliases": [], "hue": "주황", "lightness": 7, "chroma": 4, "text": "밤길을 비추는 주황빛 나트륨 가로등", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-029", "name": "촛불", "aliases": ["양초"], "hue": "주황", "lightness": 7, "chroma": 4, "text": "흔들리는 따뜻한 촛불", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-030", "name": "불꽃놀이", "aliases": ["폭죽"], "hue": "노랑", "lightness": 8, "chroma": 5, "text": "밤하늘에 터지는 반짝이는 불꽃", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-031", "name": "우산", "aliases": [], "hue": "파랑", "lightness": 4, "chroma": 3, "text": "비 오는 날 쓰던 우산", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-032", "name": "장독대", "aliases": ["장독", "항아리"], "hue": "주황", "lightness": 3, "chroma": 2, "text": "마당에 놓인 짙은 갈색 옹기", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-033", "name": "마루", "aliases": ["툇마루", "대청마루"], "hue": "주황", "lightness": 5, "chroma": 2, "text": "반들반들한 나무 마루", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-034", "name": "칠판", "aliases": [], "hue": "초록", "lightness": 3, "chroma": 2, "text": "교실 앞의 짙은 초록 칠판", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-035", "name": "자전거", "aliases": [], "hue": "무채", "lightness": 5, "chroma": 0, "text": "골목을 달리던 은색 자전거", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-036", "name": "회전목마", "aliases": [], "hue": "노랑", "lightness": 8, "chroma": 4, "text": "금빛 조명이 빛나던 회전목마", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-037", "name": "풍선", "aliases": [], "hue": "빨강", "lightness": 5, "chroma": 5, "text": "손에 쥔 빨간 풍선", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-038", "name": "목도리", "aliases": ["털목도리"], "hue": "빨강", "lightness": 4, "chroma": 3, "text": "겨울에 두르던 붉은 털실 목도리", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-039", "name": "연탄", "aliases": [], "hue": "무채", "lightness": 2, "chroma": 0, "text": "골목에 쌓여 있던 검은 연탄", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-040", "name": "기차", "aliases": ["열차"], "hue": "파랑", "lightness": 4, "chroma": 3, "text": "창밖 풍경이 흐르던 기차", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-041", "name": "커피", "aliases": ["커피잔"], "hue": "주황", "lightness": 2, "chroma": 2, "text": "짙은 갈색 커피 한 잔", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-042", "name": "녹차", "aliases": [], "hue": "연두", "lightness": 6, "chroma": 3, "text": "연두빛 녹차 한 잔", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-043", "name": "소나무", "aliases": ["솔숲"], "hue": "초록", "lightness": 3, "chroma": 3, "text": "사철 푸른 짙은 초록 소나무", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-044", "name": "낙엽", "aliases": [], "hue": "주황", "lightness": 5, "chroma": 3, "text": "길에 수북이 쌓인 갈색 가을 잎", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "ob-045", "name": "얼음", "aliases": ["빙판", "고드름"], "hue": "하늘", "lightness": 9, "chroma": 1, "text": "투명하고 차가운 얼음", "source": "mac_corpus_draft", "status": "draft"}

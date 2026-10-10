@@ -93,7 +93,7 @@ def _words(affect) -> str:
     return f"정서: {v} · {a} (쾌 {affect.valence}/5, 각성 {affect.arousal}/5)"
 
 
-def build_prompt(summary: str, res: dict, kb, objects: list, affect, feedback: str = "") -> str:
+def build_prompt(summary: str, res: dict, kb, objects: list, affect, feedback: str = "", grounding: dict | None = None) -> str:
     hints = []
     for axis in ("emotion", "time", "space"):
         e = kb.by_id[res[axis].kb_id]
@@ -106,12 +106,18 @@ def build_prompt(summary: str, res: dict, kb, objects: list, affect, feedback: s
         "화면 끝까지 채운다(full bleed). 액자·캔버스 테두리·흰 여백·벽·그림자를 그리지 않는다.",
         f"기억: {summary}",
         "기억의 분위기 (색 지식 KB 에서 검색):", *hints,
+        *(["비슷한 장면과 그 색 (코퍼스 검색, eng-2.2):", *rag_lines] if (rag_lines := _rag_lines(grounding)) else []),
         f"기억 속 사물(형태 없이 색으로만 암시): {objs}",
         _words(affect),
     ]
     if feedback:
         lines.append(f"수정 지시: {feedback}")
     return "\n".join(x for x in lines if x)
+
+
+def _rag_lines(grounding):
+    from core.rag import prompt_lines
+    return prompt_lines(grounding)
 
 
 # ── ② 그리기 ─────────────────────────────────────────────────────────────
@@ -286,13 +292,13 @@ def nearest(lab, refs) -> dict:
 
 
 # ── 전체 ─────────────────────────────────────────────────────────────────
-def run(masked: str, summary: str, res: dict, kb, objects: list, affect, base_palette: list) -> dict:
+def run(masked: str, summary: str, res: dict, kb, objects: list, affect, base_palette: list, grounding: dict | None = None) -> dict:
     painter = painter_name()
     key = cache_key(masked, painter)
     seed = int(key[:8], 16)
     fb, tries, best = "", [], None
     for n in range(1, MAX_ATTEMPTS + 1):
-        prompt = build_prompt(summary or masked[:40], res, kb, objects, affect, fb)
+        prompt = build_prompt(summary or masked[:40], res, kb, objects, affect, fb, grounding)
         img, used = paint_with_fallback(prompt, painter, seed + n - 1, base_palette)
         m = measure(img)
         rv = review(m, affect)

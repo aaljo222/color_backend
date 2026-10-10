@@ -24,8 +24,9 @@ class Resolution:
     axis: str
     phrase: str
     kb_id: str
-    how: str          # keyword | label | retrieval | fallback
+    how: str          # keyword | label | corpus | retrieval | fallback
     score: float
+    ref: str = ""     # how=corpus 일 때 근거가 된 장면 문단 id (eng-2.2)
 
 
 class KB:
@@ -126,8 +127,9 @@ class SupabaseRetriever:
 
 # ── 해석기 ────────────────────────────────────────────────────────────────
 class Resolver:
-    def __init__(self, kb: KB, retriever, tau: float):
-        self.kb, self.retriever, self.tau = kb, retriever, tau
+    """키워드 → 모델 라벨 → 코퍼스 장면 문단 ≥ τc (eng-2.2, rag 가 있을 때) → KB 설명 검색 ≥ τ → 기본 톤."""
+    def __init__(self, kb: KB, retriever, tau: float, rag=None):
+        self.kb, self.retriever, self.tau, self.rag = kb, retriever, tau, rag
 
     def resolve(self, axis: str, phrase: str, label: Optional[str] = None) -> Resolution:
         phrase = (phrase or "").strip()
@@ -136,7 +138,15 @@ class Resolver:
                 return Resolution(axis, phrase, e["id"], "keyword", 1.0)
         if label and label in self.kb.by_id and self.kb.by_id[label]["axis"] == axis:   # ② LLM 닫힌 라벨
             return Resolution(axis, phrase, label, "label", 1.0)
-        if phrase:                                            # ③ 검색 ≥ τ
+        if phrase and self.rag is not None:                   # ③ 코퍼스: 같은 항목을 여러 말투로 쓴 문단에서 찾는다
+            try:
+                hit = self.rag.resolve_axis(phrase, axis)
+            except Exception as ex:
+                logger.warning(f"[KB] 코퍼스 검색 실패 → KB 검색: {type(ex).__name__}")
+                hit = None
+            if hit is not None:
+                return Resolution(axis, phrase, hit.passage["kb_id"], "corpus", hit.score, hit.passage["id"])
+        if phrase:                                            # ④ KB 설명 검색 ≥ τ
             try:
                 ranked = self.retriever.search(phrase, axis)
             except Exception as ex:                           # 검색 장애 시 기본 톤으로 안전하게
@@ -147,7 +157,7 @@ class Resolver:
             score = round(ranked[0][0], 4) if ranked else 0.0
         else:
             score = 0.0
-        return Resolution(axis, phrase, self.kb.defaults[axis], "fallback", score)   # ④ 기본 톤
+        return Resolution(axis, phrase, self.kb.defaults[axis], "fallback", score)   # ⑤ 기본 톤
 
 
 def make_retriever(kb: KB, kind: Optional[str] = None):
@@ -171,5 +181,7 @@ def get_resolver() -> Resolver:
     kb = KB()
     r = make_retriever(kb)
     tau = float(os.getenv("RETRIEVAL_TAU") or DEFAULT_TAU.get(r.name, 0.25))
-    logger.info(f"[KB] {kb.version} · retriever={r.name} · τ={tau}")
-    return Resolver(kb, r, tau)
+    from core.rag import get_rag                     # 지연 import (rag 가 kb 를 쓴다)
+    rag = get_rag()
+    logger.info(f"[KB] {kb.version} · retriever={r.name} · τ={tau} · corpus={'on' if rag else 'off'}")
+    return Resolver(kb, r, tau, rag)
