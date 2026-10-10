@@ -1,0 +1,352 @@
+From f921cb8de90f9c752646a2b55e2ff7067ffb8e25 Mon Sep 17 00:00:00 2001
+From: x <x>
+Date: Fri, 9 Oct 2026 20:50:06 +0000
+Subject: [PATCH] eng-2.1 sentence lock
+
+---
+ .env.example                |   4 ++
+ CHANGES_eng-2.1.md          |  33 ++++++++++
+ core/pipeline.py            |  24 ++++++++
+ core/sentence_lock.py       | 117 ++++++++++++++++++++++++++++++++++++
+ sql/schema.sql              |  13 ++++
+ tests/test_sentence_lock.py |  89 +++++++++++++++++++++++++++
+ 6 files changed, 280 insertions(+)
+ create mode 100644 CHANGES_eng-2.1.md
+ create mode 100644 core/sentence_lock.py
+ create mode 100644 tests/test_sentence_lock.py
+
+diff --git a/.env.example b/.env.example
+index 33f6034..1418536 100644
+--- a/.env.example
++++ b/.env.example
+@@ -64,3 +64,7 @@ ORACLE_MODEL=
+ # SIMILAR_DIM=1024           # DB vector(1024) 와 같아야 한다
+ # SIMILAR_MIN=               # 기준선 (기본 ngram 0.35 · embedding 0.50) → scripts/eval_similar.py 로 다시 정하기
+ # 켠 뒤: schema.sql 11-1 실행 → python scripts/embed_prompts.py
++# ── 문장 고정 (eng-2.1) — 같은 문장 = 같은 해시·HEX·색 이름. sql/schema.sql 12) 실행 필요 ──
++SENTENCE_LOCK=1
++# 1 이면 LLM 요약(memory_summary)도 고정값에 저장 (기본 0 = 원문·요약 저장 안 함)
++LOCK_KEEP_SUMMARY=0
+diff --git a/CHANGES_eng-2.1.md b/CHANGES_eng-2.1.md
+new file mode 100644
+index 0000000..3d2813d
+--- /dev/null
++++ b/CHANGES_eng-2.1.md
+@@ -0,0 +1,33 @@
++# eng-2.1 — 문장 고정: 같은 문장이면 해시·HEX·색상·색 이름이 같다
++
++## 왜 (2026-10-10 팀장 피드백)
++같은 문장을 3분 간격으로 넣었는데 해시와 HEX 가 달랐다. 기준: "고객이 동시에 두 번 뽑아도
++(화풍·형태가 조금 달라도) 해시값·HEX·색상·색 이름이 일치해야 한다."
++
++## 원인 (코드에서 확인)
++1. 캐시가 프로세스 메모리(store.CACHE)뿐 — 재배포·재시작·다른 인스턴스면 처음부터 다시 계산
++2. palette 엔진의 해시는 Claude 가 읽은 라벨 뒤에 정해짐 — 다시 읽으면 라벨이 흔들릴 수 있다
++3. image_first 엔진은 HEX 를 그림에서 잰다 — 다시 그리면 HEX 가 바뀐다
++
++## 무엇 (core/sentence_lock.py · core/pipeline.py)
++- 문장 키 = sha256(정규화한 마스킹 문장 · 엔진 · 엔진 버전 · 화가 · KB 버전). 정규화 = 소문자 · 문장부호 · 공백 제거
++- 처음 계산한 값(해시·팔레트·정서·검증)과 그림을 영구 저장소에 고정. 먼저 쓴 쪽이 이긴다(기본키)
++- 다음부터는 LLM·화가를 부르지 않고 고정값 반환 (비용도 0). 그림이 없으면 고정 팔레트로 코드 그림 — 값은 그대로
++- 같은 서버의 동시 요청은 키별 잠금으로 한 번만 계산
++- 원문은 저장하지 않음(키는 해시). LLM 요약은 LOCK_KEEP_SUMMARY=1 일 때만 저장
++- DB 표가 없거나 장애면 경고 로그만 남기고 고정 없이 계산 (서비스는 멈추지 않음)
++
++## 배포 전 할 일
++1. Supabase SQL Editor 에서 sql/schema.sql 의 `12) 문장 고정` 블록 실행 (mac_sentence_locks 표)
++2. 재배포. 끄려면 SENTENCE_LOCK=0
++
++## 확인 (tests/test_sentence_lock.py · 7개, 전체 58개 통과)
++- 고정 없음: 다시 읽을 때 라벨이 바뀌는 LLM 대역 → 재시작 뒤 해시·HEX 가 달라짐 (문제 재현)
++- 고정 있음: 재시작 뒤에도 같은 해시·HEX·LCh·색 이름, 두 번째는 LLM 호출 0
++- 띄어쓰기·마침표 차이 무시 / 동시 4요청 → 1번 계산, 모두 같은 값
++- 그림 먼저 + 다시 그릴 때마다 HEX 가 바뀌는 화가 → 같은 문장이면 고정값과 같은 그림
++- 저장값에 원문 낱말·요약 없음
++
++## 한계
++- 엔진·화가·KB 버전이 바뀌면 키가 바뀌어 새로 고정된다 (버전 비교용으로 의도한 동작)
++- '비슷한' 문장(낱말이 다른 문장)은 다른 키다. 비슷한 문장 묶기는 Color Oracle 처럼 추천만 하고 값은 바꾸지 않는 방식이 맞다
+diff --git a/core/pipeline.py b/core/pipeline.py
+index b72dead..707e0a3 100644
+--- a/core/pipeline.py
++++ b/core/pipeline.py
+@@ -17,6 +17,7 @@ from core.affect import compute as compute_affect
+ from core.render import render_color_field
+ from core.verify import verify, feedback
+ from core import image_first
++from core import sentence_lock
+ 
+ logger = logging.getLogger("uvicorn")
+ MAX_ATTEMPTS = int(os.getenv("VERIFY_MAX_ATTEMPTS", "3"))
+@@ -55,6 +56,29 @@ def analyze(text: str, generator: Optional[ImageGenerator] = None, cache: Option
+     except Exception:
+         pass
+     masked, mask_stats = mask(text, protect=protect)
++    if not sentence_lock.ENABLED:
++        return _compute(masked, mask_stats, resolver, kb, engine, generator, cache)
++    if engine == "image_first":
++        ev, painter = image_first.ENGINE_VERSION, image_first.painter_name()
++        painter = image_first.GEMINI_IMAGE_MODEL if painter == "gemini" else painter
++    else:
++        ev, painter = ENGINE_VERSION, "code"
++    lk = sentence_lock.key(masked, engine, ev, painter, kb.version)
++    with sentence_lock.guard(lk):                       # 같은 서버의 동시 요청은 줄을 세운다 → 한 번만 계산
++        locked = sentence_lock.get(lk)
++        if locked is None:
++            out = _compute(masked, mask_stats, resolver, kb, engine, generator, cache)
++            won = sentence_lock.put_if_absent(lk, sentence_lock.payload_of(out), sentence_lock._png(out.get("_image")))
++            if won.get("specimen_hash") == out["specimen_hash"] and won.get("palette") == out["palette"]:
++                return {**out, "sentence_lock": lk, "lock_hit": False}
++            locked = won                                # 다른 서버가 먼저 고정했다 → 그 값을 따른다
++    hit = {**locked, "sentence_lock": lk, "lock_hit": True, "cache_hit": True, "pii_masked": mask_stats,
++           "llm_mode": llm_mode(), "memory_summary": locked.get("memory_summary", "")}
++    hit["_image"] = image_first.IMAGE_CACHE.get(locked.get("cache_key")) or sentence_lock.image(lk)   # 없으면 라우터가 고정 팔레트로 코드 그림 (값은 그대로)
++    return hit
++
++
++def _compute(masked, mask_stats, resolver, kb, engine, generator, cache) -> dict:
+     feats = extract_features(masked, kb)
+     res = {
+         "emotion": resolver.resolve("emotion", feats.emotion.phrase, feats.emotion.label),
+diff --git a/core/sentence_lock.py b/core/sentence_lock.py
+new file mode 100644
+index 0000000..bfcb0e4
+--- /dev/null
++++ b/core/sentence_lock.py
+@@ -0,0 +1,117 @@
++"""core/sentence_lock.py — 문장 고정 (eng-2.1): 같은 문장이면 언제·어느 서버에서·몇 번을 넣어도 같은 해시·HEX·색상·색 이름.
++
++왜 필요한가 (2026-10-10 팀장 피드백 — 같은 문장 두 번 → 해시·HEX 가 달랐다)
++  ① 캐시가 프로세스 메모리(store.CACHE)뿐 → 재배포·재시작·인스턴스가 바뀌면 처음부터 다시 계산
++  ② palette 엔진의 해시는 Claude 가 읽은 결과(라벨) 뒤에 정해진다 → 다시 읽으면 라벨이 흔들릴 수 있다
++  ③ image_first 엔진은 HEX 를 그림에서 잰다 → 그림을 다시 그리면 HEX 가 바뀐다
++해법
++  문장 키 = sha256( 정규화한 마스킹 문장 · 엔진·엔진 버전·화가·KB 버전 )
++           정규화 = 소문자 · 문장부호 제거 · 공백 전부 제거  ("5월의 오후." == "5월의오후")
++  처음 계산한 값(해시·팔레트·정서·검증)을 영구 저장소에 '먼저 쓴 쪽이 이김'으로 고정한다.
++  다음부터는 LLM·화가를 부르지 않고 고정값을 돌려준다. 그림은 있으면 같은 그림, 없으면 다시 그려도 값은 고정값.
++  같은 서버 안의 동시 요청은 키별 잠금으로 줄을 세우고, 서버가 여러 대면 DB 기본키 충돌로 먼저 쓴 값이 이긴다.
++개인정보
++  원문은 저장하지 않는다(키는 해시). LLM 요약(memory_summary)은 기본으로 저장하지 않는다 — LOCK_KEEP_SUMMARY=1 일 때만.
++끄기: SENTENCE_LOCK=0
++"""
++from __future__ import annotations
++import hashlib, io, json, logging, os, re, threading
++from typing import Optional
++
++logger = logging.getLogger("uvicorn")
++ENABLED = os.getenv("SENTENCE_LOCK", "1") == "1"
++KEEP_SUMMARY = os.getenv("LOCK_KEEP_SUMMARY", "0") == "1"
++TABLE = "mac_sentence_locks"
++LOCK_VERSION = "lock-1"
++
++_MEM: dict = {}                 # 메모리 저장소 (Supabase 없을 때): key → {"payload":…, "png": bytes|None}
++_GUARDS: dict = {}
++_GUARDS_LOCK = threading.Lock()
++
++
++def normalize(text: str) -> str:
++    s = text.lower()
++    s = re.sub(r"[\s\"'“”‘’`.,!?~·…()\[\]{}:;\-_/]+", "", s)
++    return s
++
++
++def key(masked_text: str, engine: str, engine_version: str, painter: str, kb_version: str) -> str:
++    blob = json.dumps([normalize(masked_text), engine, engine_version, painter, kb_version, LOCK_VERSION], ensure_ascii=False)
++    return hashlib.sha256(blob.encode()).hexdigest()[:24]
++
++
++def guard(k: str) -> threading.Lock:
++    with _GUARDS_LOCK:
++        return _GUARDS.setdefault(k, threading.Lock())
++
++
++def _sb():
++    from utils.supabase_client import supabase_admin
++    return supabase_admin
++
++
++def payload_of(result: dict) -> dict:
++    """고정할 값만 고른다 (그림·로그·원문 제외)."""
++    keep = ("specimen_hash", "cache_key", "kb_version", "engine_version", "palette", "affect", "verification")
++    p = {k: result[k] for k in keep if k in result}
++    if KEEP_SUMMARY:
++        p["memory_summary"] = result.get("memory_summary", "")
++    return p
++
++
++def get(k: str) -> Optional[dict]:
++    sb = _sb()
++    if sb is None:
++        row = _MEM.get(k)
++        return dict(row["payload"]) if row else None
++    try:
++        r = sb.table(TABLE).select("payload").eq("key", k).limit(1).execute()
++        return r.data[0]["payload"] if r.data else None
++    except Exception as ex:                       # 표가 아직 없거나 DB 장애 → 고정 없이 계산 (서비스는 계속)
++        logger.warning(f"[lock] 조회 실패 → 고정 없이 계산: {type(ex).__name__}: {str(ex)[:120]}")
++        return None
++
++
++def put_if_absent(k: str, payload: dict, png: Optional[bytes]) -> dict:
++    """먼저 쓴 쪽이 이긴다. 돌려주는 값 = 실제로 고정된 값 (내가 졌으면 상대 값)."""
++    sb = _sb()
++    if sb is None:
++        row = _MEM.setdefault(k, {"payload": payload, "png": png})
++        return dict(row["payload"])
++    img_path = None
++    if png:
++        try:
++            from core.store import BUCKET
++            sb.storage.from_(BUCKET).upload(f"locks/{k}.png", png, {"content-type": "image/png"})
++            img_path = f"locks/{k}.png"
++        except Exception as ex:                   # 이미 있음(다른 서버가 먼저) 또는 업로드 실패 — 값 고정에는 영향 없음
++            logger.info(f"[lock] 그림 업로드 생략: {type(ex).__name__}")
++    try:
++        sb.table(TABLE).upsert({"key": k, "payload": payload, "image_path": img_path,
++                                "engine_version": payload.get("engine_version"), "kb_version": payload.get("kb_version")},
++                               on_conflict="key", ignore_duplicates=True).execute()
++        won = get(k)
++        return won if won is not None else payload
++    except Exception as ex:
++        logger.warning(f"[lock] 저장 실패 → 이번 결과만 반환: {type(ex).__name__}: {str(ex)[:120]}")
++        return payload
++
++
++def image(k: str):
++    """고정된 그림 (PIL.Image) 또는 None."""
++    from PIL import Image
++    sb = _sb()
++    try:
++        if sb is None:
++            png = (_MEM.get(k) or {}).get("png")
++        else:
++            png = sb.storage.from_(__import__("core.store", fromlist=["BUCKET"]).BUCKET).download(f"locks/{k}.png")
++        return Image.open(io.BytesIO(png)).convert("RGB") if png else None
++    except Exception:
++        return None
++
++
++def _png(img) -> Optional[bytes]:
++    if img is None:
++        return None
++    buf = io.BytesIO(); img.save(buf, "PNG"); return buf.getvalue()
+diff --git a/sql/schema.sql b/sql/schema.sql
+index 5ddda2d..df2a61c 100644
+--- a/sql/schema.sql
++++ b/sql/schema.sql
+@@ -159,3 +159,16 @@ language sql stable as $$
+   order by p.embedding <=> query_embedding
+   limit match_count;
+ $$;
++
++-- 12) 문장 고정 (core/sentence_lock.py · eng-2.1) — 같은 문장 = 같은 해시·HEX·색 이름 (재배포·서버 여러 대여도) ----
++--     key = 정규화한 마스킹 문장 + 엔진·화가·KB 버전의 해시 (원문 저장 안 함). 먼저 쓴 값이 이긴다(기본키).
++--     서버(service_role)만 접근 — 사용자 정책 없음. 그림은 Storage specimens/locks/{key}.png
++create table if not exists public.mac_sentence_locks (
++  key            text primary key,
++  payload        jsonb not null,             -- specimen_hash · cache_key · palette · affect · verification
++  image_path     text,
++  engine_version text,
++  kb_version     text,
++  created_at     timestamptz not null default now()
++);
++alter table public.mac_sentence_locks enable row level security;
+diff --git a/tests/test_sentence_lock.py b/tests/test_sentence_lock.py
+new file mode 100644
+index 0000000..5c6d819
+--- /dev/null
++++ b/tests/test_sentence_lock.py
+@@ -0,0 +1,89 @@
++"""문장 고정 (eng-2.1) — 팀장 기준: 같은 문장을 두 번(동시에) 뽑아도 해시·HEX·색상·색 이름이 같아야 한다."""
++import itertools, threading, time, random
++import pytest
++from core import pipeline, sentence_lock, store, image_first
++from core.llm import _stub_extract
++from core.kb import get_resolver
++
++S = "바쁜 아빠와 놀이공원에서 솜사탕 먹고 웃던 5월의 오후"
++
++
++@pytest.fixture(autouse=True)
++def clean(monkeypatch):
++    sentence_lock._MEM.clear(); store.CACHE.clear(); image_first.IMAGE_CACHE.clear()
++    monkeypatch.setattr(sentence_lock, "ENABLED", True)
++    yield
++
++
++def _wobbly_llm(monkeypatch, calls):
++    """다시 읽을 때마다 감정 라벨이 바뀌는 LLM (실제 Claude 가 흔들리는 상황의 대역)."""
++    emos = itertools.cycle([e["id"] for e in get_resolver().kb.by_axis["emotion"]])
++    def fake(masked, kb):
++        calls.append(masked); time.sleep(0.02)
++        f = _stub_extract(masked, kb); f.emotion.label = next(emos); f.emotion.phrase = ""
++        return f
++    monkeypatch.setattr(pipeline, "extract_features", fake)
++
++
++def _sig(r):
++    return r["specimen_hash"], [(p["hex"], p["color_name"], tuple(p["lch"])) for p in r["palette"]]
++
++
++def test_without_lock_values_drift(monkeypatch):
++    """문제 재현: 고정이 없으면 캐시가 사라진 뒤(재배포) 같은 문장이 다른 해시·HEX 가 된다."""
++    monkeypatch.setattr(sentence_lock, "ENABLED", False)
++    _wobbly_llm(monkeypatch, [])
++    a = _sig(pipeline.analyze(S, cache=store.CACHE)); store.CACHE.clear()
++    b = _sig(pipeline.analyze(S, cache=store.CACHE))
++    assert a != b
++
++
++def test_same_sentence_same_values_after_restart(monkeypatch):
++    calls = []; _wobbly_llm(monkeypatch, calls)
++    a = pipeline.analyze(S, cache=store.CACHE)
++    store.CACHE.clear(); image_first.IMAGE_CACHE.clear()          # 재배포·재시작
++    b = pipeline.analyze(S, cache=store.CACHE)
++    assert _sig(a) == _sig(b) and b["lock_hit"] and len(calls) == 1   # 두 번째는 LLM 도 부르지 않는다
++
++
++def test_spacing_and_punctuation_do_not_matter(monkeypatch):
++    _wobbly_llm(monkeypatch, [])
++    a = pipeline.analyze(S, cache=store.CACHE)
++    b = pipeline.analyze("바쁜 아빠와  놀이공원에서 솜사탕 먹고 웃던 5월의오후.", cache=store.CACHE)
++    assert _sig(a) == _sig(b)
++
++
++def test_two_requests_at_the_same_time(monkeypatch):
++    calls = []; _wobbly_llm(monkeypatch, calls)
++    out = []
++    ts = [threading.Thread(target=lambda: out.append(_sig(pipeline.analyze(S, cache=store.CACHE)))) for _ in range(4)]
++    [t.start() for t in ts]; [t.join() for t in ts]
++    assert len(set(map(repr, out))) == 1 and len(calls) == 1
++
++
++def test_image_first_redraw_keeps_values(monkeypatch):
++    """그림 먼저: 다시 그리면 그림·측정 HEX 가 달라지는 화가여도, 같은 문장이면 고정값."""
++    real = image_first.run
++    def jitter(*a, **k):
++        o = real(*a, **k)
++        for p in o["palette"]:
++            p["hex"] = "#%06x" % random.randrange(1 << 24)
++        return o
++    monkeypatch.setattr(image_first, "run", jitter)
++    a = pipeline.analyze(S, cache=store.CACHE, engine="image_first")
++    store.CACHE.clear(); image_first.IMAGE_CACHE.clear()
++    b = pipeline.analyze(S, cache=store.CACHE, engine="image_first")
++    assert _sig(a) == _sig(b) and b["_image"] is not None             # 고정된 그림도 다시 돌려준다
++
++
++def test_lock_keeps_no_text():
++    pipeline.analyze(S, cache=store.CACHE)
++    (row,) = sentence_lock._MEM.values()
++    blob = repr(row["payload"])
++    assert "솜사탕" not in blob and "memory_summary" not in row["payload"]
++
++
++def test_different_sentence_different_lock():
++    a = pipeline.analyze(S, cache=store.CACHE)
++    b = pipeline.analyze("한겨울 밤 할머니 집 아랫목에서 귤 까먹던 기억", cache=store.CACHE)
++    assert a["sentence_lock"] != b["sentence_lock"]
+-- 
+2.43.0
+

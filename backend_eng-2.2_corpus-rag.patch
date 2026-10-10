@@ -1,0 +1,1303 @@
+From 36a69e9cbeb9345c70d41a2744eef3c605768c3f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?=EC=9D=B4=EC=9E=AC=EC=98=A4?= <aaljo2@gmail.com>
+Date: Sat, 10 Oct 2026 11:18:25 +0000
+Subject: [PATCH] =?UTF-8?q?eng-2.2=20corpus=20RAG:=20=EC=9E=A5=EB=A9=B4?=
+ =?UTF-8?q?=C2=B7=EC=82=AC=EB=AC=BC=C2=B7=EC=97=B0=EA=B5=AC=20=EC=BD=94?=
+ =?UTF-8?q?=ED=8D=BC=EC=8A=A4=20+=20=EA=B2=80=EC=83=89=C2=B7=EA=B7=BC?=
+ =?UTF-8?q?=EA=B1=B0=20=EB=AC=B6=EC=9D=8C?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- data/corpus: 장면 문단 84(KB 21항목 연결) · 사물 45 · 색채심리 연구 10(인용·URL)
+- core/corpus.py 로드·검증 게이트, core/rag.py 검색(ngram/임베딩)·grounding
+- KB 해석에 코퍼스 단계, 사물 등급 사전→코퍼스→모델, PII 보호, 그림 지시문 보강, 문장 고정에 grounding
+- scripts/eval_rag.py: 팀 골드셋 22%→44%, 추가 골드셋 19%→44%, 오연결 0 (τc=0.35)
+- 테스트 70개 통과 (main.py 변경 없음)
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01MA6HLojYSgMbU3kiHDQXFK
+---
+ .env.example                       |   7 +
+ CHANGES_eng-2.2.md                 |  49 ++++++
+ README.md                          |   8 +-
+ core/corpus.py                     | 138 +++++++++++++++++
+ core/image_first.py                |  12 +-
+ core/kb.py                         |  26 +++-
+ core/llm.py                        |   6 +
+ core/objects.py                    |  17 ++-
+ core/pipeline.py                   |  16 +-
+ core/rag.py                        | 229 +++++++++++++++++++++++++++++
+ core/sentence_lock.py              |   3 +-
+ data/corpus/objects.jsonl          |  45 ++++++
+ data/corpus/research.jsonl         |  10 ++
+ data/corpus/scenes.jsonl           |  84 +++++++++++
+ data/goldset_rag.jsonl             |  43 ++++++
+ scripts/build_corpus_embeddings.py |  29 ++++
+ scripts/eval_rag.py                |  85 +++++++++++
+ tests/test_rag.py                  | 144 ++++++++++++++++++
+ tests/test_sentence_lock.py        |   4 +-
+ 19 files changed, 939 insertions(+), 16 deletions(-)
+ create mode 100644 CHANGES_eng-2.2.md
+ create mode 100644 core/corpus.py
+ create mode 100644 core/rag.py
+ create mode 100644 data/corpus/objects.jsonl
+ create mode 100644 data/corpus/research.jsonl
+ create mode 100644 data/corpus/scenes.jsonl
+ create mode 100644 data/goldset_rag.jsonl
+ create mode 100644 scripts/build_corpus_embeddings.py
+ create mode 100644 scripts/eval_rag.py
+ create mode 100644 tests/test_rag.py
+
+diff --git a/.env.example b/.env.example
+index 1418536..1e9f3b4 100644
+--- a/.env.example
++++ b/.env.example
+@@ -64,6 +64,13 @@ ORACLE_MODEL=
+ # SIMILAR_DIM=1024           # DB vector(1024) 와 같아야 한다
+ # SIMILAR_MIN=               # 기준선 (기본 ngram 0.35 · embedding 0.50) → scripts/eval_similar.py 로 다시 정하기
+ # 켠 뒤: schema.sql 11-1 실행 → python scripts/embed_prompts.py
++# ── 코퍼스 RAG (eng-2.2) — data/corpus/*.jsonl. 끄려면 CORPUS_RAG=0 ──
++CORPUS_RAG=1
++# auto(임베딩 파일·키가 맞으면 embedding, 아니면 ngram) | ngram | embedding
++CORPUS_METHOD=auto
++# 비우면 ngram 0.35 · embedding 0.55(잠정) → scripts/eval_rag.py --sweep 으로 정할 것
++CORPUS_TAU=
++# 임베딩을 켜려면: VOYAGE_API_KEY 등록(본인 키) → python scripts/build_corpus_embeddings.py → data/corpus_embeddings.json
+ # ── 문장 고정 (eng-2.1) — 같은 문장 = 같은 해시·HEX·색 이름. sql/schema.sql 12) 실행 필요 ──
+ SENTENCE_LOCK=1
+ # 1 이면 LLM 요약(memory_summary)도 고정값에 저장 (기본 0 = 원문·요약 저장 안 함)
+diff --git a/CHANGES_eng-2.2.md b/CHANGES_eng-2.2.md
+new file mode 100644
+index 0000000..3850096
+--- /dev/null
++++ b/CHANGES_eng-2.2.md
+@@ -0,0 +1,49 @@
++# eng-2.2 — 코퍼스 RAG: 기억 문장의 다른 말투를 찾고, 색마다 근거를 붙인다
++
++## 왜
++- KB 21항목은 항목마다 키워드 몇 개 + 설명 한 줄뿐이라, 키워드가 없는 말투("가물가물한", "해가 뉘엿뉘엿 질 무렵")를 거의 못 찾았다.
++  백서 v1.1 12장: 팀 골드셋에서 KB 설명 검색(ngram) 정답률 22%.
++- 색이 왜 그렇게 정해졌는지 응답에 붙일 자료가 없었다. affect.py 주석에만 논문 이름이 있었다.
++- 사물 색은 어휘사전 15개 낱말뿐이라, 그 밖의 사물(참외·귤·솜사탕…)은 모델이 낸 등급을 그대로 썼다(키 없는 stub 에서는 아예 못 찾음).
++
++## 무엇
++| 파일 | 내용 |
++|---|---|
++| `data/corpus/scenes.jsonl` | 장면 문단 84개 → KB 항목(kb_id). 21항목 모두 3~5가지 말투 + 색 묘사(color_note, 숫자 없음) |
++| `data/corpus/objects.jsonl` | 사물 45개(별칭 포함) → 등급(색상 계열·밝기·채도). 어휘사전과 겹치지 않음 |
++| `data/corpus/research.jsonl` | 색채 심리 연구 10건 — 인용·URL·근거 강도(strong/moderate/weak/null)·뒷받침하는 엔진 규칙(applies_to) |
++| `core/corpus.py` | 로드 + 검증 게이트(KB 에 없는 kb_id·축 불일치·color_note 의 숫자/HEX·등급 범위 밖·url 없는 연구 → 로드 거부). 버전 = `corpus-0.1+<내용 해시>` |
++| `core/rag.py` | 검색(ngram, 또는 Voyage/Gemini 임베딩 파일) + 근거 묶음(grounding) + 그림 지시문 줄 |
++| `scripts/eval_rag.py` | KB만 vs 코퍼스 vs 이은 경로 정답률·오연결·놓침, `--sweep` 으로 τc |
++| `scripts/build_corpus_embeddings.py` | (선택) 장면 문단 임베딩 파일 `data/corpus_embeddings.json` |
++
++파이프라인에 들어간 자리 (main.py 변경 없음)
++1. **KB 해석** (`core/kb.py` Resolver): 키워드 → 모델 라벨 → **코퍼스 장면 ≥ τc** → KB 설명 검색 ≥ τ → 기본 톤. `Resolution.how = "corpus"`, `ref` = 문단 id
++2. **사물 등급** (`core/objects.py`): 어휘사전 → **코퍼스 등급** → 모델 등급. 같은 낱말 = 같은 색. 코퍼스 등급은 사전에 적지 않는다(초안이 고쳐질 수 있다)
++3. **개인정보 가림** (`core/pipeline.py`): 코퍼스 사물 이름도 보호 목록에 — "참외랑"이 이름으로 가려지지 않게 (eng-1.1 수박 결함과 같은 종류)
++4. **그림 지시문** (`core/image_first.py`, eng-2.0): 해석된 KB 항목의 장면 문단과 색 묘사를 "비슷한 장면과 그 색" 으로 붙인다. 숫자 색값은 넣지 않는다
++5. **응답** `grounding`: 이 표본에 쓰인 장면·사물 문단 + 적용된 규칙(쾌→명도, 각성→채도, 사물-색 연합, 색-감정 연합)을 뒷받침하는 연구 인용·URL.
++   null·weak 근거(빨강-시험 점수, 파랑-창의성, 빨강-매력)는 코퍼스에 '쓰지 말 것'의 근거로만 두고 응답에는 붙이지 않는다
++6. **문장 고정** (`core/sentence_lock.py`): grounding 도 같이 고정. 로그(`generation_logs.features`)에 `resolved_axes`·`corpus_version` 추가 — 새 열 없음
++
++## 실측 (2026-10-10, 키 없이 stub · ngram, `python scripts/eval_rag.py --sweep`)
++| 골드셋 | 평가 문장 | KB 설명 검색만 (eng-2.1) | 코퍼스 → KB (eng-2.2) | 오연결 |
++|---|---|---|---|---|
++| `goldset.jsonl` (팀, 코퍼스와 따로 작성) | 9 | 2/9 (22%) | 4/9 (44%) | 0 → 0 |
++| `goldset_rag.jsonl` (추가, 작성자 편향 있음) | 36 | 7/36 (19%) | 16/36 (44%) | 0 → 0 |
++
++- τc = 0.35: 두 골드셋 모두 오연결 0 을 지키는 가장 낮은 값. 0.30 이면 추가 골드셋 정답률 50% 지만 오연결 2 ("동이 트던 무렵"→노을)
++- 테스트 70개 통과 (기존 58 + 코퍼스 RAG 12, 개인정보 테스트 1개는 검사 낱말만 수정)
++
++## 같은 문장 = 같은 값은 그대로인가
++- 검색은 결정론(ngram, 동점이면 id 순). 같은 코퍼스 + 같은 문장 = 같은 해석 = 같은 해시
++- 이미 고정된 문장은 바뀌지 않는다. 문장 고정 키는 KB 버전을 쓰고 코퍼스 버전은 넣지 않았다 → eng-2.2 배포 뒤 **새로 넣는 문장부터** 코퍼스가 반영된다.
++  고정된 문장까지 새 코퍼스로 다시 계산하려면 KB 버전을 올리거나 표를 비운다 (의도적으로 팀이 고를 일)
++
++## 한계 (솔직하게)
++- **코퍼스 문단·사물 등급은 초안**(`status: draft`, source=`mac_corpus_draft`). 코퍼스 팀이 검토해 confirmed 로 바꿔야 한다. 연구 10건만 출처를 확인한 confirmed
++- **ngram 은 여전히 낱말 겹침에 의존**한다. 남은 놓침의 대부분이 동의어("기뻐서 펄쩍펄쩍"↔"들떠서 뛰어다니던"). 임베딩 경로는 구현·테스트(가짜 제공자)했지만
++  실제 Voyage 키로는 아직 재지 않았다 → 키 등록 후 `build_corpus_embeddings.py` → `eval_rag.py --sweep` 으로 τc(embedding) 확정
++- **추가 골드셋은 코퍼스를 쓴 사람이 썼다.** 낱말 겹침을 줄였지만 낙관 편향이 있다. 신뢰할 숫자는 팀 골드셋(9문장) 쪽이고, 그것도 작다 → 실제 사용자 문장으로 늘릴 것
++- 모델 라벨이 있으면(Claude 모드) 라벨이 코퍼스보다 먼저라, 코퍼스 해석 단계는 주로 라벨이 빈 축과 stub 모드에서 일한다. 근거 묶음·그림 지시문·사물 등급은 모드와 상관없이 쓰인다
++- `/health` 에 코퍼스 상태를 넣으려면 main.py 를 고쳐야 해서 넣지 않았다. 서버 시작 로그 `[RAG] corpus-0.1+… · 장면 84 · …` 로 확인
+diff --git a/README.md b/README.md
+index a2196ea..d2977f7 100644
+--- a/README.md
++++ b/README.md
+@@ -14,7 +14,7 @@ MaC(Memory & Color) 백엔드 레퍼런스 구현. 멘토링 기술백서 v1.0
+ | F2 기준표에 숫자 없음 | `data/color_kb.json` 항목마다 `lch`·`accent_lch`·`modifiers` |
+ | F3 합성식 | `core/synth.py` 보정식(명도 대비·채도 배율·색상각 조화·색역 클리핑) |
+ | F4 스키마 2개 | 단일 응답 스키마(아래). 면적비는 상수 |
+-| F5 RAG 아님 | `core/kb.py` Resolver + 검색기 3종(ngram / embedding / supabase pgvector) |
++| F5 RAG 아님 | `core/kb.py` Resolver + 검색기 3종(ngram / embedding / supabase pgvector) · **eng-2.2 코퍼스 RAG** `core/corpus.py`·`core/rag.py` (`data/corpus/`) |
+ | F6 재현성 | `cache_key = hash(KB id 조합, KB 버전, 엔진 버전)` |
+ | F7 자기보고 confidence | `basis`(해석 경로·점수) + `verification`(측정 ΔE00)으로 대체 |
+ 
+@@ -26,6 +26,7 @@ cp .env.example .env            # 값은 비워 둬도 됨 → stub LLM + ngram
+ uvicorn main:app --reload --port 8000
+ python -m pytest -q             # 20개 테스트 (MaC 14 + Color Oracle 6)
+ python scripts/eval_tau.py      # 골드셋으로 검색 임계값 τ 평가
++python scripts/eval_rag.py --sweep   # 코퍼스 RAG: KB만 vs 코퍼스 정답률, τc 정하기 (eng-2.2)
+ ```
+ 
+ > UA 차단이 켜져 있어 `curl` 기본 User-Agent 는 403 이다. 개발 중엔 `-H 'User-Agent: Mozilla/5.0 dev'` 를 붙이거나 `UA_BLOCK=0`.
+@@ -85,6 +86,9 @@ core/  color.py         sRGB↔Lab↔LCh, CIEDE2000, 색역 클리핑
+ prompts/feature_prompt.py   색을 묻지 않는 특징 추출 프롬프트
+ data/color_kb.json      데모 KB (수치는 예시값 · status=demo)
+ data/goldset.jsonl      τ 평가용 골드셋 (팀이 계속 추가)
++data/corpus/            코퍼스 (eng-2.2): scenes.jsonl 장면 문단→KB 항목 · objects.jsonl 사물 등급 · research.jsonl 연구 근거
++data/goldset_rag.jsonl  코퍼스 RAG 평가용 추가 골드셋 (작성자 편향 있음 — 사용자 문장으로 교체할 것)
++core/corpus.py · rag.py 코퍼스 로드·검증 / 검색(ngram·임베딩)·근거 묶음(grounding)
+ sql/schema.sql          테이블·RLS·pgvector·크레딧 RPC
+ scripts/                eval_tau.py · build_kb_embeddings.py · migrate_association.py
+ examples/frontend_fetch.js  MaC.html 에서 호출하는 예
+@@ -92,6 +96,8 @@ examples/frontend_fetch.js  MaC.html 에서 호출하는 예
+ 
+ ## 팀이 채워야 할 것 (데모와 실서비스의 차이)
+ 
++- **코퍼스 초안 검토 (eng-2.2)** — `data/corpus/scenes.jsonl`·`objects.jsonl` 은 `status: draft`(작성: 개발 초안). 코퍼스 팀원이 문단과 등급을 보고 `confirmed` 로 바꾼다. 문단을 고치면 코퍼스 버전이 자동으로 바뀌고, 그 뒤 새로 고정되는 문장부터 반영된다. `research.jsonl` 은 출처를 확인한 연구만 `confirmed` 로 넣는다(검증 게이트가 url 없는 문단을 막는다).
++
+ - **Color KB 수치** — `data/color_kb.json` 의 `lch`·계수는 구조 시연용 예시값이다. 코퍼스 팀원이 근거 자료(`source`)와 함께 확정하고 `status: confirmed` 로 바꾼다. 기존 기준표는 `python scripts/migrate_association.py prompts/color_association.py` 로 골격을 뽑을 수 있다.
+ - **τ·ΔE 기준** — 골드셋(`data/goldset.jsonl`)과 사용자 5명 테스트로 정한다. 현재 ngram 기본 τ=0.25 는 데모 골드셋에서 오연결 0 이 되는 최저값.
+   ngram 정답률은 22% 수준이라(동의어를 못 잡음) 실서비스는 임베딩 검색이 필요하다.
+diff --git a/core/corpus.py b/core/corpus.py
+new file mode 100644
+index 0000000..ebb2da0
+--- /dev/null
++++ b/core/corpus.py
+@@ -0,0 +1,138 @@
++"""core/corpus.py — MaC 색 코퍼스 (eng-2.2): 근거가 붙은 문단 묶음.
++
++KB(data/color_kb.json)는 축마다 '기준색 하나'를 정하는 21항목 표다. 표만으로는 두 가지가 모자랐다.
++  ① 검색 재현율 — 항목마다 키워드 몇 개 + 설명 한 줄뿐이라 "엄마 밥 냄새 나던 따뜻한 옛날" 같은 다른 말투를 못 찾았다
++     (백서 v1.1 12장: ngram 정답률 22%)
++  ② 근거 — 수치·규칙이 어디서 왔는지 응답에 붙일 자료가 없었다
++코퍼스는 이 둘을 채운다. 색 숫자는 여전히 계산기가 정한다. 코퍼스는 '어느 KB 항목인가'와 '왜 그런가'만 말한다.
++
++파일 (data/corpus/*.jsonl, 한 줄 = 한 문단)
++  scenes.jsonl   장면 문단 → KB 항목(kb_id)에 연결. 같은 항목을 여러 말투로 서술 + 색 묘사(color_note, 숫자 없음)
++  objects.jsonl  기억 속 사물 → 등급(색상 계열·밝기·채도). 어휘사전(lexicon)에 없는 사물을 받는다
++  research.jsonl 색채 심리 연구 근거(인용·URL). 엔진 규칙(applies_to)마다 어떤 연구가 뒷받침하는지
++
++상태(status)
++  confirmed  출처를 확인한 문단 (연구 근거)
++  draft      코퍼스 초안 (source=mac_corpus_draft). 팀이 검토해 confirmed 로 바꾼다 — KB status=demo 와 같은 규칙
++버전
++  corpus_version = "corpus-0.1+<파일 내용 해시 8자>". 문단 하나만 바뀌어도 버전이 바뀐다 (어느 코퍼스로 계산했는지 추적)
++"""
++from __future__ import annotations
++import hashlib, json, os
++from dataclasses import dataclass, field
++from functools import lru_cache
++from pathlib import Path
++
++from oracle import color_abstraction as ca
++
++CORPUS_DIR = Path(os.getenv("CORPUS_DIR", Path(__file__).resolve().parent.parent / "data" / "corpus"))
++CORPUS_BASE_VERSION = "corpus-0.1"
++FILES = ("scenes.jsonl", "objects.jsonl", "research.jsonl")
++STATUSES = ("draft", "confirmed")
++EVIDENCE = ("strong", "moderate", "weak", "null")
++
++
++def norm_name(s: str) -> str:
++    """사물 이름 비교 키 — core/objects.py 의 사전 키와 같은 규칙 (정규화 + 공백 제거, 12자)."""
++    return ca.normalize(str(s or "")).replace(" ", "")[:12]
++
++
++@dataclass
++class Corpus:
++    version: str
++    scenes: list[dict]
++    objects: list[dict]
++    research: list[dict]
++    by_id: dict = field(default_factory=dict)
++    object_by_name: dict = field(default_factory=dict)       # 정규화 이름·별칭 → 사물 문단
++
++    def scenes_of(self, axis: str) -> list[dict]:
++        return [s for s in self.scenes if s["axis"] == axis]
++
++    def object_names(self) -> list[str]:
++        """문장 속에서 찾을 이름(별칭 포함). 긴 이름 먼저 — '군고구마'가 '고구마'보다 먼저 잡히게."""
++        names = {n for o in self.objects for n in [o["name"], *o.get("aliases", [])] if n}
++        return sorted(names, key=lambda n: (-len(n), n))
++
++
++def _read_jsonl(path: Path) -> list[dict]:
++    rows = []
++    for i, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
++        if not line.strip():
++            continue
++        try:
++            rows.append(json.loads(line))
++        except json.JSONDecodeError as ex:
++            raise ValueError(f"{path.name}:{i} JSON 오류: {ex}") from ex
++    return rows
++
++
++def validate(scenes: list[dict], objects: list[dict], research: list[dict], kb) -> list[str]:
++    """틀린 문단 목록(사람이 읽는 문장). 비어 있어야 로드된다 — 틀린 코퍼스로 조용히 계산하지 않는다."""
++    errs, seen = [], set()
++    for r in [*scenes, *objects, *research]:
++        rid = r.get("id")
++        if not rid:
++            errs.append(f"id 없음: {str(r)[:60]}")
++        elif rid in seen:
++            errs.append(f"id 중복: {rid}")
++        seen.add(rid)
++        if r.get("status") not in STATUSES:
++            errs.append(f"{rid}: status 는 {STATUSES} 중 하나")
++        if not (r.get("text") or "").strip():
++            errs.append(f"{rid}: text 없음")
++    for s in scenes:
++        e = kb.by_id.get(s.get("kb_id"))
++        if e is None:
++            errs.append(f"{s.get('id')}: KB 에 없는 kb_id {s.get('kb_id')}")
++        elif e["axis"] != s.get("axis"):
++            errs.append(f"{s.get('id')}: 축 불일치 ({s.get('axis')} ≠ KB {e['axis']})")
++        if not s.get("source"):
++            errs.append(f"{s.get('id')}: source 없음")
++        if any(ch.isdigit() for ch in s.get("color_note", "")) or "#" in s.get("color_note", ""):
++            errs.append(f"{s.get('id')}: color_note 에 숫자·HEX 금지 (색 숫자는 계산기만 낸다)")
++    names = {}
++    for o in objects:
++        if ca.validate_descriptor(o) is None:
++            errs.append(f"{o.get('id')}: 등급 범위 밖 (hue={o.get('hue')}, lightness={o.get('lightness')}, chroma={o.get('chroma')})")
++        for n in [o.get("name"), *o.get("aliases", [])]:
++            k = norm_name(n)
++            if not k:
++                errs.append(f"{o.get('id')}: 빈 이름")
++            elif k in names and names[k] != o.get("id"):
++                errs.append(f"{o.get('id')}: 이름 '{n}' 이 {names[k]} 와 겹침")
++            names[k] = o.get("id")
++    for r in research:
++        if not r.get("citation") or not str(r.get("url", "")).startswith("http"):
++            errs.append(f"{r.get('id')}: 연구 문단은 citation 과 url 이 필요")
++        if r.get("evidence") not in EVIDENCE:
++            errs.append(f"{r.get('id')}: evidence 는 {EVIDENCE} 중 하나")
++        if r.get("status") != "confirmed":
++            errs.append(f"{r.get('id')}: 연구 문단은 출처 확인 후 confirmed 로만 넣는다")
++        if not r.get("applies_to"):
++            errs.append(f"{r.get('id')}: applies_to 없음")
++    return errs
++
++
++def load(kb, directory: Path | None = None) -> Corpus:
++    d = Path(directory or CORPUS_DIR)
++    raw = {f: (d / f).read_bytes() if (d / f).exists() else b"" for f in FILES}
++    scenes = _read_jsonl(d / FILES[0]) if raw[FILES[0]] else []
++    objects = _read_jsonl(d / FILES[1]) if raw[FILES[1]] else []
++    research = _read_jsonl(d / FILES[2]) if raw[FILES[2]] else []
++    errs = validate(scenes, objects, research, kb)
++    if errs:
++        raise ValueError("코퍼스 검증 실패:\n  " + "\n  ".join(errs[:20]))
++    digest = hashlib.sha256(b"\0".join(raw[f] for f in FILES)).hexdigest()[:8]
++    c = Corpus(version=f"{CORPUS_BASE_VERSION}+{digest}", scenes=scenes, objects=objects, research=research)
++    c.by_id = {r["id"]: r for r in [*scenes, *objects, *research]}
++    for o in objects:
++        for n in [o["name"], *o.get("aliases", [])]:
++            c.object_by_name[norm_name(n)] = o
++    return c
++
++
++@lru_cache(maxsize=1)
++def get_corpus() -> Corpus:
++    from core.kb import KB
++    return load(KB())
+diff --git a/core/image_first.py b/core/image_first.py
+index aa819df..5d874c4 100644
+--- a/core/image_first.py
++++ b/core/image_first.py
+@@ -93,7 +93,7 @@ def _words(affect) -> str:
+     return f"정서: {v} · {a} (쾌 {affect.valence}/5, 각성 {affect.arousal}/5)"
+ 
+ 
+-def build_prompt(summary: str, res: dict, kb, objects: list, affect, feedback: str = "") -> str:
++def build_prompt(summary: str, res: dict, kb, objects: list, affect, feedback: str = "", grounding: dict | None = None) -> str:
+     hints = []
+     for axis in ("emotion", "time", "space"):
+         e = kb.by_id[res[axis].kb_id]
+@@ -106,6 +106,7 @@ def build_prompt(summary: str, res: dict, kb, objects: list, affect, feedback: s
+         "화면 끝까지 채운다(full bleed). 액자·캔버스 테두리·흰 여백·벽·그림자를 그리지 않는다.",
+         f"기억: {summary}",
+         "기억의 분위기 (색 지식 KB 에서 검색):", *hints,
++        *(["비슷한 장면과 그 색 (코퍼스 검색, eng-2.2):", *rag_lines] if (rag_lines := _rag_lines(grounding)) else []),
+         f"기억 속 사물(형태 없이 색으로만 암시): {objs}",
+         _words(affect),
+     ]
+@@ -114,6 +115,11 @@ def build_prompt(summary: str, res: dict, kb, objects: list, affect, feedback: s
+     return "\n".join(x for x in lines if x)
+ 
+ 
++def _rag_lines(grounding):
++    from core.rag import prompt_lines
++    return prompt_lines(grounding)
++
++
+ # ── ② 그리기 ─────────────────────────────────────────────────────────────
+ def _paint_gemini(prompt: str) -> Image.Image:
+     from google import genai
+@@ -286,13 +292,13 @@ def nearest(lab, refs) -> dict:
+ 
+ 
+ # ── 전체 ─────────────────────────────────────────────────────────────────
+-def run(masked: str, summary: str, res: dict, kb, objects: list, affect, base_palette: list) -> dict:
++def run(masked: str, summary: str, res: dict, kb, objects: list, affect, base_palette: list, grounding: dict | None = None) -> dict:
+     painter = painter_name()
+     key = cache_key(masked, painter)
+     seed = int(key[:8], 16)
+     fb, tries, best = "", [], None
+     for n in range(1, MAX_ATTEMPTS + 1):
+-        prompt = build_prompt(summary or masked[:40], res, kb, objects, affect, fb)
++        prompt = build_prompt(summary or masked[:40], res, kb, objects, affect, fb, grounding)
+         img, used = paint_with_fallback(prompt, painter, seed + n - 1, base_palette)
+         m = measure(img)
+         rv = review(m, affect)
+diff --git a/core/kb.py b/core/kb.py
+index 6f14ed9..17bd16e 100644
+--- a/core/kb.py
++++ b/core/kb.py
+@@ -24,8 +24,9 @@ class Resolution:
+     axis: str
+     phrase: str
+     kb_id: str
+-    how: str          # keyword | label | retrieval | fallback
++    how: str          # keyword | label | corpus | retrieval | fallback
+     score: float
++    ref: str = ""     # how=corpus 일 때 근거가 된 장면 문단 id (eng-2.2)
+ 
+ 
+ class KB:
+@@ -126,8 +127,9 @@ class SupabaseRetriever:
+ 
+ # ── 해석기 ────────────────────────────────────────────────────────────────
+ class Resolver:
+-    def __init__(self, kb: KB, retriever, tau: float):
+-        self.kb, self.retriever, self.tau = kb, retriever, tau
++    """키워드 → 모델 라벨 → 코퍼스 장면 문단 ≥ τc (eng-2.2, rag 가 있을 때) → KB 설명 검색 ≥ τ → 기본 톤."""
++    def __init__(self, kb: KB, retriever, tau: float, rag=None):
++        self.kb, self.retriever, self.tau, self.rag = kb, retriever, tau, rag
+ 
+     def resolve(self, axis: str, phrase: str, label: Optional[str] = None) -> Resolution:
+         phrase = (phrase or "").strip()
+@@ -136,7 +138,15 @@ class Resolver:
+                 return Resolution(axis, phrase, e["id"], "keyword", 1.0)
+         if label and label in self.kb.by_id and self.kb.by_id[label]["axis"] == axis:   # ② LLM 닫힌 라벨
+             return Resolution(axis, phrase, label, "label", 1.0)
+-        if phrase:                                            # ③ 검색 ≥ τ
++        if phrase and self.rag is not None:                   # ③ 코퍼스: 같은 항목을 여러 말투로 쓴 문단에서 찾는다
++            try:
++                hit = self.rag.resolve_axis(phrase, axis)
++            except Exception as ex:
++                logger.warning(f"[KB] 코퍼스 검색 실패 → KB 검색: {type(ex).__name__}")
++                hit = None
++            if hit is not None:
++                return Resolution(axis, phrase, hit.passage["kb_id"], "corpus", hit.score, hit.passage["id"])
++        if phrase:                                            # ④ KB 설명 검색 ≥ τ
+             try:
+                 ranked = self.retriever.search(phrase, axis)
+             except Exception as ex:                           # 검색 장애 시 기본 톤으로 안전하게
+@@ -147,7 +157,7 @@ class Resolver:
+             score = round(ranked[0][0], 4) if ranked else 0.0
+         else:
+             score = 0.0
+-        return Resolution(axis, phrase, self.kb.defaults[axis], "fallback", score)   # ④ 기본 톤
++        return Resolution(axis, phrase, self.kb.defaults[axis], "fallback", score)   # ⑤ 기본 톤
+ 
+ 
+ def make_retriever(kb: KB, kind: Optional[str] = None):
+@@ -171,5 +181,7 @@ def get_resolver() -> Resolver:
+     kb = KB()
+     r = make_retriever(kb)
+     tau = float(os.getenv("RETRIEVAL_TAU") or DEFAULT_TAU.get(r.name, 0.25))
+-    logger.info(f"[KB] {kb.version} · retriever={r.name} · τ={tau}")
+-    return Resolver(kb, r, tau)
++    from core.rag import get_rag                     # 지연 import (rag 가 kb 를 쓴다)
++    rag = get_rag()
++    logger.info(f"[KB] {kb.version} · retriever={r.name} · τ={tau} · corpus={'on' if rag else 'off'}")
++    return Resolver(kb, r, tau, rag)
+diff --git a/core/llm.py b/core/llm.py
+index b1edd41..c879f22 100644
+--- a/core/llm.py
++++ b/core/llm.py
+@@ -148,6 +148,12 @@ def _stub_extract(text: str, kb) -> Features:
+     try:                                              # 사전에 있는 사물 낱말이 문장에 나오면 그 순서대로 (최대 3개)
+         from core.objects import _lexicon
+         found = sorted((text.find(w), w) for w in _lexicon() if len(w) >= 2 and text.find(w) >= 0)
++        from core.rag import get_rag                   # eng-2.2: 사전에 없는 사물은 코퍼스 사물 이름에서도 찾는다
++        rag = get_rag()
++        if rag is not None:
++            have = {w for _, w in found}
++            found = sorted(found + [(text.find(w), w) for w in rag.objects_in(text, limit=3)
++                                    if w not in have and not any(w in h or h in w for h in have)])
+         objs = [{"name": w} for _, w in found[:3]]
+     except Exception:
+         objs = []
+diff --git a/core/objects.py b/core/objects.py
+index 743f10c..e774555 100644
+--- a/core/objects.py
++++ b/core/objects.py
+@@ -5,6 +5,7 @@ eng-1.1 은 사물 색을 강조색에 쓴다. 단, LLM은 여전히 숫자 색
+ 
+   LLM  → 사물마다 '등급'만 (색상 계열 13개 · 밝기 1~9 · 채도 0~5)   ← Color Oracle 과 같은 등급 체계
+   사전 → 이미 아는 사물이면 LLM 등급을 버리고 사전 등급 (같은 낱말 = 같은 색)
++  코퍼스 → 사전에 없으면 data/corpus/objects.jsonl 의 등급 (eng-2.2). 코퍼스 등급은 사전에 적지 않는다(초안이 고쳐질 수 있다)
+   계산 → 등급 → OKLCH 표 → HEX → CIE LCh  (oracle.color_abstraction / oracle.color_oracle, 결정론)
+ 
+ 사전은 Color Oracle 과 같은 color_lexicon 을 쓴다 (Supabase, 없으면 메모리 + lexicon_seed.json).
+@@ -27,7 +28,7 @@ class ObjectColor:
+     name: str                       # 문장 속 사물 이름 (예: 수박)
+     descriptor: tuple               # (hue, lightness, chroma) 등급
+     lch: tuple                      # CIE LCh (synth 와 같은 공간)
+-    how: str                        # lexicon | grade
++    how: str                        # lexicon | corpus | grade
+ 
+ 
+ def _key(name: str) -> str:
+@@ -62,6 +63,16 @@ def descriptor_to_lch(d: dict) -> tuple:
+     return (round(l, 2), round(c, 2), round(h, 2))
+ 
+ 
++def _corpus_object(name: str):
++    try:
++        from core.rag import get_rag
++        rag = get_rag()
++        return rag.object_of(name) if rag is not None else None
++    except Exception as ex:
++        logger.warning(f"[objects] 코퍼스 조회 실패: {type(ex).__name__}")
++        return None
++
++
+ def resolve_objects(objects: list, lexicon: Optional[dict] = None, learn: bool = True) -> list[ObjectColor]:
+     """LLM 이 낸 사물 목록 → 색. 이름이 비었거나 등급이 범위 밖이고 사전에도 없으면 버린다(검증 게이트)."""
+     lex = lexicon if lexicon is not None else _lexicon()
+@@ -75,9 +86,13 @@ def resolve_objects(objects: list, lexicon: Optional[dict] = None, learn: bool =
+         k = _key(name)
+         if not k or k in seen:
+             continue
++        cp = _corpus_object(name) if k not in lex else None
+         if k in lex:                                           # 사전 우선
+             d = {x: lex[k][x] for x in ("hue", "lightness", "chroma")}
+             how = "lexicon"
++        elif cp is not None:                                   # 다음은 코퍼스 (모델 등급보다 우선 → 같은 낱말 = 같은 색)
++            d = {x: cp[x] for x in ("hue", "lightness", "chroma")}
++            how = "corpus"
+         else:
+             d = ca.validate_descriptor(o)
+             if d is None:
+diff --git a/core/pipeline.py b/core/pipeline.py
+index 707e0a3..6a74d7b 100644
+--- a/core/pipeline.py
++++ b/core/pipeline.py
+@@ -3,6 +3,9 @@
+ ENGINE_MODE (요청마다 engine 으로 바꿀 수 있음)
+   palette     (eng-1.2) 마스킹 → 특징 추출 → KB 해석 + 사물 등급 + 정서 등급 → LCh 합성 → 그림 → 검증
+   image_first (eng-2.0) 마스킹 → 특징 추출 → KB 해석(프롬프트 보강) → 그림 → 그림에서 HEX 측정 → 심사
++코퍼스 RAG (eng-2.2, core/rag.py — CORPUS_RAG=0 이면 끔)
++  KB 해석에 '코퍼스 장면 문단' 단계 · 사전에 없는 사물은 코퍼스 등급 · 그림 지시문에 장면 묘사
++  · 응답 grounding(쓰인 문단과 적용 규칙의 연구 인용)
+ """
+ from __future__ import annotations
+ import os, logging
+@@ -18,6 +21,7 @@ from core.render import render_color_field
+ from core.verify import verify, feedback
+ from core import image_first
+ from core import sentence_lock
++from core.rag import get_rag
+ 
+ logger = logging.getLogger("uvicorn")
+ MAX_ATTEMPTS = int(os.getenv("VERIFY_MAX_ATTEMPTS", "3"))
+@@ -55,6 +59,9 @@ def analyze(text: str, generator: Optional[ImageGenerator] = None, cache: Option
+         protect |= set(_lexicon())
+     except Exception:
+         pass
++    rag = get_rag()
++    if rag is not None:                                 # 코퍼스 사물 이름(참외·솜사탕…)도 이름으로 오인해 가리면 안 된다
++        protect |= set(rag.corpus.object_names())
+     masked, mask_stats = mask(text, protect=protect)
+     if not sentence_lock.ENABLED:
+         return _compute(masked, mask_stats, resolver, kb, engine, generator, cache)
+@@ -89,6 +96,8 @@ def _compute(masked, mask_stats, resolver, kb, engine, generator, cache) -> dict
+     objs = resolve_objects(feats.objects)               # 사물 → 등급 → 색 (사전 우선, 결정론)
+     aff = compute_affect(feats.affect, kb.by_id[res["emotion"].kb_id])   # 쾌·각성 등급 → 채도 배율·명도 변화 (결정론)
+     syn = synthesize(res, kb, objs, aff)
++    rag = get_rag()
++    grounding = rag.ground(res, objs, aff) if rag is not None else None   # 이 표본에 쓰인 문단·연구만 (결정론)
+     version, extra = ENGINE_VERSION, {}
+     if engine == "image_first":
+         key = image_first.cache_key(masked, image_first.painter_name())
+@@ -100,7 +109,7 @@ def _compute(masked, mask_stats, resolver, kb, engine, generator, cache) -> dict
+             hit["_image"] = image_first.IMAGE_CACHE[key]          # 그림 먼저: 같은 기억 = 같은 그림
+         return hit
+     if engine == "image_first":
+-        out = image_first.run(masked, feats.memory_summary, res, kb, objs, aff, syn["palette"])
++        out = image_first.run(masked, feats.memory_summary, res, kb, objs, aff, syn["palette"], grounding)
+         syn = {**syn, "palette": out["palette"]}
+         img, ver = out["image"], {**out["verification"], "rows": []}
+         version = image_first.ENGINE_VERSION
+@@ -118,10 +127,13 @@ def _compute(masked, mask_stats, resolver, kb, engine, generator, cache) -> dict
+         "affect": syn["affect"],
+         "verification": {k: ver[k] for k in ("status", "max_de00", "max_ratio_err", "attempts", "renderer", "criteria",
+                                              "coverage", "review") if k in ver},
++        "grounding": grounding,
+         "pii_masked": mask_stats,
+         "cache_hit": False,
+         "_image": img,                        # 라우터가 저장 후 제거
+-        "_log": {"features": {**feats.model_dump(), "resolved_objects": [[o.name, *o.descriptor, o.how] for o in objs], **extra},
++        "_log": {"features": {**feats.model_dump(), "resolved_objects": [[o.name, *o.descriptor, o.how] for o in objs],
++                              "resolved_axes": {a: [r.kb_id, r.how, r.score, r.ref] for a, r in res.items()},
++                              "corpus_version": grounding["corpus_version"] if grounding else None, **extra},
+                  "verify_rows": ver["rows"], "masked_text_len": len(masked)},   # 키 = generation_logs 열 이름 (새 열 추가 금지)
+     }
+     if cache is not None:
+diff --git a/core/rag.py b/core/rag.py
+new file mode 100644
+index 0000000..ae81031
+--- /dev/null
++++ b/core/rag.py
+@@ -0,0 +1,229 @@
++"""core/rag.py — 코퍼스 RAG (eng-2.2): 검색(Retrieve) → 보강(Augment). 생성(색 숫자)은 여전히 계산기.
++
++어디에 쓰나 (core/pipeline.py)
++  ① KB 해석     : 축 구(phrase) → 장면 문단 검색 → 문단이 가리키는 KB 항목      (Resolver 의 'corpus' 단계)
++                  키워드 → 모델 라벨 → [코퍼스 ≥ τc] → KB 설명 검색 ≥ τ → 기본 톤
++  ② 사물 등급   : 어휘사전에 없는 사물 → 코퍼스 사물 문단의 등급 (같은 낱말 = 같은 색, 모델 등급보다 우선)
++  ③ 그림 지시문 : 해석된 KB 항목의 장면 문단 + 색 묘사(color_note, 숫자 없음) → 화가 프롬프트 (eng-2.0)
++  ④ 근거        : 응답 grounding = 쓰인 장면·사물 문단 + 이 표본에 적용된 규칙을 뒷받침하는 연구(인용·URL)
++
++검색 방법 (CORPUS_METHOD = auto | ngram | embedding, 기본 auto)
++  ngram     : 글자 2·3-gram TF-IDF 코사인. 키 없이 항상 동작. 결정론.
++  embedding : data/corpus_embeddings.json (scripts/build_corpus_embeddings.py 가 생성) + 질의 임베딩.
++              임베딩 제공자는 '비슷한 문장'과 같다 (oracle/similar.py: VOYAGE_API_KEY → voyage, 없으면 GEMINI).
++              파일의 모델 이름·코퍼스 버전이 지금과 다르면 쓰지 않고 ngram 으로 내려간다 (좌표가 다르면 점수가 무의미).
++  auto      : 위 조건이 모두 맞으면 embedding, 아니면 ngram.
++  ※ 같은 문장 = 같은 값은 문장 고정(eng-2.1)이 지킨다. 임베딩 API 응답이 아주 조금 흔들려도 고정된 문장은 바뀌지 않는다.
++기준선 CORPUS_TAU (비우면 ngram 0.35 · embedding 0.55)
++  ngram 0.35: scripts/eval_rag.py --sweep 에서 두 골드셋 모두 오연결 0 이 되는 가장 낮은 값 (2026-10-10 실측).
++              팀 골드셋 9문장 22% → 44%, 추가 골드셋 36문장 19% → 44% (KB 설명 검색만 대비).
++  embedding 0.55: 잠정값 (키가 없어 아직 못 쟀다). 임베딩 파일을 만든 뒤 같은 스크립트로 다시 정할 것.
++"""
++from __future__ import annotations
++import json, logging, math, os
++from dataclasses import dataclass
++from functools import lru_cache
++from pathlib import Path
++from typing import Optional
++
++import numpy as np
++
++from core.corpus import Corpus, get_corpus, norm_name, CORPUS_DIR
++from core.kb import _ngrams
++
++logger = logging.getLogger("uvicorn")
++ENABLED = os.getenv("CORPUS_RAG", "1") == "1"
++EMBED_PATH = Path(os.getenv("CORPUS_EMBED_PATH", CORPUS_DIR.parent / "corpus_embeddings.json"))
++DEFAULT_TAU = {"ngram": 0.35, "embedding": 0.55}
++SCENES_PER_AXIS = 2
++PROMPT_AXES = ("emotion", "time", "space")
++
++
++@dataclass(frozen=True)
++class Hit:
++    score: float
++    passage: dict
++
++
++class _Ngram:
++    name = "ngram"
++
++    def __init__(self, docs: list[str]):
++        tfs, vocab = [], {}
++        for d in docs:
++            tf: dict[str, int] = {}
++            for g in _ngrams(d):
++                tf[g] = tf.get(g, 0) + 1
++                vocab.setdefault(g, len(vocab))
++            tfs.append(tf)
++        n = len(docs)
++        df: dict[str, int] = {}
++        for tf in tfs:
++            for g in tf:
++                df[g] = df.get(g, 0) + 1
++        self.idf = {g: math.log((1 + n) / (1 + df[g])) + 1 for g in vocab}
++        self.vocab = vocab
++        self.mat = np.array([self._vec(tf) for tf in tfs]) if docs else np.zeros((0, 0))
++
++    def _vec(self, tf: dict) -> np.ndarray:
++        v = np.zeros(len(self.vocab))
++        for g, c in tf.items():
++            if g in self.vocab:
++                v[self.vocab[g]] = c * self.idf[g]
++        nrm = np.linalg.norm(v)
++        return v / nrm if nrm else v
++
++    def scores(self, query: str) -> np.ndarray:
++        tf: dict[str, int] = {}
++        for g in _ngrams(query):
++            tf[g] = tf.get(g, 0) + 1
++        return self.mat @ self._vec(tf) if len(self.mat) else np.zeros(0)
++
++
++class _Embedding:
++    name = "embedding"
++
++    def __init__(self, ids: list[str], data: dict, embed):
++        pos = {i: n for n, i in enumerate(data["ids"])}
++        m = np.array([data["vectors"][pos[i]] for i in ids], float)
++        self.mat = m / np.linalg.norm(m, axis=1, keepdims=True)
++        self._embed = embed
++
++    def scores(self, query: str) -> np.ndarray:
++        q = np.array(self._embed(query), float)
++        return self.mat @ (q / (np.linalg.norm(q) or 1))
++
++
++def _embedding_backend(corpus: Corpus, ids: list[str]):
++    """쓸 수 있으면 임베딩 검색기, 아니면 None (이유는 로그). 키·파일·모델·버전이 모두 맞아야 한다."""
++    method = (os.getenv("CORPUS_METHOD") or "auto").lower()
++    if method == "ngram":
++        return None
++    try:
++        from oracle import similar
++        model = similar.model_name()
++        if model is None or not EMBED_PATH.exists():
++            return None
++        data = json.loads(EMBED_PATH.read_text(encoding="utf-8"))
++        if data.get("model") != model or data.get("corpus_version") != corpus.version or not set(ids) <= set(data["ids"]):
++            logger.warning(f"[RAG] 코퍼스 임베딩 파일이 지금과 다름(모델 {data.get('model')} / 버전 {data.get('corpus_version')}) "
++                           f"→ ngram. scripts/build_corpus_embeddings.py 로 다시 만드세요")
++            return None
++        return _Embedding(ids, data, lambda t: similar.embed_many([t], "query")[0])
++    except Exception as ex:
++        logger.warning(f"[RAG] 임베딩 검색 사용 불가 → ngram: {type(ex).__name__}")
++        return None
++
++
++class CorpusRAG:
++    def __init__(self, corpus: Corpus, tau: Optional[float] = None):
++        self.corpus = corpus
++        self.scenes = list(corpus.scenes)
++        ids = [s["id"] for s in self.scenes]
++        self.ngram = _Ngram([s["text"] for s in self.scenes])
++        self.emb = _embedding_backend(corpus, ids)
++        self.method = self.emb.name if self.emb else "ngram"
++        env_tau = os.getenv("CORPUS_TAU")
++        self.tau = float(tau if tau is not None else env_tau or DEFAULT_TAU[self.method])
++
++    # ── 검색 ──
++    def _scores(self, query: str) -> tuple[np.ndarray, float]:
++        """(점수, 그 점수에 맞는 기준선). 질의 임베딩이 실패하면 이번 질의만 ngram 점수·ngram 기준선."""
++        if self.emb is not None:
++            try:
++                return self.emb.scores(query), self.tau
++            except Exception as ex:
++                logger.warning(f"[RAG] 질의 임베딩 실패 → 이번 질의 ngram: {type(ex).__name__}")
++                return self.ngram.scores(query), DEFAULT_TAU["ngram"]
++        return self.ngram.scores(query), self.tau
++
++    def _ranked(self, query: str, axis, kb_id, k) -> tuple[list[Hit], float]:
++        query = (query or "").strip()
++        if not query or not self.scenes:
++            return [], self.tau
++        sims, tau = self._scores(query)
++        hits = [Hit(round(float(s), 4), p) for s, p in zip(sims, self.scenes)
++                if (axis is None or p["axis"] == axis) and (kb_id is None or p["kb_id"] == kb_id)]
++        hits.sort(key=lambda h: (-h.score, h.passage["id"]))  # 같은 점수면 id 순 → 순서도 결정론
++        return hits[:k], tau
++
++    def search(self, query: str, axis: Optional[str] = None, kb_id: Optional[str] = None, k: int = 5) -> list[Hit]:
++        return self._ranked(query, axis, kb_id, k)[0]
++
++    def resolve_axis(self, phrase: str, axis: str) -> Optional[Hit]:
++        """구 → 가장 비슷한 장면 문단 (≥ τ). 없으면 None."""
++        hits, tau = self._ranked(phrase, axis, None, 1)
++        return hits[0] if hits and hits[0].score >= tau else None
++
++    # ── 사물 ──
++    def object_of(self, name: str) -> Optional[dict]:
++        return self.corpus.object_by_name.get(norm_name(name))
++
++    def objects_in(self, text: str, limit: int = 3) -> list[str]:
++        """문장에 실제로 나온 코퍼스 사물 이름 (문장 속 순서, 겹치는 짧은 이름 제외). 키 없는 stub 추출용."""
++        found, taken = [], []
++        for n in self.corpus.object_names():
++            i = text.find(n)
++            if i < 0 or any(a <= i < b or a < i + len(n) <= b for a, b in taken):
++                continue
++            taken.append((i, i + len(n)))
++            found.append((i, n))
++        return [n for _, n in sorted(found)[:limit]]
++
++    # ── 근거 묶음 ──
++    def ground(self, res: dict, objects: list, affect) -> dict:
++        """이 표본에 실제로 쓰인 것만 묶는다. 숫자 색은 없다(장면 color_note 는 말로 된 묘사)."""
++        scenes = []
++        for axis in PROMPT_AXES:
++            r = res.get(axis)
++            if r is None or r.how == "fallback":
++                continue
++            for h in self.search(r.phrase or "", axis=axis, kb_id=r.kb_id, k=SCENES_PER_AXIS) or \
++                    [Hit(0.0, p) for p in self.corpus.scenes_of(axis) if p["kb_id"] == r.kb_id][:1]:
++                p = h.passage
++                scenes.append({"id": p["id"], "axis": axis, "kb_id": p["kb_id"], "text": p["text"],
++                               "color_note": p.get("color_note", ""), "score": h.score, "status": p["status"]})
++        objs = []
++        for o in objects:
++            if o.how == "corpus":
++                p = self.object_of(o.name)
++                objs.append({"id": p["id"], "name": o.name, "grade": list(o.descriptor), "status": p["status"]})
++        rules = set()
++        if affect is not None and getattr(affect, "how", "none") != "none":
++            rules |= {"affect.valence_lightness", "affect.arousal_chroma"}
++        if objects:
++            rules.add("hue.object_association")
++        if res.get("emotion") is not None and res["emotion"].how != "fallback":
++            rules.add("hue.color_emotion_universal")
++        research = [{"id": r["id"], "applies_to": sorted(set(r["applies_to"]) & rules), "evidence": r["evidence"],
++                     "citation": r["citation"], "url": r["url"]}
++                    for r in self.corpus.research if set(r["applies_to"]) & rules and r["evidence"] in ("strong", "moderate")]
++        return {"corpus_version": self.corpus.version, "method": self.method, "tau": self.tau,
++                "scenes": scenes, "objects": objs, "research": research}
++
++
++def prompt_lines(grounding: Optional[dict]) -> list[str]:
++    """그림 지시문에 넣을 줄 (eng-2.0 화가). 장면 문단의 말 묘사만 — 숫자 색값은 넣지 않는다."""
++    if not grounding:
++        return []
++    seen, out = set(), []
++    for s in grounding.get("scenes", []):
++        if s["kb_id"] in seen:
++            continue
++        seen.add(s["kb_id"])
++        out.append(f"- {s['axis']}: {s['text']} → {s['color_note']}" if s.get("color_note") else f"- {s['axis']}: {s['text']}")
++    return out
++
++
++@lru_cache(maxsize=1)
++def get_rag() -> Optional[CorpusRAG]:
++    if not ENABLED:
++        return None
++    try:
++        rag = CorpusRAG(get_corpus())
++        logger.info(f"[RAG] {rag.corpus.version} · 장면 {len(rag.scenes)} · 사물 {len(rag.corpus.objects)} · "
++                    f"연구 {len(rag.corpus.research)} · {rag.method} · τc={rag.tau}")
++        return rag
++    except Exception as ex:                                   # 코퍼스가 깨져도 서비스는 KB 만으로 계속 (경고는 크게)
++        logger.error(f"[RAG] 코퍼스 사용 불가 → KB 만으로 계산: {ex}")
++        return None
+diff --git a/core/sentence_lock.py b/core/sentence_lock.py
+index bfcb0e4..2b5a9f1 100644
+--- a/core/sentence_lock.py
++++ b/core/sentence_lock.py
+@@ -52,7 +52,8 @@ def _sb():
+ 
+ def payload_of(result: dict) -> dict:
+     """고정할 값만 고른다 (그림·로그·원문 제외)."""
+-    keep = ("specimen_hash", "cache_key", "kb_version", "engine_version", "palette", "affect", "verification")
++    keep = ("specimen_hash", "cache_key", "kb_version", "engine_version", "palette", "affect", "verification",
++            "grounding")                          # eng-2.2: 어느 코퍼스 문단·연구로 계산했는지도 같이 고정 (원문 없음)
+     p = {k: result[k] for k in keep if k in result}
+     if KEEP_SUMMARY:
+         p["memory_summary"] = result.get("memory_summary", "")
+diff --git a/data/corpus/objects.jsonl b/data/corpus/objects.jsonl
+new file mode 100644
+index 0000000..26ab1cc
+--- /dev/null
++++ b/data/corpus/objects.jsonl
+@@ -0,0 +1,45 @@
++{"id": "ob-001", "name": "참외", "aliases": [], "hue": "노랑", "lightness": 8, "chroma": 4, "text": "노란 껍질에 흰 줄이 있는 여름 과일", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-002", "name": "귤", "aliases": ["감귤", "밀감"], "hue": "주황", "lightness": 7, "chroma": 4, "text": "겨울 이불 속에서 까먹던 주황 과일", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-003", "name": "홍시", "aliases": ["감"], "hue": "주황", "lightness": 5, "chroma": 4, "text": "늦가을 말랑하게 익은 붉은 주황 감", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-004", "name": "딸기", "aliases": [], "hue": "빨강", "lightness": 5, "chroma": 5, "text": "새빨갛게 익은 봄 과일", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-005", "name": "포도", "aliases": ["청포도"], "hue": "보라", "lightness": 3, "chroma": 3, "text": "짙은 보랏빛 송이 과일", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-006", "name": "오이", "aliases": [], "hue": "초록", "lightness": 5, "chroma": 3, "text": "시원한 초록 여름 채소", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-007", "name": "솜사탕", "aliases": [], "hue": "분홍", "lightness": 9, "chroma": 2, "text": "놀이공원에서 사 먹던 연분홍 솜사탕", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-008", "name": "떡볶이", "aliases": [], "hue": "빨강", "lightness": 4, "chroma": 4, "text": "학교 앞 분식집의 빨간 떡볶이", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-009", "name": "군고구마", "aliases": ["고구마"], "hue": "주황", "lightness": 4, "chroma": 3, "text": "겨울 길거리 드럼통에서 굽던 고구마", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-010", "name": "붕어빵", "aliases": [], "hue": "주황", "lightness": 6, "chroma": 3, "text": "노릇하게 구운 겨울 간식", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-011", "name": "아이스크림", "aliases": ["하드", "빙과"], "hue": "분홍", "lightness": 9, "chroma": 1, "text": "여름날 녹아내리던 하얀빛 아이스크림", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-012", "name": "케이크", "aliases": ["생일케이크"], "hue": "분홍", "lightness": 9, "chroma": 1, "text": "생크림을 바른 생일 케이크", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-013", "name": "해바라기", "aliases": [], "hue": "노랑", "lightness": 7, "chroma": 5, "text": "해를 향해 핀 커다란 노란 꽃", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-014", "name": "개나리", "aliases": [], "hue": "노랑", "lightness": 8, "chroma": 5, "text": "봄 담장을 덮는 샛노란 꽃", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-015", "name": "진달래", "aliases": [], "hue": "자주", "lightness": 6, "chroma": 4, "text": "봄 산에 피는 진분홍 꽃", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-016", "name": "장미", "aliases": [], "hue": "빨강", "lightness": 4, "chroma": 5, "text": "붉은 장미꽃", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-017", "name": "라벤더", "aliases": [], "hue": "보라", "lightness": 6, "chroma": 3, "text": "연보랏빛 향기 나는 꽃", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-018", "name": "유채꽃", "aliases": ["유채"], "hue": "노랑", "lightness": 8, "chroma": 5, "text": "제주 들판을 덮는 노란 꽃", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-019", "name": "수국", "aliases": [], "hue": "파랑", "lightness": 6, "chroma": 3, "text": "장마철 피는 푸르스름한 꽃송이", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-020", "name": "잔디", "aliases": ["잔디밭"], "hue": "초록", "lightness": 5, "chroma": 4, "text": "공원과 운동장에 깔린 풀밭", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-021", "name": "갈대", "aliases": ["억새"], "hue": "노랑", "lightness": 6, "chroma": 2, "text": "가을 강가에 흔들리는 누런 풀", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-022", "name": "모래", "aliases": ["모래사장", "백사장"], "hue": "주황", "lightness": 8, "chroma": 2, "text": "해변의 밝은 베이지 모래", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-023", "name": "파도", "aliases": ["물결"], "hue": "청록", "lightness": 6, "chroma": 3, "text": "부서지는 푸른 물결", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-024", "name": "호수", "aliases": [], "hue": "청록", "lightness": 5, "chroma": 2, "text": "잔잔한 물빛 호수", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-025", "name": "구름", "aliases": [], "hue": "무채", "lightness": 9, "chroma": 0, "text": "하늘에 뜬 흰 구름", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-026", "name": "달", "aliases": ["달빛", "보름달"], "hue": "노랑", "lightness": 9, "chroma": 2, "text": "밤하늘에 뜬 연노란 달", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-027", "name": "별", "aliases": ["별빛"], "hue": "노랑", "lightness": 9, "chroma": 1, "text": "밤하늘에 반짝이는 별", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-028", "name": "가로등", "aliases": [], "hue": "주황", "lightness": 7, "chroma": 4, "text": "밤길을 비추는 주황빛 나트륨 가로등", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-029", "name": "촛불", "aliases": ["양초"], "hue": "주황", "lightness": 7, "chroma": 4, "text": "흔들리는 따뜻한 촛불", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-030", "name": "불꽃놀이", "aliases": ["폭죽"], "hue": "노랑", "lightness": 8, "chroma": 5, "text": "밤하늘에 터지는 반짝이는 불꽃", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-031", "name": "우산", "aliases": [], "hue": "파랑", "lightness": 4, "chroma": 3, "text": "비 오는 날 쓰던 우산", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-032", "name": "장독대", "aliases": ["장독", "항아리"], "hue": "주황", "lightness": 3, "chroma": 2, "text": "마당에 놓인 짙은 갈색 옹기", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-033", "name": "마루", "aliases": ["툇마루", "대청마루"], "hue": "주황", "lightness": 5, "chroma": 2, "text": "반들반들한 나무 마루", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-034", "name": "칠판", "aliases": [], "hue": "초록", "lightness": 3, "chroma": 2, "text": "교실 앞의 짙은 초록 칠판", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-035", "name": "자전거", "aliases": [], "hue": "무채", "lightness": 5, "chroma": 0, "text": "골목을 달리던 은색 자전거", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-036", "name": "회전목마", "aliases": [], "hue": "노랑", "lightness": 8, "chroma": 4, "text": "금빛 조명이 빛나던 회전목마", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-037", "name": "풍선", "aliases": [], "hue": "빨강", "lightness": 5, "chroma": 5, "text": "손에 쥔 빨간 풍선", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-038", "name": "목도리", "aliases": ["털목도리"], "hue": "빨강", "lightness": 4, "chroma": 3, "text": "겨울에 두르던 붉은 털실 목도리", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-039", "name": "연탄", "aliases": [], "hue": "무채", "lightness": 2, "chroma": 0, "text": "골목에 쌓여 있던 검은 연탄", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-040", "name": "기차", "aliases": ["열차"], "hue": "파랑", "lightness": 4, "chroma": 3, "text": "창밖 풍경이 흐르던 기차", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-041", "name": "커피", "aliases": ["커피잔"], "hue": "주황", "lightness": 2, "chroma": 2, "text": "짙은 갈색 커피 한 잔", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-042", "name": "녹차", "aliases": [], "hue": "연두", "lightness": 6, "chroma": 3, "text": "연두빛 녹차 한 잔", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-043", "name": "소나무", "aliases": ["솔숲"], "hue": "초록", "lightness": 3, "chroma": 3, "text": "사철 푸른 짙은 초록 소나무", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-044", "name": "낙엽", "aliases": [], "hue": "주황", "lightness": 5, "chroma": 3, "text": "길에 수북이 쌓인 갈색 가을 잎", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "ob-045", "name": "얼음", "aliases": ["빙판", "고드름"], "hue": "하늘", "lightness": 9, "chroma": 1, "text": "투명하고 차가운 얼음", "source": "mac_corpus_draft", "status": "draft"}
+diff --git a/data/corpus/research.jsonl b/data/corpus/research.jsonl
+new file mode 100644
+index 0000000..00b9f7e
+--- /dev/null
++++ b/data/corpus/research.jsonl
+@@ -0,0 +1,10 @@
++{"id": "rs-001", "applies_to": ["affect.valence_lightness", "affect.arousal_chroma"], "evidence": "strong", "text": "먼셀 색표로 색상·명도·채도를 나눠 쾌·각성·지배감을 측정한 결과, 명도와 채도가 색상보다 정서에 강하고 일관되게 작용했다. 표준화 회귀식은 쾌 = 0.69·명도 + 0.22·채도, 각성 = −0.31·명도 + 0.60·채도. 명도 효과는 유채색과 무채색에서 거의 같았다.", "citation": "Valdez, P., & Mehrabian, A. (1994). Effects of color on emotions. Journal of Experimental Psychology: General, 123(4), 394–409.", "url": "https://pubmed.ncbi.nlm.nih.gov/7996122/", "status": "confirmed"}
++{"id": "rs-002", "applies_to": ["affect.arousal_chroma", "method.control_lch"], "evidence": "strong", "text": "CIE LCh 공간에서 색상(파랑·초록·빨강) × 채도 3단계 × 명도 3단계를 독립적으로 바꾼 요인설계(62명, 색당 30초 노출)에서, 정서 효과는 색상 하나가 아니라 세 축과 그 상호작용 모두에 의해 정해졌다. 채도는 각성을 강하게 올렸다.", "citation": "Wilms, L., & Oberfeld, D. (2018). Color and emotion: effects of hue, saturation, and brightness. Psychological Research.", "url": "https://bibliographie.ub.uni-mainz.de/catalog/publication-73891", "status": "confirmed"}
++{"id": "rs-003", "applies_to": ["hue.color_emotion_universal"], "evidence": "strong", "text": "30개국 4,598명(22개 언어)이 12개 색 이름과 20개 감정을 연결한 결과, 국가 간 색-감정 연합 패턴의 평균 유사도는 r = .88로 높았다. 동시에 국가별 고유 차이도 있었고, 언어·지리가 가까운 나라일수록 더 비슷했다.", "citation": "Jonauskaite, D. 외 (2020). Universal patterns in color-emotion associations are further shaped by linguistic and geographic proximity. Psychological Science, 31(10), 1245–1260.", "url": "https://eprints.whiterose.ac.uk/id/eprint/169496/", "status": "confirmed"}
++{"id": "rs-004", "applies_to": ["hue.color_emotion_universal"], "evidence": "moderate", "text": "색각이상 참가자도 정상 색각자와 비슷한 색-감정 연합을 보였다. 연합은 눈으로 본 경험보다 색 '개념'에 실려 있어, 언어 단서만으로도 상당 부분 복원된다.", "citation": "Jonauskaite, D. (2021). Universality of colour-emotion associations (박사학위논문, 로잔대).", "url": "https://serval.unil.ch/notice/serval:BIB_3FE27ADEFB61", "status": "confirmed"}
++{"id": "rs-005", "applies_to": ["hue.object_association"], "evidence": "strong", "text": "사람들은 좋아하는 사물과 강하게 연결된 색(맑은 하늘·깨끗한 물의 파랑)을 좋아하고, 싫어하는 사물과 연결된 색(배설물·썩은 음식의 갈색)을 싫어한다. 색과 연결된 사물들의 호감도 가중평균이 32색 평균 선호의 80%를 설명했다.", "citation": "Palmer, S. E., & Schloss, K. B. (2010). An ecological valence theory of human color preference. PNAS, 107(19), 8877–8882.", "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2889342", "status": "confirmed"}
++{"id": "rs-006", "applies_to": ["hue.red_performance_null"], "evidence": "null", "text": "빨강을 보면 시험 점수가 떨어진다는 효과는 38개 표본 67개 효과크기 메타분석에서 애너그램·지식 시험에선 차이가 없었고, 추론 시험의 효과(d = −0.34)도 출판편향을 보정하자 사라졌다. 특정 색상이 행동을 직접 바꾼다는 근거로 쓰지 않는다.", "citation": "Gnambs, T. (2020). Limited evidence for the effect of red color on cognitive performance: A meta-analysis. Psychonomic Bulletin & Review, 27, 1374–1382.", "url": "https://link.springer.com/article/10.3758/s13423-020-01772-1", "status": "confirmed"}
++{"id": "rs-007", "applies_to": ["hue.red_attraction_weak"], "evidence": "weak", "text": "빨강이 이성을 더 매력적으로 보이게 한다는 효과는 메타분석에서 남성→여성 d = 0.26, 여성→남성 d = 0.13으로 작고 이질성이 컸으며, 여성 참가자의 사전등록 연구에서는 효과가 없었다(d = −0.10).", "citation": "Lehmann, G. K., Elliot, A. J., & Calin-Jageman, R. J. (2018). Meta-analysis of the effect of red on perceived attractiveness. Evolutionary Psychology, 16(4).", "url": "https://journals.sagepub.com/doi/10.1177/1474704918802412", "status": "confirmed"}
++{"id": "rs-008", "applies_to": ["hue.blue_creativity_null"], "evidence": "null", "text": "파랑 배경이 창의성을, 빨강 배경이 정밀성을 높인다는 보고는 같은 단어·같은 색으로 원 연구의 3배 이상 표본(263명)을 쓴 직접 재현에서 나타나지 않았다.", "citation": "Steele, K. M. (2014). Failure to replicate the Mehta and Zhu (2009) color-priming effect on anagram solution times. Psychonomic Bulletin & Review, 21, 771–776.", "url": "https://experpsych.appstate.edu/node/58", "status": "confirmed"}
++{"id": "rs-009", "applies_to": ["method.control_lch"], "evidence": "strong", "text": "색채 심리 문헌은 아직 초기 단계이며, 많은 연구가 색상·명도·채도를 따로 통제하지 않았고 이론 없이 응용 질문만 좇았다. 결론과 현장 적용에는 신중함이 필요하다.", "citation": "Elliot, A. J. (2015). Color and psychological functioning: a review of theoretical and empirical work. Frontiers in Psychology, 6, 368.", "url": "https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2015.00368/full", "status": "confirmed"}
++{"id": "rs-010", "applies_to": ["hue.context_meaning"], "evidence": "moderate", "text": "색-맥락 이론: 색의 의미는 학습과 진화로 형성되며, 같은 색이라도 맥락(성취·연애 등)에 따라 의미가 달라진다. 색은 단순한 반사 스위치가 아니다.", "citation": "Elliot, A. J., & Maier, M. A. (2014). Color psychology: Effects of perceiving color on psychological functioning in humans. Annual Review of Psychology, 65, 95–120.", "url": "https://www.scinapse.io/papers/2164901293", "status": "confirmed"}
+diff --git a/data/corpus/scenes.jsonl b/data/corpus/scenes.jsonl
+new file mode 100644
+index 0000000..8d45d24
+--- /dev/null
++++ b/data/corpus/scenes.jsonl
+@@ -0,0 +1,84 @@
++{"id": "sc-wn-01", "axis": "emotion", "kb_id": "warm_nostalgia", "text": "엄마가 해 주던 밥 냄새가 떠오르는 따뜻한 옛날 기억", "color_note": "크림빛 살구색, 부드럽고 밝은 난색", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-wn-02", "axis": "emotion", "kb_id": "warm_nostalgia", "text": "어릴 적 동생과 이불 속에서 키득거리던 정다운 시간", "color_note": "포근한 살구빛과 우윳빛", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-wn-03", "axis": "emotion", "kb_id": "warm_nostalgia", "text": "온 식구가 둘러앉아 웃던 명절 저녁의 정겨움", "color_note": "따뜻한 복숭아빛, 낮은 채도의 난색", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-wn-04", "axis": "emotion", "kb_id": "warm_nostalgia", "text": "옛날 사진첩을 넘기며 미소 짓게 되는 그때 그 시절", "color_note": "바랜 듯 따뜻한 크림색", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-wn-05", "axis": "emotion", "kb_id": "warm_nostalgia", "text": "할머니 품에 안겨 잠들던 안온하고 정다운 느낌", "color_note": "밝은 살구색과 연한 베이지", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-je-01", "axis": "emotion", "kb_id": "joy_excitement", "text": "가슴이 두근거리고 들떠서 소리 지르며 뛰어다니던 날", "color_note": "선명한 금빛 노랑, 높은 채도", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-je-02", "axis": "emotion", "kb_id": "joy_excitement", "text": "생일 파티에서 촛불을 끄며 너무 기뻤던 순간", "color_note": "밝고 쨍한 노랑과 주황", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-je-03", "axis": "emotion", "kb_id": "joy_excitement", "text": "합격 소식을 듣고 날아갈 듯 신이 났던 기분", "color_note": "빛나는 금색, 생기 있는 난색", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-je-04", "axis": "emotion", "kb_id": "joy_excitement", "text": "친구들과 깔깔대며 정신없이 놀던 신나는 오후", "color_note": "선명한 노랑, 들뜬 고채도", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-je-05", "axis": "emotion", "kb_id": "joy_excitement", "text": "불꽃놀이가 터질 때마다 환호하던 들뜬 밤", "color_note": "반짝이는 금빛과 선명한 원색", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-cp-01", "axis": "emotion", "kb_id": "calm_peace", "text": "아무 걱정 없이 느긋하게 누워 있던 편안한 시간", "color_note": "맑고 옅은 하늘색, 낮은 채도", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-cp-02", "axis": "emotion", "kb_id": "calm_peace", "text": "잔잔한 호숫가에 앉아 숨을 고르던 차분한 마음", "color_note": "부드러운 하늘빛과 물빛", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-cp-03", "axis": "emotion", "kb_id": "calm_peace", "text": "창문을 열고 선선한 공기를 마시던 한가로운 주말", "color_note": "밝고 가벼운 하늘색", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-cp-04", "axis": "emotion", "kb_id": "calm_peace", "text": "마음이 가라앉고 숨이 편해지던 쉼의 순간", "color_note": "옅은 청색 계열, 고요한 저채도", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-sa-01", "axis": "emotion", "kb_id": "stability_affection", "text": "아버지 등에 업혀 집으로 오던 든든한 밤길", "color_note": "짙은 나무색, 묵직한 갈색", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-sa-02", "axis": "emotion", "kb_id": "stability_affection", "text": "언제나 내 편이 되어 준 사람이 곁에 있어 안심되던 마음", "color_note": "따뜻하고 깊은 갈색", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-sa-03", "axis": "emotion", "kb_id": "stability_affection", "text": "큰 손이 내 손을 꼭 잡아 주어 무섭지 않던 기억", "color_note": "안정감 있는 진한 나무색", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-sa-04", "axis": "emotion", "kb_id": "stability_affection", "text": "흔들릴 때마다 기댈 수 있던 믿음직한 존재", "color_note": "어두운 호두나무 갈색", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-lm-01", "axis": "emotion", "kb_id": "longing_melancholy", "text": "다시는 돌아갈 수 없어 마음 한쪽이 시린 기억", "color_note": "흐린 라벤더, 저채도 보랏빛", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-lm-02", "axis": "emotion", "kb_id": "longing_melancholy", "text": "떠나간 사람을 생각하면 아직도 먹먹해지는 마음", "color_note": "어스름한 보라와 회색빛", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-lm-03", "axis": "emotion", "kb_id": "longing_melancholy", "text": "헤어지던 날 뒤돌아보며 눈물을 참았던 순간", "color_note": "가라앉은 연보라", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-lm-04", "axis": "emotion", "kb_id": "longing_melancholy", "text": "그 시절이 사무치게 생각나 울컥하는 밤", "color_note": "희미한 보랏빛 회색", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-lm-05", "axis": "emotion", "kb_id": "longing_melancholy", "text": "연락이 끊긴 친구가 문득 생각나 허전한 마음", "color_note": "탁한 라벤더와 회청색", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-qs-01", "axis": "emotion", "kb_id": "quiet_solitude", "text": "홀로 책상 스탠드 불빛 아래 공부에 빠져 있던 밤", "color_note": "스탠드 불빛 같은 노란 주황", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-qs-02", "axis": "emotion", "kb_id": "quiet_solitude", "text": "아무도 없는 방에서 그림 그리기에 푹 빠졌던 시간", "color_note": "따뜻한 전등빛 노랑", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-qs-03", "axis": "emotion", "kb_id": "quiet_solitude", "text": "말없이 혼자 걸으며 생각을 정리하던 고독한 시간", "color_note": "은은한 호박색", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-qs-04", "axis": "emotion", "kb_id": "quiet_solitude", "text": "밤새 코드를 짜며 시간 가는 줄 몰랐던 날", "color_note": "어둠 속 전등빛 노랑", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-af-01", "axis": "time", "kb_id": "afternoon", "text": "점심 먹고 나른하게 해가 높이 떠 있던 시간", "color_note": "밝고 따스한 연노랑 햇빛", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-af-02", "axis": "time", "kb_id": "afternoon", "text": "볕이 마루까지 깊숙이 들어오던 한낮", "color_note": "부드러운 햇빛 노랑", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-af-03", "axis": "time", "kb_id": "afternoon", "text": "학교가 끝나고 해가 아직 쨍쨍하던 하굣길", "color_note": "환한 연노랑", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-af-04", "axis": "time", "kb_id": "afternoon", "text": "여름 한낮 매미가 울고 볕이 내리쬐던 때", "color_note": "눈부신 밝은 노랑빛", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-ss-01", "axis": "time", "kb_id": "sunset", "text": "해가 산 너머로 넘어가며 하늘이 붉게 물들던 때", "color_note": "붉은 산호색과 주황", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-ss-02", "axis": "time", "kb_id": "sunset", "text": "강물 위로 해가 지며 주황빛이 번지던 무렵", "color_note": "타오르는 주황과 분홍", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-ss-03", "axis": "time", "kb_id": "sunset", "text": "놀다가 해 떨어질 때쯤 집에 들어오라고 부르던 시간", "color_note": "붉게 기우는 산호빛", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-ss-04", "axis": "time", "kb_id": "sunset", "text": "어스름이 내리기 직전 하늘이 분홍과 주황으로 갈라지던 때", "color_note": "산호색에서 보라로 번지는 하늘", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-nt-01", "axis": "time", "kb_id": "night", "text": "모두 잠든 깊은 시간 창밖이 캄캄하던 때", "color_note": "짙은 남색 어둠", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-nt-02", "axis": "time", "kb_id": "night", "text": "별이 총총하던 시골의 깜깜한 하늘 아래", "color_note": "깊은 남색과 검푸른 빛", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-nt-03", "axis": "time", "kb_id": "night", "text": "야근을 마치고 텅 빈 거리를 걸어 돌아오던 늦은 시각", "color_note": "어두운 청회색과 희미한 불빛", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-nt-04", "axis": "time", "kb_id": "night", "text": "달빛만 비치던 고요한 한밤중", "color_note": "검푸른 남색, 낮은 명도", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-mn-01", "axis": "time", "kb_id": "morning", "text": "해가 막 떠오르며 창문이 뿌옇게 밝아오던 때", "color_note": "옅고 맑은 아이보리빛", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-mn-02", "axis": "time", "kb_id": "morning", "text": "새소리에 눈을 뜬 상쾌한 이른 시간", "color_note": "투명하고 밝은 연노랑", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-mn-03", "axis": "time", "kb_id": "morning", "text": "물안개가 피어오르던 동틀 무렵", "color_note": "흐릿하고 밝은 우윳빛", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-mn-04", "axis": "time", "kb_id": "morning", "text": "엄마가 깨워서 졸린 눈으로 일어나던 학교 가기 전", "color_note": "옅은 아침빛 크림색", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-wt-01", "axis": "time", "kb_id": "winter", "text": "손이 꽁꽁 얼고 하얀 김이 나던 추운 날", "color_note": "차갑고 창백한 흰 하늘빛", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-wt-02", "axis": "time", "kb_id": "winter", "text": "온 세상이 하얗게 덮여 발자국을 남기던 날", "color_note": "흰빛에 가까운 아주 옅은 청색", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-wt-03", "axis": "time", "kb_id": "winter", "text": "크리스마스 무렵 찬바람이 불던 연말", "color_note": "창백한 은빛 청색", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-wt-04", "axis": "time", "kb_id": "winter", "text": "얼음판에서 썰매를 타던 한겨울 방학", "color_note": "얼음 같은 옅은 하늘빛", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-ap-01", "axis": "space", "kb_id": "amusement_park", "text": "롤러코스터와 관람차가 돌아가던 유원지", "color_note": "분홍빛과 사탕 같은 파스텔", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-ap-02", "axis": "space", "kb_id": "amusement_park", "text": "솜사탕을 들고 퍼레이드를 구경하던 놀이동산", "color_note": "솜사탕 분홍과 밝은 원색", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-ap-03", "axis": "space", "kb_id": "amusement_park", "text": "범퍼카와 바이킹 앞에 줄 서 있던 놀이기구 광장", "color_note": "밝은 분홍과 노랑 조명", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-ap-04", "axis": "space", "kb_id": "amusement_park", "text": "알록달록한 풍선과 음악이 가득하던 유원지 입구", "color_note": "경쾌한 분홍 계열", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-se-01", "axis": "space", "kb_id": "sea", "text": "모래사장에서 조개를 줍던 여름 해수욕장", "color_note": "맑은 청록 바닷빛", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-se-02", "axis": "space", "kb_id": "sea", "text": "갈매기가 날던 항구와 방파제", "color_note": "푸른 물빛과 회청색", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-se-03", "axis": "space", "kb_id": "sea", "text": "수평선이 끝없이 펼쳐진 동해 바닷가", "color_note": "짙고 시원한 청록", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-se-04", "axis": "space", "kb_id": "sea", "text": "발끝에 물결이 밀려오던 섬마을 갯가", "color_note": "투명한 하늘빛 바다", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-al-01", "axis": "space", "kb_id": "alley", "text": "낡은 대문이 이어지던 좁은 동네 길목", "color_note": "바랜 회갈색 돌빛", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-al-02", "axis": "space", "kb_id": "alley", "text": "구멍가게 앞에서 친구를 기다리던 오래된 마을 어귀", "color_note": "흐린 베이지와 회색 담장빛", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-al-03", "axis": "space", "kb_id": "alley", "text": "계단이 구불구불 이어지던 달동네 언덕길", "color_note": "낮은 채도의 돌 회색", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-al-04", "axis": "space", "kb_id": "alley", "text": "덕수궁 돌담을 따라 걷던 오래된 길", "color_note": "따뜻한 회갈색 돌담", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-rw-01", "axis": "space", "kb_id": "rain_window", "text": "유리창에 빗방울이 흘러내리던 방 안", "color_note": "젖은 회청색, 낮은 채도", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-rw-02", "axis": "space", "kb_id": "rain_window", "text": "우산 없이 처마 밑에서 비를 피하던 곳", "color_note": "흐린 잿빛 하늘", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-rw-03", "axis": "space", "kb_id": "rain_window", "text": "소나기가 쏟아지던 카페 창가 자리", "color_note": "축축한 회색과 은빛", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-rw-04", "axis": "space", "kb_id": "rain_window", "text": "빗줄기가 굵어지던 버스 정류장 유리 안쪽", "color_note": "차분한 청회색", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-gh-01", "axis": "space", "kb_id": "grandma_house", "text": "아궁이와 장독대가 있던 외가 마당", "color_note": "흙빛 갈색과 나무색", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-gh-02", "axis": "space", "kb_id": "grandma_house", "text": "툇마루에 앉아 감을 먹던 시골 기와집", "color_note": "따뜻한 원목 갈색", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-gh-03", "axis": "space", "kb_id": "grandma_house", "text": "평상에 누워 있던 큰집 뒤뜰", "color_note": "볕에 바랜 나무색", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-gh-04", "axis": "space", "kb_id": "grandma_house", "text": "방학마다 내려가던 논밭 옆 고향 집", "color_note": "황토빛 갈색", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-sc-01", "axis": "space", "kb_id": "school", "text": "칠판과 나무 책상이 줄지어 있던 교실 안", "color_note": "칠판 같은 짙은 초록", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-sc-02", "axis": "space", "kb_id": "school", "text": "체육 시간에 뛰놀던 흙 먼지 날리던 학교 마당", "color_note": "녹색 칠판빛과 흙빛", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-sc-03", "axis": "space", "kb_id": "school", "text": "도서관 열람실에서 시험공부를 하던 자리", "color_note": "차분한 녹색", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-sc-04", "axis": "space", "kb_id": "school", "text": "복도 끝 사물함 앞에서 친구와 수다 떨던 중학교", "color_note": "흐린 초록과 회색", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-fr-01", "axis": "space", "kb_id": "flower_road", "text": "꽃잎이 바람에 흩날리던 봄날 산책로", "color_note": "아주 연한 분홍", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-fr-02", "axis": "space", "kb_id": "flower_road", "text": "진달래와 개나리가 흐드러지게 피던 언덕", "color_note": "연분홍과 연노랑", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-fr-03", "axis": "space", "kb_id": "flower_road", "text": "유채꽃밭과 튤립 정원 사이를 걷던 길", "color_note": "밝은 분홍과 꽃빛 파스텔", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-fr-04", "axis": "space", "kb_id": "flower_road", "text": "장미 넝쿨이 드리운 공원 화단 옆", "color_note": "부드러운 장밋빛 분홍", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-ch-01", "axis": "quality", "kb_id": "cherished", "text": "평생 간직하고 싶은 소중한 장면", "color_note": "원래 색 그대로", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-ch-02", "axis": "quality", "kb_id": "cherished", "text": "가끔 꺼내 보며 미소 짓는 귀한 기억", "color_note": "원래 색 그대로", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-ch-03", "axis": "quality", "kb_id": "cherished", "text": "마음속 보물처럼 아끼는 날", "color_note": "원래 색 그대로", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-fd-01", "axis": "quality", "kb_id": "faded", "text": "너무 오래전 일이라 가물가물한 기억", "color_note": "바래고 흐릿한 색, 대비가 약함", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-fd-02", "axis": "quality", "kb_id": "faded", "text": "꿈이었는지 진짜였는지 헷갈리는 장면", "color_note": "안개 낀 듯 탁한 색", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-fd-03", "axis": "quality", "kb_id": "faded", "text": "얼굴이 잘 떠오르지 않을 만큼 흐려진 기억", "color_note": "빛바랜 저채도", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-vv-01", "axis": "quality", "kb_id": "vivid", "text": "어제 일처럼 또렷하게 기억나는 장면", "color_note": "또렷하고 선명한 색, 대비가 큼", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-vv-02", "axis": "quality", "kb_id": "vivid", "text": "눈을 감으면 지금도 생생히 그려지는 그날", "color_note": "쨍하고 맑은 색", "source": "mac_corpus_draft", "status": "draft"}
++{"id": "sc-vv-03", "axis": "quality", "kb_id": "vivid", "text": "그 순간의 소리와 냄새까지 다 기억나는 날", "color_note": "선명한 고채도", "source": "mac_corpus_draft", "status": "draft"}
+diff --git a/data/goldset_rag.jsonl b/data/goldset_rag.jsonl
+new file mode 100644
+index 0000000..7419879
+--- /dev/null
++++ b/data/goldset_rag.jsonl
+@@ -0,0 +1,43 @@
++{"axis": "emotion", "phrase": "엄마 품처럼 아늑했던", "expected": "warm_nostalgia"}
++{"axis": "emotion", "phrase": "온 가족이 모여 정다웠던", "expected": "warm_nostalgia"}
++{"axis": "emotion", "phrase": "어릴 때 생각나서 뭉클한", "expected": "warm_nostalgia"}
++{"axis": "emotion", "phrase": "너무 들떠서 잠도 안 오던", "expected": "joy_excitement"}
++{"axis": "emotion", "phrase": "기뻐서 펄쩍펄쩍 뛰던", "expected": "joy_excitement"}
++{"axis": "emotion", "phrase": "한가롭고 느긋하던", "expected": "calm_peace"}
++{"axis": "emotion", "phrase": "숨 돌리며 쉬던 차분한", "expected": "calm_peace"}
++{"axis": "emotion", "phrase": "아버지가 지켜 줘서 안심되던", "expected": "stability_affection"}
++{"axis": "emotion", "phrase": "믿고 기댈 수 있던", "expected": "stability_affection"}
++{"axis": "emotion", "phrase": "다시 못 볼 사람이라 먹먹한", "expected": "longing_melancholy"}
++{"axis": "emotion", "phrase": "떠나보내고 허전했던", "expected": "longing_melancholy"}
++{"axis": "emotion", "phrase": "홀로 밤새 책에 빠져 있던", "expected": "quiet_solitude"}
++{"axis": "emotion", "phrase": "분노로 손이 떨리던", "expected": null}
++{"axis": "emotion", "phrase": "시험지를 받아 든 긴장", "expected": null}
++{"axis": "time", "phrase": "해가 머리 위에 있던 한낮", "expected": "afternoon"}
++{"axis": "time", "phrase": "볕이 쨍쨍하던 두 시쯤", "expected": "afternoon"}
++{"axis": "time", "phrase": "하늘이 붉게 타던 해 질 녘", "expected": "sunset"}
++{"axis": "time", "phrase": "해 떨어지기 직전", "expected": "sunset"}
++{"axis": "time", "phrase": "다들 잠든 한밤중", "expected": "night"}
++{"axis": "time", "phrase": "별 보며 걷던 깜깜한 때", "expected": "night"}
++{"axis": "time", "phrase": "동이 트던 무렵", "expected": "morning"}
++{"axis": "time", "phrase": "눈 비비며 일어난 이른 시각", "expected": "morning"}
++{"axis": "time", "phrase": "손이 시리던 한겨울", "expected": "winter"}
++{"axis": "time", "phrase": "세상이 하얗게 덮인 날", "expected": "winter"}
++{"axis": "time", "phrase": "벚꽃 지고 초록이 짙어지던 오월 말", "expected": null}
++{"axis": "space", "phrase": "관람차가 돌던 유원지", "expected": "amusement_park"}
++{"axis": "space", "phrase": "퍼레이드 보던 테마 공원", "expected": "amusement_park"}
++{"axis": "space", "phrase": "수평선 보이던 해수욕장", "expected": "sea"}
++{"axis": "space", "phrase": "배가 들어오던 포구", "expected": "sea"}
++{"axis": "space", "phrase": "전봇대 늘어선 오르막 길목", "expected": "alley"}
++{"axis": "space", "phrase": "낡은 대문 늘어선 좁은 길", "expected": "alley"}
++{"axis": "space", "phrase": "빗방울 맺힌 유리창 앞", "expected": "rain_window"}
++{"axis": "space", "phrase": "장대비 쏟아지던 정자 아래", "expected": "rain_window"}
++{"axis": "space", "phrase": "닭 키우던 큰댁", "expected": "grandma_house"}
++{"axis": "space", "phrase": "감나무 서 있던 시골 마당", "expected": "grandma_house"}
++{"axis": "space", "phrase": "분필 가루 날리던 반", "expected": "school"}
++{"axis": "space", "phrase": "시험 끝난 강당", "expected": "school"}
++{"axis": "space", "phrase": "진달래 흐드러진 언덕", "expected": "flower_road"}
++{"axis": "space", "phrase": "공항 출국장", "expected": null}
++{"axis": "space", "phrase": "병원 대기실", "expected": null}
++{"axis": "quality", "phrase": "한 장면도 안 잊힌", "expected": "vivid"}
++{"axis": "quality", "phrase": "안개처럼 뿌연", "expected": "faded"}
++{"axis": "quality", "phrase": "꺼내 보면 미소 나는", "expected": "cherished"}
+diff --git a/scripts/build_corpus_embeddings.py b/scripts/build_corpus_embeddings.py
+new file mode 100644
+index 0000000..035ee19
+--- /dev/null
++++ b/scripts/build_corpus_embeddings.py
+@@ -0,0 +1,29 @@
++"""scripts/build_corpus_embeddings.py — 코퍼스 장면 문단 임베딩 파일 만들기 (선택, eng-2.2).
++
++  VOYAGE_API_KEY=... python scripts/build_corpus_embeddings.py
++  → data/corpus_embeddings.json  {model, corpus_version, ids, vectors}
++
++임베딩 제공자·모델은 '비슷한 문장'(oracle/similar.py)과 같다: VOYAGE_API_KEY → voyage-4(1024차원), 없으면 GEMINI_API_KEY.
++파일에 모델 이름과 코퍼스 버전을 같이 적는다. 서버(core/rag.py)는 둘이 지금과 같을 때만 이 파일을 쓰고, 다르면 ngram 으로 내려간다.
++→ 코퍼스 문단을 고치거나 모델을 바꾸면 이 스크립트를 다시 돌린다. 그다음 scripts/eval_rag.py --sweep 으로 τc 를 다시 정한다.
++"""
++import json, sys
++from pathlib import Path
++ROOT = Path(__file__).resolve().parent.parent
++sys.path.insert(0, str(ROOT))
++from core.kb import KB
++from core.corpus import load
++from core.rag import EMBED_PATH
++from oracle import similar
++
++model = similar.model_name()
++if model is None:
++    sys.exit("임베딩 제공자 키가 없습니다 (VOYAGE_API_KEY 또는 GEMINI_API_KEY)")
++c = load(KB())
++ids = [s["id"] for s in c.scenes]
++texts = [s["text"] for s in c.scenes]
++vecs = []
++for i in range(0, len(texts), 64):
++    vecs += similar.embed_many(texts[i:i + 64], "document")
++EMBED_PATH.write_text(json.dumps({"model": model, "corpus_version": c.version, "ids": ids, "vectors": vecs}), encoding="utf-8")
++print(f"{EMBED_PATH} · {len(ids)}개 · {model} · {c.version}")
+diff --git a/scripts/eval_rag.py b/scripts/eval_rag.py
+new file mode 100644
+index 0000000..d7ebef9
+--- /dev/null
++++ b/scripts/eval_rag.py
+@@ -0,0 +1,85 @@
++"""scripts/eval_rag.py — 코퍼스 RAG 평가: KB 설명만 검색 vs 코퍼스(장면 문단) 검색 vs 둘을 이은 해석 경로.
++
++  python scripts/eval_rag.py                              # 두 골드셋 모두, 기본 τ
++  python scripts/eval_rag.py --gold data/goldset.jsonl     # 하나만
++  python scripts/eval_rag.py --sweep                       # 코퍼스 τc 를 0.00~0.95 로 바꿔 가며
++
++골드셋 {"axis","phrase","expected"} — expected=null 은 '맞는 항목이 없어야 정답'(기본 톤).
++키워드로 바로 풀리는 문장은 뺀다(검색기 실력만 본다). 지표: 정답률 · 오연결(엉뚱한 항목) · 놓침(있는데 기본 톤).
++  data/goldset.jsonl      팀 골드셋 (코퍼스와 따로 작성됨)
++  data/goldset_rag.jsonl  eng-2.2 추가 골드셋 — 코퍼스를 쓴 사람이 작성했다. 낱말 겹침을 줄였지만 낙관 편향이 있다.
++                          실제 사용자 문장으로 바꿔 가는 것이 다음 단계.
++"""
++import argparse, json, sys
++from pathlib import Path
++ROOT = Path(__file__).resolve().parent.parent
++sys.path.insert(0, str(ROOT))
++from core.kb import KB, make_retriever, Resolver, DEFAULT_TAU
++from core.corpus import load
++from core.rag import CorpusRAG
++
++ap = argparse.ArgumentParser()
++ap.add_argument("--gold", action="append")
++ap.add_argument("--sweep", action="store_true")
++a = ap.parse_args()
++golds = a.gold or [str(ROOT / "data" / "goldset.jsonl"), str(ROOT / "data" / "goldset_rag.jsonl")]
++
++kb = KB()
++ret = make_retriever(kb)
++tau = DEFAULT_TAU.get(ret.name, 0.25)
++rag = CorpusRAG(load(kb))
++
++
++def score(rows, pred_fn):
++    ok = wrong = miss = 0
++    for g in rows:
++        p = pred_fn(g)
++        if p == g["expected"]:
++            ok += 1
++        elif p is None:
++            miss += 1
++        else:
++            wrong += 1
++    return ok, wrong, miss
++
++
++def kb_only(g, t=tau):
++    s, i = ret.search(g["phrase"], g["axis"])[0]
++    return i if s >= t else None
++
++
++def corpus_only(g, t=None):
++    hits = rag.search(g["phrase"], axis=g["axis"], k=1)
++    t = rag.tau if t is None else t
++    return hits[0].passage["kb_id"] if hits and hits[0].score >= t else None
++
++
++def chained(g, t=None):
++    r = Resolver(kb, ret, tau, rag if t is None else CorpusRAG(rag.corpus, tau=t)).resolve(g["axis"], g["phrase"])
++    return None if r.how == "fallback" else r.kb_id
++
++
++print(f"KB {kb.version} · KB 검색 {ret.name} τ={tau} · 코퍼스 {rag.corpus.version} ({len(rag.scenes)} 장면) {rag.method} τc={rag.tau}\n")
++for path in golds:
++    gold = [json.loads(l) for l in open(path, encoding="utf-8") if l.strip()]
++    rows = [g for g in gold if not any(k in g["phrase"] for e in kb.by_axis[g["axis"]] for k in e["keywords"])]
++    n = len(rows)
++    print(f"■ {Path(path).name}: 평가 {n}문장 (전체 {len(gold)}, 키워드로 풀리는 {len(gold) - n}개 제외)")
++    print("  방법                      정답률   오연결  놓침")
++    for name, fn in (("KB 설명 검색만 (eng-2.1)", kb_only), ("코퍼스 장면 검색만", corpus_only), ("코퍼스 → KB (eng-2.2 경로)", chained)):
++        ok, wrong, miss = score(rows, fn)
++        print(f"  {name:<24s} {ok}/{n} {ok / n:5.0%}  {wrong:5d}  {miss:4d}")
++    if a.sweep:
++        print("\n  τc    정답률  오연결  놓침   (코퍼스 → KB 경로)")
++        for t in [x / 100 for x in range(0, 100, 5)]:
++            ok, wrong, miss = score(rows, lambda g: chained(g, t))
++            print(f"  {t:.2f}  {ok / n:6.0%}  {wrong:5d}  {miss:4d}")
++    print("\n  틀린 문장 (eng-2.2 경로)")
++    for g in rows:
++        p = chained(g)
++        if p != g["expected"]:
++            h = rag.search(g["phrase"], axis=g["axis"], k=1)
++            top = f"{h[0].passage['kb_id']} {h[0].score:.3f} ({h[0].passage['id']})" if h else "-"
++            print(f"    [{g['axis']:7s}] {g['phrase']:<22s} 예측={p}  정답={g['expected']}  코퍼스1위={top}")
++    print()
++print("→ 오연결(엉뚱한 색)이 놓침(기본 톤)보다 나쁘다. 오연결을 늘리지 않는 가장 낮은 τc 를 고른다.")
+diff --git a/tests/test_rag.py b/tests/test_rag.py
+new file mode 100644
+index 0000000..4fd5777
+--- /dev/null
++++ b/tests/test_rag.py
+@@ -0,0 +1,144 @@
++"""eng-2.2 코퍼스 RAG — 코퍼스 검증, 해석 단계, 사물 등급, 근거 묶음, 그림 지시문, 임베딩 경로를 고정."""
++import json, re
++import pytest
++from core import pipeline, sentence_lock, store, image_first, rag as ragmod
++from core.corpus import load, validate, get_corpus
++from core.kb import KB, Resolver, NgramRetriever, get_resolver
++from core.objects import resolve_objects
++from core.rag import CorpusRAG, get_rag, prompt_lines
++from core.pii import mask
++
++HEX = re.compile(r"#[0-9a-fA-F]{6}")
++
++
++@pytest.fixture(autouse=True)
++def clean(monkeypatch):
++    sentence_lock._MEM.clear(); store.CACHE.clear(); image_first.IMAGE_CACHE.clear()
++    yield
++
++
++# ── 코퍼스 ──────────────────────────────────────────────────────────────
++def test_corpus_loads_and_version_is_content_hash():
++    c = get_corpus()
++    assert len(c.scenes) >= 80 and len(c.objects) >= 40 and len(c.research) >= 8
++    assert c.version.startswith("corpus-0.1+") and c.version == load(KB()).version     # 같은 파일 = 같은 버전
++    kb = KB()
++    assert {s["kb_id"] for s in c.scenes} == {e["id"] for e in kb.items}                 # KB 21항목 모두 문단이 있다
++    assert all(r["status"] == "confirmed" and r["url"].startswith("http") for r in c.research)
++
++
++def test_bad_corpus_is_rejected(tmp_path):
++    kb = KB()
++    bad_scene = {"id": "x1", "axis": "emotion", "kb_id": "sea", "text": "t", "color_note": "#FF0000 빨강",
++                 "source": "s", "status": "draft"}
++    bad_obj = {"id": "x2", "name": "참외", "aliases": [], "hue": "금색", "lightness": 12, "chroma": 1, "text": "t",
++               "source": "s", "status": "draft"}
++    bad_res = {"id": "x3", "applies_to": ["a"], "evidence": "strong", "text": "t", "citation": "c", "url": "", "status": "draft"}
++    errs = validate([bad_scene], [bad_obj], [bad_res], kb)
++    joined = "\n".join(errs)
++    assert "축 불일치" in joined and "숫자·HEX 금지" in joined and "등급 범위 밖" in joined and "url" in joined
++    for f, rows in (("scenes.jsonl", [bad_scene]), ("objects.jsonl", []), ("research.jsonl", [])):
++        (tmp_path / f).write_text("\n".join(json.dumps(r, ensure_ascii=False) for r in rows), encoding="utf-8")
++    with pytest.raises(ValueError):
++        load(kb, tmp_path)
++
++
++# ── ① KB 해석: 코퍼스 단계 ───────────────────────────────────────────────
++def test_resolver_uses_corpus_for_paraphrase():
++    kb = KB(); r0 = Resolver(kb, NgramRetriever(kb), 0.25)          # eng-2.1 (코퍼스 없음)
++    r1 = Resolver(kb, NgramRetriever(kb), 0.25, get_rag())          # eng-2.2
++    a, b = r0.resolve("quality", "가물가물한"), r1.resolve("quality", "가물가물한")
++    assert a.how == "fallback" and a.kb_id == kb.defaults["quality"]
++    assert b.how == "corpus" and b.kb_id == "faded" and b.ref.startswith("sc-fd-") and b.score >= get_rag().tau
++
++
++def test_unrelated_phrase_still_falls_back():
++    r = get_resolver().resolve("space", "우주 정거장")
++    assert r.how == "fallback"
++
++
++def test_keyword_and_label_still_win_over_corpus():
++    r = get_resolver()
++    assert r.resolve("space", "바닷가 모래").how == "keyword"
++    assert r.resolve("emotion", "처음 느낀 낯선 감정", label="calm_peace").how == "label"
++
++
++# ── ② 사물 등급 ─────────────────────────────────────────────────────────
++def test_corpus_object_grade_beats_llm_grade_and_lexicon_beats_corpus():
++    a = resolve_objects([{"name": "참외", "hue": "파랑", "lightness": 2, "chroma": 1}], learn=False)
++    b = resolve_objects([{"name": "참외"}], learn=False)
++    assert a[0].how == b[0].how == "corpus" and a[0].descriptor == b[0].descriptor == ("노랑", 8, 4)
++    assert a[0].lch == b[0].lch                                            # 같은 낱말 = 같은 색
++    assert resolve_objects([{"name": "수박"}], learn=False)[0].how == "lexicon"
++    assert resolve_objects([{"name": "감귤"}], learn=False)[0].descriptor == ("주황", 7, 4)   # 별칭
++
++
++def test_corpus_object_is_not_masked_as_name():
++    rag = get_rag()
++    out, _ = mask("동생이랑 참외랑 솜사탕 먹던 날", protect=set(rag.corpus.object_names()))
++    assert "참외" in out and "솜사탕" in out
++
++
++def test_objects_in_prefers_longest_name():
++    assert get_rag().objects_in("겨울밤 군고구마 먹던") == ["군고구마"]
++
++
++# ── ③④ 파이프라인: 근거 묶음 ─────────────────────────────────────────────
++MEM = "한겨울 밤 외할머니 집 아랫목에서 동생이랑 귤 까먹고 웃던 기억"
++
++
++def test_grounding_in_response_is_deterministic_and_cited():
++    a = pipeline.analyze(MEM)
++    sentence_lock._MEM.clear(); store.CACHE.clear()
++    b = pipeline.analyze(MEM)
++    g = a["grounding"]
++    assert g == b["grounding"] and a["palette"] == b["palette"]
++    assert g["corpus_version"] == get_corpus().version
++    used = {p["basis"].get("kb_id") for p in a["palette"]}
++    assert all(s["kb_id"] in used or s["axis"] == "time" for s in g["scenes"])          # 쓰인 KB 항목의 문단만
++    assert any(o["name"] == "귤" for o in g["objects"])
++    rules = {x for r in g["research"] for x in r["applies_to"]}
++    assert {"affect.valence_lightness", "affect.arousal_chroma", "hue.object_association"} <= rules
++    assert all(r["url"].startswith("http") and r["evidence"] in ("strong", "moderate") for r in g["research"])
++    assert not HEX.search(json.dumps(g, ensure_ascii=False))                             # 근거에는 숫자 색이 없다
++
++
++def test_grounding_is_locked_with_the_sentence():
++    a = pipeline.analyze(MEM)
++    hit = pipeline.analyze(MEM)
++    assert hit.get("lock_hit") and hit["grounding"] == a["grounding"]
++
++
++def test_painter_prompt_gets_corpus_lines_without_color_numbers():
++    res = {ax: get_resolver().resolve(ax, ph) for ax, ph in
++           (("emotion", "가족"), ("time", "해 질 녘 하늘"), ("space", "바닷가"), ("quality", ""))}
++    g = get_rag().ground(res, [], None)
++    lines = prompt_lines(g)
++    assert lines and all(not HEX.search(l) for l in lines)
++    kb = get_resolver().kb
++    p = image_first.build_prompt("요약", res, kb, [], None, "", g)
++    assert "코퍼스 검색" in p and lines[0] in p
++    assert "코퍼스" not in image_first.build_prompt("요약", res, kb, [], None)          # 근거가 없으면 예전 지시문 그대로
++
++
++# ── 임베딩 경로 (가짜 제공자) ─────────────────────────────────────────────
++def test_embedding_backend_used_only_when_model_and_version_match(tmp_path, monkeypatch):
++    from oracle import similar
++    c = get_corpus()
++    vocab = sorted({ch for s in c.scenes for ch in s["text"]})
++    def fake_embed(texts, kind="document"):                     # 글자 가방 임베딩 — 결정론
++        return [[float(t.count(ch)) for ch in vocab] for t in texts]
++    monkeypatch.setattr(similar, "model_name", lambda: "fake:bag:1")
++    monkeypatch.setattr(similar, "embed_many", fake_embed)
++    path = tmp_path / "emb.json"
++    monkeypatch.setattr(ragmod, "EMBED_PATH", path)
++    data = {"model": "fake:bag:1", "corpus_version": c.version, "ids": [s["id"] for s in c.scenes],
++            "vectors": fake_embed([s["text"] for s in c.scenes])}
++    path.write_text(json.dumps(data), encoding="utf-8")
++    r = CorpusRAG(c)
++    assert r.method == "embedding" and r.tau == ragmod.DEFAULT_TAU["embedding"]
++    assert r.search("어제 일처럼 또렷하게", axis="quality", k=1)[0].passage["kb_id"] == "vivid"
++    path.write_text(json.dumps({**data, "corpus_version": "corpus-0.0+old"}), encoding="utf-8")
++    assert CorpusRAG(c).method == "ngram"                       # 코퍼스가 바뀌었는데 옛 벡터 → 쓰지 않는다
++    path.write_text(json.dumps({**data, "model": "other:model"}), encoding="utf-8")
++    assert CorpusRAG(c).method == "ngram"                       # 다른 모델 벡터 → 쓰지 않는다
+diff --git a/tests/test_sentence_lock.py b/tests/test_sentence_lock.py
+index 5c6d819..00ae0de 100644
+--- a/tests/test_sentence_lock.py
++++ b/tests/test_sentence_lock.py
+@@ -80,7 +80,9 @@ def test_lock_keeps_no_text():
+     pipeline.analyze(S, cache=store.CACHE)
+     (row,) = sentence_lock._MEM.values()
+     blob = repr(row["payload"])
+-    assert "솜사탕" not in blob and "memory_summary" not in row["payload"]
++    # eng-2.2: '솜사탕'은 이제 코퍼스 사물이라 색 이름으로 표본에 나온다(수박·옥수수와 같은 설계). 그 밖의 원문 낱말은 없어야 한다.
++    assert S not in blob and "memory_summary" not in row["payload"]
++    assert all(w not in blob for w in ("바쁜", "웃던"))          # 근거의 코퍼스 문단 글자는 원문이 아니다 (예: 코퍼스 "점심 먹고…")
+ 
+ 
+ def test_different_sentence_different_lock():
+-- 
+2.43.0
+
