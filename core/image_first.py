@@ -126,6 +126,22 @@ STYLE_LINES = {
 ENERGY = {1: "붓질은 적고 느리게, 넓은 면 위주", 2: "붓질은 부드럽고 차분하게", 3: "붓질은 보통 빠르기로",
           4: "붓질은 경쾌하고 빠르게, 튐을 조금", 5: "붓질은 아주 활기차게, 튐과 악센트를 많이"}
 
+# eng-2.5: 화가에게 사물 '이름'을 주면 그 사물을 그린다 (수박 기억 → 수박 조각·얼굴처럼 보이는 배치·마루 원근선).
+HUE_WORDS = {"빨강": "빨강", "주황": "주황", "노랑": "노랑", "연두": "연두", "초록": "초록", "청록": "청록", "하늘": "하늘색",
+             "파랑": "파랑", "남색": "남색", "보라": "보라", "자주": "자주", "분홍": "분홍"}
+NO_FORMS = ("금지: 사물의 조각·단면·윤곽, 얼굴이나 눈·코·입처럼 읽히는 배치, 사람·동물의 실루엣, "
+            "바닥·벽·지평선의 원근선, 마루결·창틀 같은 곧은 구조물. 모든 것은 붓질과 색 얼룩으로만.")
+
+
+def color_words(descriptor) -> str:
+    """사물 등급(색상 계열·밝기 1~9·채도 0~5) → 색 말. 예) (빨강, 5, 4) → '선명한 빨강'. 숫자 색값은 쓰지 않는다."""
+    hue, L, C = descriptor
+    if hue == "무채" or C == 0:
+        return "흰색" if L >= 8 else "밝은 회색" if L >= 6 else "회색" if L >= 4 else "짙은 회색" if L >= 3 else "검정에 가까운 색"
+    tone = "아주 연한 " if L >= 8 else "밝은 " if L >= 7 else "" if L >= 4 else "짙은 "
+    sat = "탁한 " if C <= 1 else "부드러운 " if C == 2 else "" if C == 3 else "선명한 "
+    return f"{sat}{tone}{HUE_WORDS.get(hue, hue)}".strip()
+
 
 def build_prompt(summary: str, res: dict, kb, objects: list, affect, feedback: str = "", grounding: dict | None = None,
                  style: str | None = None) -> str:
@@ -135,7 +151,19 @@ def build_prompt(summary: str, res: dict, kb, objects: list, affect, feedback: s
         e = kb.by_id[res[axis].kb_id]
         if res[axis].how != "fallback":
             hints.append(f"- {axis}: {e.get('description', e['name'])}")
-    objs = ", ".join(o.name for o in objects) or "없음"
+        # 바꾸기 전: objs = ", ".join(o.name for o in objects) or "없음"
+    obj_colors = list(dict.fromkeys(color_words(o.descriptor) for o in objects))   # 같은 색 말은 한 번만
+    lines = [
+        *STYLE_LINES[style],
+        "화면 끝까지 채운다(full bleed). 액자·캔버스 테두리·흰 여백·벽·그림자를 그리지 않는다.",
+        NO_FORMS,                                                                                  # 추가
+        f"기억 (분위기만 참고한다 — 그 안의 사람·사물을 그리지 않는다): {summary}",               # 바뀜
+        "기억의 분위기 (색 지식 KB 에서 검색):", *hints,
+        *(["비슷한 장면과 그 색 (코퍼스 검색, eng-2.2):", *rag_lines] if (rag_lines := _rag_lines(grounding)) else []),
+        f"기억 속 사물의 색 (이름·모양 없이 색 얼룩으로만): {', '.join(obj_colors)}" if obj_colors else "",   # 바뀜
+        _words(affect),
+        f"붓질의 에너지: {ENERGY[affect.arousal]}" if (style == "gestural" and affect is not None) else "",
+    ]
     lines = [
         *STYLE_LINES[style],
         "화면 끝까지 채운다(full bleed). 액자·캔버스 테두리·흰 여백·벽·그림자를 그리지 않는다.",
