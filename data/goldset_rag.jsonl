@@ -41,3 +41,49 @@
 {"axis": "quality", "phrase": "한 장면도 안 잊힌", "expected": "vivid"}
 {"axis": "quality", "phrase": "안개처럼 뿌연", "expected": "faded"}
 {"axis": "quality", "phrase": "꺼내 보면 미소 나는", "expected": "cherished"}
+{"axis": "emotion", "phrase": "그때 그 시절이 자꾸 그리워지는", "expected": "warm_nostalgia"}
+{"axis": "emotion", "phrase": "할머니가 해 주시던 밥상이 떠오르는", "expected": "warm_nostalgia"}
+{"axis": "emotion", "phrase": "가슴이 벅차서 웃음이 멈추지 않는", "expected": "joy_excitement"}
+{"axis": "emotion", "phrase": "기다리던 순간이 와서 날아갈 듯한", "expected": "joy_excitement"}
+{"axis": "emotion", "phrase": "아무 걱정 없이 나른하게 늘어지던", "expected": "calm_peace"}
+{"axis": "emotion", "phrase": "잔잔한 음악을 들으며 마음이 가라앉던", "expected": "calm_peace"}
+{"axis": "emotion", "phrase": "언제든 돌아갈 곳이 있다는 든든함", "expected": "stability_affection"}
+{"axis": "emotion", "phrase": "말하지 않아도 내 편이 되어 주던", "expected": "stability_affection"}
+{"axis": "emotion", "phrase": "연락할 수 없는 사람이 자꾸 떠오르는", "expected": "longing_melancholy"}
+{"axis": "emotion", "phrase": "빈자리를 볼 때마다 마음 한구석이 시린", "expected": "longing_melancholy"}
+{"axis": "emotion", "phrase": "아무 말 없이 혼자 창밖만 바라보던", "expected": "quiet_solitude"}
+{"axis": "emotion", "phrase": "사람들 틈에서 벗어나 홀로 있고 싶던", "expected": "quiet_solitude"}
+{"axis": "emotion", "phrase": "너무 화가 나서 참을 수 없었던", "expected": null}
+{"axis": "emotion", "phrase": "결과를 기다리며 손에 땀이 나던", "expected": null}
+{"axis": "time", "phrase": "햇살이 가장 뜨겁게 내리꽂히던 때", "expected": "afternoon"}
+{"axis": "time", "phrase": "점심을 먹고 나른해지던 시간", "expected": "afternoon"}
+{"axis": "time", "phrase": "노을빛이 골목 끝까지 번지던", "expected": "sunset"}
+{"axis": "time", "phrase": "서쪽 하늘에 마지막 빛이 남아 있던", "expected": "sunset"}
+{"axis": "time", "phrase": "모두 잠든 뒤 시계 소리만 들리던", "expected": "night"}
+{"axis": "time", "phrase": "달빛만 남아 거리가 고요해진", "expected": "night"}
+{"axis": "time", "phrase": "창문 사이로 아침 햇살이 스며들던", "expected": "morning"}
+{"axis": "time", "phrase": "새들이 울기 시작하던 이른 아침", "expected": "morning"}
+{"axis": "time", "phrase": "찬바람에 코끝이 얼얼하던 계절", "expected": "winter"}
+{"axis": "time", "phrase": "두꺼운 외투 없이는 나가기 힘들던 날", "expected": "winter"}
+{"axis": "time", "phrase": "초록 잎이 무성해진 늦봄의 어느 날", "expected": null}
+{"axis": "space", "phrase": "회전목마 불빛이 반짝이던 놀이공원", "expected": "amusement_park"}
+{"axis": "space", "phrase": "솜사탕을 들고 돌아다니던 놀이동산", "expected": "amusement_park"}
+{"axis": "space", "phrase": "파도 소리가 발끝까지 밀려오던 모래사장", "expected": "sea"}
+{"axis": "space", "phrase": "바닷바람을 맞으며 바라보던 수평선", "expected": "sea"}
+{"axis": "space", "phrase": "낮은 담벼락 사이로 이어지던 동네 골목", "expected": "alley"}
+{"axis": "space", "phrase": "가로등 아래 구불구불 이어진 좁은 길", "expected": "alley"}
+{"axis": "space", "phrase": "창문을 타고 빗물이 길게 흘러내리던", "expected": "rain_window"}
+{"axis": "space", "phrase": "비 오는 날 물방울 너머로 바라본 풍경", "expected": "rain_window"}
+{"axis": "space", "phrase": "장독대와 빨랫줄이 놓여 있던 시골집", "expected": "grandma_house"}
+{"axis": "space", "phrase": "마당 한쪽에 평상이 놓인 옛집", "expected": "grandma_house"}
+{"axis": "space", "phrase": "종례 종이 울리고 친구들이 빠져나가던 교실", "expected": "school"}
+{"axis": "space", "phrase": "복도 끝에서 운동장으로 이어지던 학교", "expected": "school"}
+{"axis": "space", "phrase": "꽃잎이 길을 따라 수놓듯 피어 있던 산책길", "expected": "flower_road"}
+{"axis": "space", "phrase": "공항 면세점 앞에서 비행기를 기다리던", "expected": null}
+{"axis": "space", "phrase": "소독약 냄새가 가득한 병동 복도", "expected": null}
+{"axis": "quality", "phrase": "눈앞에 그려질 만큼 생생한", "expected": "vivid"}
+{"axis": "quality", "phrase": "색깔과 냄새까지 또렷이 떠오르는", "expected": "vivid"}
+{"axis": "quality", "phrase": "시간이 지나 윤곽조차 희미해진", "expected": "faded"}
+{"axis": "quality", "phrase": "오래된 사진처럼 빛이 바랜", "expected": "faded"}
+{"axis": "quality", "phrase": "생각할 때마다 소중하게 느껴지는", "expected": "cherished"}
+{"axis": "quality", "phrase": "마음속 깊이 간직하고 싶은", "expected": "cherished"}

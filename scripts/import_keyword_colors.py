@@ -23,6 +23,18 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 from core.color import hex2lab, lch2lab, delta_e_2000  # noqa: E402
 
+
+def merge_keywords(base: list[str], extra: list[str]) -> list[str]:
+    """기존 키워드 + 표 키워드. 단, 이미 있는 키워드를 '포함하는' 활용형(보고 싶 → 보고 싶다)은 넣지 않는다.
+    키워드 매칭은 부분 문자열이라 짧은 쪽이 이미 다 잡는다 — 긴 활용형은 매칭에 보탬이 없고
+    n-gram 검색 점수만 부풀려(고싶·싶 …) '기대고 싶을 만큼 듬직한' 같은 문장을 그리움으로 오연결시킨다."""
+    out = list(dict.fromkeys(base))
+    for k in extra:
+        if k in out or any(b in k for b in out):
+            continue
+        out.append(k)
+    return out
+
 KB_PATH = ROOT / "data" / "color_kb.json"
 OBJ_PATH = ROOT / "data" / "object_colors.json"
 KB_VERSION = "kb-0.2"
@@ -57,7 +69,7 @@ def main(src: str):
             e["accent_lch"] = [round(min(95, max(5, a[0] + dl)), 2), round(max(0, a[1] + dc), 2), round((a[2] + dh) % 360, 2)]
         e["hex"] = hx
         e["name_ko"] = r0["color_name"]
-        e["keywords"] = list(dict.fromkeys(e["keywords"] + [r["keyword"] for r in group]))
+        e["keywords"] = merge_keywords(e["keywords"], [r["keyword"] for r in group])
         e["source"], e["status"] = "corpus_v1", "confirmed"
         e["changed_de00"] = round(delta_e_2000(lch2lab(old), hex2lab(hx)), 1)
         used.update(r["keyword"] for r in group)

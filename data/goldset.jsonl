@@ -10,3 +10,24 @@
 {"axis": "time", "phrase": "해가 뉘엿뉘엿 질 무렵", "expected": "sunset"}
 {"axis": "time", "phrase": "자정 넘은 시간", "expected": "night"}
 {"axis": "quality", "phrase": "가물가물한", "expected": "faded"}
+{"axis": "emotion", "phrase": "문득 그 사람이 그리워진", "expected": "longing_melancholy"}
+{"axis": "emotion", "phrase": "다시 만날 수 없다는 게 서글픈", "expected": "longing_melancholy"}
+{"axis": "emotion", "phrase": "너무 좋아서 저절로 콧노래가 나오던", "expected": "joy_excitement"}
+{"axis": "emotion", "phrase": "기다리던 일이 이루어져 날아갈 듯한", "expected": "joy_excitement"}
+{"axis": "emotion", "phrase": "아무 걱정 없이 마음 놓고 쉬던", "expected": "calm_peace"}
+{"axis": "emotion", "phrase": "잔잔한 하루를 보내며 여유로웠던", "expected": "calm_peace"}
+{"axis": "emotion", "phrase": "언제든 내 편이 되어 줄 것 같은 든든함", "expected": "stability_affection"}
+{"axis": "emotion", "phrase": "힘들 때 찾아가면 반겨 주던 따뜻한 마음", "expected": "stability_affection"}
+{"axis": "emotion", "phrase": "내 마음도 설명하기 어려웠던 순간", "expected": null}
+{"axis": "emotion", "phrase": "설렘인지 불안인지 알 수 없던", "expected": null}
+{"axis": "space", "phrase": "파도 소리를 들으며 걷던 백사장", "expected": "sea"}
+{"axis": "space", "phrase": "발자국이 길게 이어지던 해변 모래밭", "expected": "sea"}
+{"axis": "space", "phrase": "외할머니가 가꾸던 텃밭이 있는 집", "expected": "grandma_house"}
+{"axis": "space", "phrase": "장독대 옆 평상이 놓여 있던 할머니 댁", "expected": "grandma_house"}
+{"axis": "space", "phrase": "지구가 작게 보이던 우주 공간", "expected": null}
+{"axis": "time", "phrase": "저녁노을이 건물 사이로 사라지던 때", "expected": "sunset"}
+{"axis": "time", "phrase": "하루의 끝을 알리는 붉은 하늘", "expected": "sunset"}
+{"axis": "time", "phrase": "모두 잠든 뒤 날짜가 바뀐 시각", "expected": "night"}
+{"axis": "time", "phrase": "시계가 새벽 한 시를 가리키던", "expected": "night"}
+{"axis": "quality", "phrase": "기억이 희미해져 잘 떠오르지 않는", "expected": "faded"}
+{"axis": "quality", "phrase": "어렴풋하게만 남아 있는 옛 기억", "expected": "faded"}
