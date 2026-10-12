@@ -460,12 +460,28 @@ def review(m: dict, affect, style: str = "color_field") -> dict:
 
 
 # ── ⑤ 설명 (사후 검색) ───────────────────────────────────────────────────
+def short_name(full: str) -> str:
+    """'어두운 파랑 (가로등밤색)' → '가로등밤색'. 괄호가 없으면 그대로."""
+    full = str(full or "")
+    if "(" in full and full.rstrip().endswith(")"):
+        return full[full.rindex("(") + 1:-1].strip() or full
+    return full
+
+
 def _references(kb) -> list[tuple[str, str, np.ndarray]]:
+    """사후 설명용 기준색. kb-0.2 부터 한국어 이름(name_ko) 우선, 코퍼스 팀 확정 사물 색(object_colors.json)도 후보."""
     refs = []
     for e in kb.items:
-        for key in ("lch", "accent_lch"):
+        name = short_name(e.get("name_ko")) if e.get("name_ko") else e["name"]
+        for key, label in (("lch", name), ("accent_lch", f"{name}·강조")):   # 강조 기준은 바탕과 다른 색이라 이름을 구분
             if e.get(key):
-                refs.append((e["name"], f"kb:{e['id']}", lch2lab(tuple(e[key]))))
+                refs.append((label, f"kb:{e['id']}", lch2lab(tuple(e[key]))))
+    try:
+        from core.objects import object_table
+        for t in object_table().values():
+            refs.append((short_name(t["name"]), f"table:{t['word']}", hex2lab(t["hex"])))
+    except Exception:
+        pass
     try:
         from core.objects import _lexicon, descriptor_to_lch
         for name, d in _lexicon().items():
