@@ -53,6 +53,14 @@ def _max_chroma(L: float, h: float, cap: float = 150.0) -> float:
     return lo
 
 
+def _display_name(e: dict) -> str:
+    """KB 항목 표시 이름. name_ko '흐린 주황 (복숭아크림색)' → '복숭아크림색', 없으면 영문 name."""
+    ko = str(e.get("name_ko") or "")
+    if "(" in ko and ko.rstrip().endswith(")"):
+        return ko[ko.rindex("(") + 1:-1].strip() or e["name"]
+    return ko or e["name"]
+
+
 def _separate_accent(acc: tuple, dom: tuple, calm: bool = False) -> tuple[tuple, list]:
     """강조색이 주조색과 ΔE00 ACCENT_MIN_DE 미만이면: ① 채도를 색역 끝까지 ② 명도를 주조색에서 멀어지는 쪽으로 3씩.
     calm=True(정서 보정으로 각성을 낮춘 기억, eng-1.2): 채도는 그대로 두고 명도로 먼저 벌린다 → 그래도 모자라면 채도."""
@@ -87,10 +95,11 @@ def synthesize(res: dict[str, Resolution], kb, objects: list | None = None, affe
     objects = list(objects or [])
     emo, spa, tim = kb.by_id[res["emotion"].kb_id], kb.by_id[res["space"].kb_id], kb.by_id[res["time"].kb_id]
     mod = kb.by_id[res["quality"].kb_id].get("modifiers", {"c": 1.0, "l_pull": 0.0})
-    base = {"dominant": (emo["lch"], "emotion", emo["name"]),
-            "supporting": (spa["lch"], "space", spa["name"]),
-            "atmospheric": (tim["lch"], "time", tim["name"]),
-            "accent": (emo.get("accent_lch", emo["lch"]), "emotion", f'{emo["name"]} · 강조')}
+    nm = _display_name                                       # kb-0.2: 코퍼스 팀 한국어 이름 우선 (예: 복숭아크림색)
+    base = {"dominant": (emo["lch"], "emotion", nm(emo)),
+            "supporting": (spa["lch"], "space", nm(spa)),
+            "atmospheric": (tim["lch"], "time", nm(tim)),
+            "accent": (emo.get("accent_lch", emo["lch"]), "emotion", f'{nm(emo)} · 강조')}
     obj_for = {}
     if objects:
         obj_for["accent"] = objects[0]
