@@ -12,7 +12,7 @@ SRC = json.loads((ROOT / "data/corpus_team/MaC_color_keywords_v1.json").read_tex
 
 def test_kb_v02_keeps_old_keywords_and_quality_axis():
     kb = KB()
-    assert kb.version == "kb-0.2"
+    assert kb.version == "kb-0.2.1"
     kw = {k for e in kb.items for k in e["keywords"]}
     for old in ("가족", "아빠", "하늘", "비", "눈", "꽃", "할머니"):          # kb-0.1 키워드는 지우지 않았다
         assert old in kw

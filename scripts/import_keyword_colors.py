@@ -37,7 +37,7 @@ def merge_keywords(base: list[str], extra: list[str]) -> list[str]:
 
 KB_PATH = ROOT / "data" / "color_kb.json"
 OBJ_PATH = ROOT / "data" / "object_colors.json"
-KB_VERSION = "kb-0.2"
+KB_VERSION = "kb-0.2.1"   # 0.2.1: 겹치는 활용형 키워드 제외(오연결 2건 수정) → 문장 고정 키 새로
 MATCH_DE = 12.0      # 표 HEX 묶음이 KB 항목의 '그 색'이라고 볼 거리 (기존 KB 와 표의 최대 차이 ≈ 11, 바다만 30 → 키워드로 묶음)
 
 
@@ -82,7 +82,7 @@ def main(src: str):
                                  "lch": [r["lch_l"], r["lch_c"], r["lch_h"]]}
 
     kb["version"] = KB_VERSION
-    kb["note"] = ("kb-0.2: 코퍼스 팀 MaC_color_keywords_v1(2026-10-12) 반영. 18 색 항목의 lch 는 표의 확정값(status=confirmed), "
+    kb["note"] = ("kb-0.2.1: 코퍼스 팀 MaC_color_keywords_v1(2026-10-12) 반영. 18 색 항목의 lch 는 표의 확정값(status=confirmed), "
                   "키워드는 기존 + 표 합집합. quality 3 항목은 kb-0.1 그대로. 사물 색은 data/object_colors.json.")
     KB_PATH.write_text(json.dumps(kb, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     OBJ_PATH.write_text(json.dumps({"version": "obj-0.1", "source": Path(src).name, "objects": objects},

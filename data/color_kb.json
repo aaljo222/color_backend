@@ -1,6 +1,6 @@
 {
-  "version": "kb-0.2",
-  "note": "kb-0.2: 코퍼스 팀 MaC_color_keywords_v1(2026-10-12) 반영. 18 색 항목의 lch 는 표의 확정값(status=confirmed), 키워드는 기존 + 표 합집합. quality 3 항목은 kb-0.1 그대로. 사물 색은 data/object_colors.json.",
+  "version": "kb-0.2.1",
+  "note": "kb-0.2.1: 코퍼스 팀 MaC_color_keywords_v1(2026-10-12) 반영. 18 색 항목의 lch 는 표의 확정값(status=confirmed), 키워드는 기존 + 표 합집합. quality 3 항목은 kb-0.1 그대로. 사물 색은 data/object_colors.json.",
   "defaults": {
     "emotion": "warm_nostalgia",
     "time": "afternoon",
