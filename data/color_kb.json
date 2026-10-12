@@ -1,52 +1,561 @@
 {
-  "version": "kb-0.1-demo",
-  "note": "구조 시연용 데모 KB. lch/accent_lch/modifiers 수치는 예시값(status=demo)이며 코퍼스 팀이 근거 자료로 확정해 status=confirmed 로 바꾼다. keywords는 MaC color_association.py v1.0 규칙에서 가져온 것(source=mac_v1)과 추가분(source=demo)이 섞여 있다. affect=[쾌, 각성] 1~5 는 감정 기준색이 이미 담은 정서 기준점(eng-1.2, demo).",
-  "defaults": {"emotion": "warm_nostalgia", "time": "afternoon", "space": "alley", "quality": "cherished"},
+  "version": "kb-0.2",
+  "note": "kb-0.2: 코퍼스 팀 MaC_color_keywords_v1(2026-10-12) 반영. 18 색 항목의 lch 는 표의 확정값(status=confirmed), 키워드는 기존 + 표 합집합. quality 3 항목은 kb-0.1 그대로. 사물 색은 data/object_colors.json.",
+  "defaults": {
+    "emotion": "warm_nostalgia",
+    "time": "afternoon",
+    "space": "alley",
+    "quality": "cherished"
+  },
   "items": [
-    {"id": "warm_nostalgia", "axis": "emotion", "name": "Peach Cream", "lch": [82, 22, 55], "accent_lch": [62, 48, 25], "affect": [4, 2],
-     "keywords": ["추억", "어린 시절", "다정함", "포근함", "가족", "손잡고"], "description": "오래된 다정한 기억, 포근함, 가족의 온기", "source": "mac_v1", "status": "demo"},
-    {"id": "joy_excitement", "axis": "emotion", "name": "Carousel Gold", "lch": [84, 60, 85], "accent_lch": [60, 70, 35], "affect": [5, 5],
-     "keywords": ["놀이공원", "설렘", "환희", "축제", "신남", "웃음"], "description": "들뜬 설렘과 환희, 축제의 밝은 기쁨", "source": "mac_v1", "status": "demo"},
-    {"id": "calm_peace", "axis": "emotion", "name": "May Sky", "lch": [80, 24, 230], "accent_lch": [55, 30, 200], "affect": [4, 1],
-     "keywords": ["평온", "고요", "5월", "하늘", "바람", "휴식"], "description": "평온하고 고요한 휴식, 맑은 하늘과 바람", "source": "mac_v1", "status": "demo"},
-    {"id": "stability_affection", "axis": "emotion", "name": "Warm Wood", "lch": [48, 30, 55], "accent_lch": [35, 25, 45], "affect": [4, 2],
-     "keywords": ["아빠", "든든함", "나무", "기둥", "의지", "신뢰"], "description": "든든하고 의지가 되는 안정감과 신뢰", "source": "mac_v1", "status": "demo"},
-    {"id": "longing_melancholy", "axis": "emotion", "name": "Dusk Lavender", "lch": [62, 22, 300], "accent_lch": [42, 30, 285], "affect": [2, 2],
-     "keywords": ["그리움", "아련함", "보고싶", "보고 싶", "이별", "쓸쓸"], "description": "그리움과 아련함, 이별 뒤의 쓸쓸한 마음", "source": "demo", "status": "demo"},
-    {"id": "quiet_solitude", "axis": "emotion", "name": "Study Lamp", "lch": [70, 40, 75], "accent_lch": [30, 15, 60], "affect": [3, 1],
-     "keywords": ["혼자", "몰두", "집중", "조용히", "새벽까지"], "description": "혼자 조용히 무언가에 몰두하던 시간", "source": "demo", "status": "demo"},
-
-    {"id": "afternoon", "axis": "time", "name": "Afternoon Light", "lch": [88, 18, 90],
-     "keywords": ["오후", "낮", "햇살"], "description": "한낮 오후의 따스한 햇살", "source": "mac_v1", "status": "demo"},
-    {"id": "sunset", "axis": "time", "name": "Sunset Coral", "lch": [68, 45, 45],
-     "keywords": ["노을", "황혼", "해질녘", "저녁"], "description": "해질녘 노을과 황혼의 붉은 빛", "source": "mac_v1", "status": "demo"},
-    {"id": "night", "axis": "time", "name": "Lamp Night", "lch": [28, 18, 265],
-     "keywords": ["밤", "새벽", "어둠", "가로등"], "description": "늦은 밤 가로등 아래 어둠", "source": "demo", "status": "demo"},
-    {"id": "morning", "axis": "time", "name": "Morning Mist", "lch": [92, 10, 95],
-     "keywords": ["아침", "이른", "출근길", "등굣길"], "description": "이른 아침의 맑고 옅은 빛", "source": "demo", "status": "demo"},
-    {"id": "winter", "axis": "time", "name": "Winter Pale", "lch": [90, 8, 240],
-     "keywords": ["겨울", "눈", "첫눈", "입김"], "description": "차가운 겨울 공기와 눈빛", "source": "demo", "status": "demo"},
-
-    {"id": "amusement_park", "axis": "space", "name": "Fair Pink", "lch": [78, 32, 0],
-     "keywords": ["놀이공원", "회전목마", "테마파크"], "description": "놀이공원 회전목마 테마파크", "source": "mac_v1", "status": "demo"},
-    {"id": "sea", "axis": "space", "name": "Sea Blue", "lch": [70, 35, 215],
-     "keywords": ["바다", "해변", "파도", "바닷가"], "description": "바닷가 해변 파도 소리", "source": "demo", "status": "demo"},
-    {"id": "alley", "axis": "space", "name": "Alley Stone", "lch": [66, 10, 80],
-     "keywords": ["골목", "동네", "골목길", "담벼락"], "description": "오래된 동네 골목길 담벼락", "source": "demo", "status": "demo"},
-    {"id": "rain_window", "axis": "space", "name": "Rain Grey", "lch": [58, 8, 240],
-     "keywords": ["비", "창밖", "장마", "빗소리"], "description": "비 오는 날 창밖 빗소리 장마", "source": "demo", "status": "demo"},
-    {"id": "grandma_house", "axis": "space", "name": "Maru Wood", "lch": [60, 28, 65],
-     "keywords": ["할머니", "할아버지", "시골", "마루", "외갓집"], "description": "할머니 댁 나무 마루와 시골집 마당", "source": "demo", "status": "demo"},
-    {"id": "school", "axis": "space", "name": "Chalk Green", "lch": [55, 25, 150],
-     "keywords": ["학교", "운동장", "교실", "독서실"], "description": "학교 운동장과 교실, 독서실 책상", "source": "demo", "status": "demo"},
-    {"id": "flower_road", "axis": "space", "name": "Blossom", "lch": [86, 18, 350],
-     "keywords": ["벚꽃", "꽃길", "수국", "꽃"], "description": "벚꽃길과 수국 핀 꽃길", "source": "demo", "status": "demo"},
-
-    {"id": "cherished", "axis": "quality", "name": "cherished", "modifiers": {"c": 1.0, "l_pull": 0.0},
-     "keywords": ["소중한", "기억에 남는", "따뜻한"], "description": "소중하고 따뜻하게 남은 기억", "source": "mac_v1", "status": "demo"},
-    {"id": "faded", "axis": "quality", "name": "faded", "modifiers": {"c": 0.70, "l_pull": 0.25},
-     "keywords": ["아련", "희미", "오래된", "어렴풋"], "description": "희미하고 오래된 아련한 기억", "source": "demo", "status": "demo"},
-    {"id": "vivid", "axis": "quality", "name": "vivid", "modifiers": {"c": 1.20, "l_pull": -0.10},
-     "keywords": ["생생", "선명", "잊을 수 없는", "또렷"], "description": "생생하고 선명한, 잊을 수 없는 기억", "source": "demo", "status": "demo"}
+    {
+      "id": "warm_nostalgia",
+      "axis": "emotion",
+      "name": "Peach Cream",
+      "lch": [
+        71.9,
+        20.21,
+        49.29
+      ],
+      "accent_lch": [
+        51.9,
+        46.21,
+        19.29
+      ],
+      "affect": [
+        4,
+        2
+      ],
+      "keywords": [
+        "추억",
+        "어린 시절",
+        "다정함",
+        "포근함",
+        "가족",
+        "손잡고",
+        "다정하다",
+        "포근하다",
+        "손잡다"
+      ],
+      "description": "오래된 다정한 기억, 포근함, 가족의 온기",
+      "source": "corpus_v1",
+      "status": "confirmed",
+      "hex": "#D2A795",
+      "name_ko": "흐린 주황 (복숭아크림색)",
+      "changed_de00": 7.5
+    },
+    {
+      "id": "joy_excitement",
+      "axis": "emotion",
+      "name": "Carousel Gold",
+      "lch": [
+        77.92,
+        45.99,
+        89.74
+      ],
+      "accent_lch": [
+        53.92,
+        55.99,
+        39.74
+      ],
+      "affect": [
+        5,
+        5
+      ],
+      "keywords": [
+        "놀이공원",
+        "설렘",
+        "환희",
+        "축제",
+        "신남",
+        "웃음",
+        "신나다"
+      ],
+      "description": "들뜬 설렘과 환희, 축제의 밝은 기쁨",
+      "source": "corpus_v1",
+      "status": "confirmed",
+      "hex": "#DCBE6A",
+      "name_ko": "밝은 노랑 (회전목마금빛)",
+      "changed_de00": 6.6
+    },
+    {
+      "id": "calm_peace",
+      "axis": "emotion",
+      "name": "May Sky",
+      "lch": [
+        78.09,
+        11.95,
+        231.39
+      ],
+      "accent_lch": [
+        53.09,
+        17.95,
+        201.39
+      ],
+      "affect": [
+        4,
+        1
+      ],
+      "keywords": [
+        "평온",
+        "고요",
+        "5월",
+        "하늘",
+        "바람",
+        "휴식",
+        "산들바람",
+        "바람 쐬다"
+      ],
+      "description": "평온하고 고요한 휴식, 맑은 하늘과 바람",
+      "source": "corpus_v1",
+      "status": "confirmed",
+      "hex": "#A8C6D2",
+      "name_ko": "연한 파랑 (오월하늘색)",
+      "changed_de00": 7.4
+    },
+    {
+      "id": "stability_affection",
+      "axis": "emotion",
+      "name": "Warm Wood",
+      "lch": [
+        55.57,
+        18.22,
+        61.1
+      ],
+      "accent_lch": [
+        42.57,
+        13.22,
+        51.1
+      ],
+      "affect": [
+        4,
+        2
+      ],
+      "keywords": [
+        "아빠",
+        "든든함",
+        "나무",
+        "기둥",
+        "의지",
+        "신뢰",
+        "든든하다"
+      ],
+      "description": "든든하고 의지가 되는 안정감과 신뢰",
+      "source": "corpus_v1",
+      "status": "confirmed",
+      "hex": "#9E7F6A",
+      "name_ko": "갈색 (마루나무색)",
+      "changed_de00": 9.8
+    },
+    {
+      "id": "longing_melancholy",
+      "axis": "emotion",
+      "name": "Dusk Lavender",
+      "lch": [
+        65.86,
+        20.29,
+        272.94
+      ],
+      "accent_lch": [
+        45.86,
+        28.29,
+        257.94
+      ],
+      "affect": [
+        2,
+        2
+      ],
+      "keywords": [
+        "그리움",
+        "아련함",
+        "보고싶",
+        "보고 싶",
+        "이별",
+        "쓸쓸",
+        "아련하다",
+        "보고 싶다",
+        "쓸쓸하다"
+      ],
+      "description": "그리움과 아련함, 이별 뒤의 쓸쓸한 마음",
+      "source": "corpus_v1",
+      "status": "confirmed",
+      "hex": "#8DA1C4",
+      "name_ko": "흐린 남색 (어스름청색)",
+      "changed_de00": 10.9
+    },
+    {
+      "id": "quiet_solitude",
+      "axis": "emotion",
+      "name": "Study Lamp",
+      "lch": [
+        65.93,
+        19.94,
+        75.28
+      ],
+      "accent_lch": [
+        25.93,
+        0,
+        60.28
+      ],
+      "affect": [
+        3,
+        1
+      ],
+      "keywords": [
+        "혼자",
+        "몰두",
+        "집중",
+        "조용히",
+        "새벽까지",
+        "조용하다"
+      ],
+      "description": "혼자 조용히 무언가에 몰두하던 시간",
+      "source": "corpus_v1",
+      "status": "confirmed",
+      "hex": "#B69C7E",
+      "name_ko": "흐린 노랑 (스탠드불빛)",
+      "changed_de00": 9.1
+    },
+    {
+      "id": "afternoon",
+      "axis": "time",
+      "name": "Afternoon Light",
+      "lch": [
+        88.09,
+        18.04,
+        86.2
+      ],
+      "keywords": [
+        "오후",
+        "낮",
+        "햇살",
+        "한낮",
+        "대낮",
+        "낮잠"
+      ],
+      "description": "한낮 오후의 따스한 햇살",
+      "source": "corpus_v1",
+      "status": "confirmed",
+      "hex": "#EDDBBB",
+      "name_ko": "흰 노랑 (오후햇살색)",
+      "changed_de00": 1.4
+    },
+    {
+      "id": "sunset",
+      "axis": "time",
+      "name": "Sunset Coral",
+      "lch": [
+        67.99,
+        44.93,
+        45.11
+      ],
+      "keywords": [
+        "노을",
+        "황혼",
+        "해질녘",
+        "저녁"
+      ],
+      "description": "해질녘 노을과 황혼의 붉은 빛",
+      "source": "corpus_v1",
+      "status": "confirmed",
+      "hex": "#EA8E6E",
+      "name_ko": "주황 (노을산호색)",
+      "changed_de00": 0.1
+    },
+    {
+      "id": "night",
+      "axis": "time",
+      "name": "Lamp Night",
+      "lch": [
+        27.95,
+        17.83,
+        264.87
+      ],
+      "keywords": [
+        "밤",
+        "새벽",
+        "어둠",
+        "가로등"
+      ],
+      "description": "늦은 밤 가로등 아래 어둠",
+      "source": "corpus_v1",
+      "status": "confirmed",
+      "hex": "#2B445D",
+      "name_ko": "어두운 파랑 (가로등밤색)",
+      "changed_de00": 0.1
+    },
+    {
+      "id": "morning",
+      "axis": "time",
+      "name": "Morning Mist",
+      "lch": [
+        92.07,
+        10.12,
+        94.57
+      ],
+      "keywords": [
+        "아침",
+        "이른",
+        "출근길",
+        "등굣길"
+      ],
+      "description": "이른 아침의 맑고 옅은 빛",
+      "source": "corpus_v1",
+      "status": "confirmed",
+      "hex": "#EFE8D5",
+      "name_ko": "흰 노랑 (아침안개색)",
+      "changed_de00": 0.1
+    },
+    {
+      "id": "winter",
+      "axis": "time",
+      "name": "Winter Pale",
+      "lch": [
+        89.91,
+        7.97,
+        239.86
+      ],
+      "keywords": [
+        "겨울",
+        "눈",
+        "첫눈",
+        "입김",
+        "함박눈",
+        "눈싸움",
+        "눈밭",
+        "눈 오다",
+        "눈 내리다",
+        "눈 쌓이다"
+      ],
+      "description": "차가운 겨울 공기와 눈빛",
+      "source": "corpus_v1",
+      "status": "confirmed",
+      "hex": "#D3E5EF",
+      "name_ko": "흰 파랑 (겨울흰빛)",
+      "changed_de00": 0.1
+    },
+    {
+      "id": "amusement_park",
+      "axis": "space",
+      "name": "Fair Pink",
+      "lch": [
+        78.08,
+        32.11,
+        0.2
+      ],
+      "keywords": [
+        "놀이공원",
+        "회전목마",
+        "테마파크"
+      ],
+      "description": "놀이공원 회전목마 테마파크",
+      "source": "corpus_v1",
+      "status": "confirmed",
+      "hex": "#FAABC2",
+      "name_ko": "밝은 분홍 (축제분홍)",
+      "changed_de00": 0.1
+    },
+    {
+      "id": "sea",
+      "axis": "space",
+      "name": "Sea Blue",
+      "lch": [
+        40.71,
+        30.63,
+        251.12
+      ],
+      "keywords": [
+        "바다",
+        "해변",
+        "파도",
+        "바닷가"
+      ],
+      "description": "바닷가 해변 파도 소리",
+      "source": "corpus_v1",
+      "status": "confirmed",
+      "hex": "#00678F",
+      "name_ko": "진한 파랑 (바다색)",
+      "changed_de00": 30.1
+    },
+    {
+      "id": "alley",
+      "axis": "space",
+      "name": "Alley Stone",
+      "lch": [
+        66.09,
+        10.06,
+        80.65
+      ],
+      "keywords": [
+        "골목",
+        "동네",
+        "골목길",
+        "담벼락"
+      ],
+      "description": "오래된 동네 골목길 담벼락",
+      "source": "corpus_v1",
+      "status": "confirmed",
+      "hex": "#AB9F8F",
+      "name_ko": "회노랑 (골목돌담색)",
+      "changed_de00": 0.2
+    },
+    {
+      "id": "rain_window",
+      "axis": "space",
+      "name": "Rain Grey",
+      "lch": [
+        57.98,
+        7.96,
+        239.02
+      ],
+      "keywords": [
+        "비",
+        "창밖",
+        "장마",
+        "빗소리",
+        "비 오다",
+        "비 내리다",
+        "봄비",
+        "장대비",
+        "소나기",
+        "가랑비",
+        "이슬비",
+        "빗방울",
+        "빗줄기",
+        "빗물"
+      ],
+      "description": "비 오는 날 창밖 빗소리 장마",
+      "source": "corpus_v1",
+      "status": "confirmed",
+      "hex": "#7D8E97",
+      "name_ko": "회파랑 (빗창회색)",
+      "changed_de00": 0.2
+    },
+    {
+      "id": "grandma_house",
+      "axis": "space",
+      "name": "Maru Wood",
+      "lch": [
+        60.01,
+        27.78,
+        64.77
+      ],
+      "keywords": [
+        "할머니",
+        "할아버지",
+        "시골",
+        "마루",
+        "외갓집"
+      ],
+      "description": "할머니 댁 나무 마루와 시골집 마당",
+      "source": "corpus_v1",
+      "status": "confirmed",
+      "hex": "#B38865",
+      "name_ko": "흐린 주황 (툇마루색)",
+      "changed_de00": 0.1
+    },
+    {
+      "id": "school",
+      "axis": "space",
+      "name": "Chalk Green",
+      "lch": [
+        54.87,
+        24.81,
+        149.65
+      ],
+      "keywords": [
+        "학교",
+        "운동장",
+        "교실",
+        "독서실"
+      ],
+      "description": "학교 운동장과 교실, 독서실 책상",
+      "source": "corpus_v1",
+      "status": "confirmed",
+      "hex": "#638D6D",
+      "name_ko": "탁한 초록 (분필초록)",
+      "changed_de00": 0.2
+    },
+    {
+      "id": "flower_road",
+      "axis": "space",
+      "name": "Blossom",
+      "lch": [
+        90.15,
+        6.18,
+        19.85
+      ],
+      "keywords": [
+        "벚꽃",
+        "꽃길",
+        "수국",
+        "꽃",
+        "꽃밭",
+        "꽃구경",
+        "꽃 피다",
+        "들꽃",
+        "꽃향기",
+        "꽃나무"
+      ],
+      "description": "벚꽃길과 수국 핀 꽃길",
+      "source": "corpus_v1",
+      "status": "confirmed",
+      "hex": "#F0DFDF",
+      "name_ko": "흰 분홍 (벚꽃색)",
+      "changed_de00": 10.9
+    },
+    {
+      "id": "cherished",
+      "axis": "quality",
+      "name": "cherished",
+      "modifiers": {
+        "c": 1.0,
+        "l_pull": 0.0
+      },
+      "keywords": [
+        "소중한",
+        "기억에 남는",
+        "따뜻한"
+      ],
+      "description": "소중하고 따뜻하게 남은 기억",
+      "source": "mac_v1",
+      "status": "demo"
+    },
+    {
+      "id": "faded",
+      "axis": "quality",
+      "name": "faded",
+      "modifiers": {
+        "c": 0.7,
+        "l_pull": 0.25
+      },
+      "keywords": [
+        "아련",
+        "희미",
+        "오래된",
+        "어렴풋"
+      ],
+      "description": "희미하고 오래된 아련한 기억",
+      "source": "demo",
+      "status": "demo"
+    },
+    {
+      "id": "vivid",
+      "axis": "quality",
+      "name": "vivid",
+      "modifiers": {
+        "c": 1.2,
+        "l_pull": -0.1
+      },
+      "keywords": [
+        "생생",
+        "선명",
+        "잊을 수 없는",
+        "또렷"
+      ],
+      "description": "생생하고 선명한, 잊을 수 없는 기억",
+      "source": "demo",
+      "status": "demo"
+    }
   ]
 }

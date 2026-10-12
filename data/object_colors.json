@@ -1,0 +1,736 @@
+{
+  "version": "obj-0.1",
+  "source": "MaC_color_keywords_v1.json",
+  "objects": {
+    "눈사람": {
+      "hex": "#D3E5EF",
+      "name": "흰 파랑 (겨울흰빛)",
+      "category": "memory_color",
+      "lch": [
+        89.91,
+        7.97,
+        239.86
+      ]
+    },
+    "꽃잎": {
+      "hex": "#F0DFDF",
+      "name": "흰 분홍 (벚꽃색)",
+      "category": "memory_color",
+      "lch": [
+        90.15,
+        6.18,
+        19.85
+      ]
+    },
+    "참외": {
+      "hex": "#EED059",
+      "name": "밝은 노랑 (참외색)",
+      "category": "memory_color",
+      "lch": [
+        83.97,
+        61.34,
+        92.71
+      ]
+    },
+    "귤": {
+      "hex": "#FB9D59",
+      "name": "밝은 주황 (귤색)",
+      "category": "memory_color",
+      "lch": [
+        73.12,
+        57.42,
+        59.58
+      ]
+    },
+    "감귤": {
+      "hex": "#FB9D59",
+      "name": "밝은 주황 (귤색)",
+      "category": "memory_color",
+      "lch": [
+        73.12,
+        57.42,
+        59.58
+      ]
+    },
+    "밀감": {
+      "hex": "#FB9D59",
+      "name": "밝은 주황 (귤색)",
+      "category": "memory_color",
+      "lch": [
+        73.12,
+        57.42,
+        59.58
+      ]
+    },
+    "홍시": {
+      "hex": "#C56C21",
+      "name": "선명한 주황 (홍시색)",
+      "category": "memory_color",
+      "lch": [
+        54.77,
+        61.78,
+        60.66
+      ]
+    },
+    "딸기": {
+      "hex": "#E24942",
+      "name": "선명한 빨강 (딸기색)",
+      "category": "memory_color",
+      "lch": [
+        53.31,
+        69.8,
+        32.72
+      ]
+    },
+    "포도": {
+      "hex": "#593F74",
+      "name": "진한 보라 (포도색)",
+      "category": "memory_color",
+      "lch": [
+        31.67,
+        34.84,
+        310.97
+      ]
+    },
+    "오이": {
+      "hex": "#5D9669",
+      "name": "흐린 초록 (오이색)",
+      "category": "memory_color",
+      "lch": [
+        57.23,
+        33.85,
+        147.88
+      ]
+    },
+    "솜사탕": {
+      "hex": "#FFDEE5",
+      "name": "연한 분홍 (솜사탕색)",
+      "category": "memory_color",
+      "lch": [
+        91.31,
+        12.52,
+        3.61
+      ]
+    },
+    "떡볶이": {
+      "hex": "#AB413A",
+      "name": "진한 빨강 (떡볶이색)",
+      "category": "memory_color",
+      "lch": [
+        42.37,
+        50.79,
+        32.11
+      ]
+    },
+    "군고구마": {
+      "hex": "#905A33",
+      "name": "갈색 (군고구마색)",
+      "category": "memory_color",
+      "lch": [
+        43.48,
+        36.34,
+        59.78
+      ]
+    },
+    "고구마": {
+      "hex": "#905A33",
+      "name": "갈색 (군고구마색)",
+      "category": "memory_color",
+      "lch": [
+        43.48,
+        36.34,
+        59.78
+      ]
+    },
+    "붕어빵": {
+      "hex": "#CA8F67",
+      "name": "주황 (붕어빵색)",
+      "category": "memory_color",
+      "lch": [
+        64.31,
+        34.95,
+        59.56
+      ]
+    },
+    "아이스크림": {
+      "hex": "#F8E6E8",
+      "name": "흰 분홍 (아이스크림색)",
+      "category": "memory_color",
+      "lch": [
+        92.74,
+        6.57,
+        10.87
+      ]
+    },
+    "빙과": {
+      "hex": "#F8E6E8",
+      "name": "흰 분홍 (아이스크림색)",
+      "category": "memory_color",
+      "lch": [
+        92.74,
+        6.57,
+        10.87
+      ]
+    },
+    "케이크": {
+      "hex": "#F8E6E8",
+      "name": "흰 분홍 (케이크색)",
+      "category": "memory_color",
+      "lch": [
+        92.74,
+        6.57,
+        10.87
+      ]
+    },
+    "생일케이크": {
+      "hex": "#F8E6E8",
+      "name": "흰 분홍 (케이크색)",
+      "category": "memory_color",
+      "lch": [
+        92.74,
+        6.57,
+        10.87
+      ]
+    },
+    "해바라기": {
+      "hex": "#DBB400",
+      "name": "밝은 노랑 (해바라기색)",
+      "category": "memory_color",
+      "lch": [
+        74.64,
+        76.9,
+        89.58
+      ]
+    },
+    "개나리": {
+      "hex": "#F8CD00",
+      "name": "밝은 노랑 (개나리색)",
+      "category": "memory_color",
+      "lch": [
+        83.77,
+        84.61,
+        89.88
+      ]
+    },
+    "진달래": {
+      "hex": "#D779BA",
+      "name": "선명한 자주 (진달래색)",
+      "category": "memory_color",
+      "lch": [
+        63.07,
+        48.72,
+        338.02
+      ]
+    },
+    "장미": {
+      "hex": "#BE2323",
+      "name": "선명한 빨강 (장미색)",
+      "category": "memory_color",
+      "lch": [
+        41.64,
+        71.67,
+        34.33
+      ]
+    },
+    "라벤더": {
+      "hex": "#AB90CC",
+      "name": "보라 (라벤더색)",
+      "category": "memory_color",
+      "lch": [
+        64.13,
+        34.87,
+        308.84
+      ]
+    },
+    "유채꽃": {
+      "hex": "#F8CD00",
+      "name": "밝은 노랑 (유채꽃색)",
+      "category": "memory_color",
+      "lch": [
+        83.77,
+        84.61,
+        89.88
+      ]
+    },
+    "유채": {
+      "hex": "#F8CD00",
+      "name": "밝은 노랑 (유채꽃색)",
+      "category": "memory_color",
+      "lch": [
+        83.77,
+        84.61,
+        89.88
+      ]
+    },
+    "수국": {
+      "hex": "#7E9FD7",
+      "name": "남색 (수국색)",
+      "category": "memory_color",
+      "lch": [
+        65.07,
+        32.23,
+        275.2
+      ]
+    },
+    "잔디": {
+      "hex": "#399D57",
+      "name": "초록 (잔디색)",
+      "category": "memory_color",
+      "lch": [
+        57.72,
+        52.97,
+        147.78
+      ]
+    },
+    "잔디밭": {
+      "hex": "#399D57",
+      "name": "초록 (잔디색)",
+      "category": "memory_color",
+      "lch": [
+        57.72,
+        52.97,
+        147.78
+      ]
+    },
+    "갈대": {
+      "hex": "#A89F7B",
+      "name": "회노랑 (갈대색)",
+      "category": "memory_color",
+      "lch": [
+        65.4,
+        20.18,
+        97.33
+      ]
+    },
+    "억새": {
+      "hex": "#A89F7B",
+      "name": "회노랑 (갈대색)",
+      "category": "memory_color",
+      "lch": [
+        65.4,
+        20.18,
+        97.33
+      ]
+    },
+    "모래": {
+      "hex": "#ECC9B2",
+      "name": "연한 주황 (모래색)",
+      "category": "memory_color",
+      "lch": [
+        83.35,
+        18.39,
+        61.0
+      ]
+    },
+    "모래사장": {
+      "hex": "#ECC9B2",
+      "name": "연한 주황 (모래색)",
+      "category": "memory_color",
+      "lch": [
+        83.35,
+        18.39,
+        61.0
+      ]
+    },
+    "백사장": {
+      "hex": "#ECC9B2",
+      "name": "연한 주황 (모래색)",
+      "category": "memory_color",
+      "lch": [
+        83.35,
+        18.39,
+        61.0
+      ]
+    },
+    "파도": {
+      "hex": "#52B0AB",
+      "name": "흐린 청록 (파도색)",
+      "category": "memory_color",
+      "lch": [
+        66.36,
+        29.53,
+        191.55
+      ]
+    },
+    "물결": {
+      "hex": "#52B0AB",
+      "name": "흐린 청록 (파도색)",
+      "category": "memory_color",
+      "lch": [
+        66.36,
+        29.53,
+        191.55
+      ]
+    },
+    "호수": {
+      "hex": "#62908D",
+      "name": "흐린 청록 (호수색)",
+      "category": "memory_color",
+      "lch": [
+        56.55,
+        16.58,
+        191.83
+      ]
+    },
+    "구름": {
+      "hex": "#EBEBEB",
+      "name": "흰색 (구름색)",
+      "category": "memory_color",
+      "lch": [
+        93.05,
+        0.0,
+        0.0
+      ]
+    },
+    "달": {
+      "hex": "#F5ECC6",
+      "name": "연한 노랑 (달색)",
+      "category": "light",
+      "lch": [
+        93.22,
+        19.78,
+        98.68
+      ]
+    },
+    "달빛": {
+      "hex": "#F5ECC6",
+      "name": "연한 노랑 (달색)",
+      "category": "light",
+      "lch": [
+        93.22,
+        19.78,
+        98.68
+      ]
+    },
+    "보름달": {
+      "hex": "#F5ECC6",
+      "name": "연한 노랑 (달색)",
+      "category": "light",
+      "lch": [
+        93.22,
+        19.78,
+        98.68
+      ]
+    },
+    "별": {
+      "hex": "#EFEBDD",
+      "name": "흰 노랑 (별색)",
+      "category": "light",
+      "lch": [
+        93.01,
+        7.34,
+        98.11
+      ]
+    },
+    "별빛": {
+      "hex": "#EFEBDD",
+      "name": "흰 노랑 (별색)",
+      "category": "light",
+      "lch": [
+        93.01,
+        7.34,
+        98.11
+      ]
+    },
+    "가로등": {
+      "hex": "#FB9D59",
+      "name": "밝은 주황 (가로등색)",
+      "category": "light",
+      "lch": [
+        73.12,
+        57.42,
+        59.58
+      ]
+    },
+    "촛불": {
+      "hex": "#FB9D59",
+      "name": "밝은 주황 (촛불색)",
+      "category": "light",
+      "lch": [
+        73.12,
+        57.42,
+        59.58
+      ]
+    },
+    "양초": {
+      "hex": "#FB9D59",
+      "name": "밝은 주황 (촛불색)",
+      "category": "light",
+      "lch": [
+        73.12,
+        57.42,
+        59.58
+      ]
+    },
+    "불꽃놀이": {
+      "hex": "#F8CD00",
+      "name": "밝은 노랑 (불꽃놀이색)",
+      "category": "light",
+      "lch": [
+        83.77,
+        84.61,
+        89.88
+      ]
+    },
+    "폭죽": {
+      "hex": "#F8CD00",
+      "name": "밝은 노랑 (불꽃놀이색)",
+      "category": "light",
+      "lch": [
+        83.77,
+        84.61,
+        89.88
+      ]
+    },
+    "우산": {
+      "hex": "#4A699D",
+      "name": "진한 남색 (우산색)",
+      "category": "memory_color",
+      "lch": [
+        44.22,
+        31.94,
+        277.62
+      ]
+    },
+    "장독대": {
+      "hex": "#634632",
+      "name": "갈색 (장독대색)",
+      "category": "memory_color",
+      "lch": [
+        32.4,
+        19.53,
+        60.23
+      ]
+    },
+    "장독": {
+      "hex": "#634632",
+      "name": "갈색 (장독대색)",
+      "category": "memory_color",
+      "lch": [
+        32.4,
+        19.53,
+        60.23
+      ]
+    },
+    "항아리": {
+      "hex": "#634632",
+      "name": "갈색 (장독대색)",
+      "category": "memory_color",
+      "lch": [
+        32.4,
+        19.53,
+        60.23
+      ]
+    },
+    "마루": {
+      "hex": "#9E7F6A",
+      "name": "갈색 (마루색)",
+      "category": "memory_color",
+      "lch": [
+        55.57,
+        18.22,
+        61.1
+      ]
+    },
+    "툇마루": {
+      "hex": "#9E7F6A",
+      "name": "갈색 (마루색)",
+      "category": "memory_color",
+      "lch": [
+        55.57,
+        18.22,
+        61.1
+      ]
+    },
+    "대청마루": {
+      "hex": "#9E7F6A",
+      "name": "갈색 (마루색)",
+      "category": "memory_color",
+      "lch": [
+        55.57,
+        18.22,
+        61.1
+      ]
+    },
+    "칠판": {
+      "hex": "#39553F",
+      "name": "어두운 초록 (칠판색)",
+      "category": "memory_color",
+      "lch": [
+        33.41,
+        18.41,
+        148.7
+      ]
+    },
+    "자전거": {
+      "hex": "#868686",
+      "name": "회색 (자전거색)",
+      "category": "memory_color",
+      "lch": [
+        55.93,
+        0.0,
+        0.0
+      ]
+    },
+    "회전목마": {
+      "hex": "#EED059",
+      "name": "밝은 노랑 (회전목마색)",
+      "category": "memory_color",
+      "lch": [
+        83.97,
+        61.34,
+        92.71
+      ]
+    },
+    "풍선": {
+      "hex": "#E24942",
+      "name": "선명한 빨강 (풍선색)",
+      "category": "memory_color",
+      "lch": [
+        53.31,
+        69.8,
+        32.72
+      ]
+    },
+    "목도리": {
+      "hex": "#96534C",
+      "name": "빨간 갈색 (목도리색)",
+      "category": "memory_color",
+      "lch": [
+        43.05,
+        31.62,
+        31.2
+      ]
+    },
+    "털목도리": {
+      "hex": "#96534C",
+      "name": "빨간 갈색 (목도리색)",
+      "category": "memory_color",
+      "lch": [
+        43.05,
+        31.62,
+        31.2
+      ]
+    },
+    "연탄": {
+      "hex": "#333333",
+      "name": "어두운 회색 (연탄색)",
+      "category": "memory_color",
+      "lch": [
+        21.25,
+        0.0,
+        0.0
+      ]
+    },
+    "기차": {
+      "hex": "#4A699D",
+      "name": "진한 남색 (기차색)",
+      "category": "memory_color",
+      "lch": [
+        44.22,
+        31.94,
+        277.62
+      ]
+    },
+    "열차": {
+      "hex": "#4A699D",
+      "name": "진한 남색 (기차색)",
+      "category": "memory_color",
+      "lch": [
+        44.22,
+        31.94,
+        277.62
+      ]
+    },
+    "커피": {
+      "hex": "#462C19",
+      "name": "어두운 갈색 (커피색)",
+      "category": "memory_color",
+      "lch": [
+        20.73,
+        19.65,
+        60.61
+      ]
+    },
+    "커피잔": {
+      "hex": "#462C19",
+      "name": "어두운 갈색 (커피색)",
+      "category": "memory_color",
+      "lch": [
+        20.73,
+        19.65,
+        60.61
+      ]
+    },
+    "녹차": {
+      "hex": "#92A86A",
+      "name": "흐린 연두 (녹차색)",
+      "category": "memory_color",
+      "lch": [
+        65.87,
+        34.81,
+        121.89
+      ]
+    },
+    "소나무": {
+      "hex": "#225A31",
+      "name": "어두운 초록 (소나무색)",
+      "category": "memory_color",
+      "lch": [
+        33.72,
+        33.96,
+        147.35
+      ]
+    },
+    "솔숲": {
+      "hex": "#225A31",
+      "name": "어두운 초록 (소나무색)",
+      "category": "memory_color",
+      "lch": [
+        33.72,
+        33.96,
+        147.35
+      ]
+    },
+    "낙엽": {
+      "hex": "#B07750",
+      "name": "갈색 (낙엽색)",
+      "category": "memory_color",
+      "lch": [
+        55.08,
+        35.3,
+        59.33
+      ]
+    },
+    "얼음": {
+      "hex": "#DEEEF6",
+      "name": "흰 파랑 (얼음색)",
+      "category": "memory_color",
+      "lch": [
+        93.16,
+        6.78,
+        236.61
+      ]
+    },
+    "빙판": {
+      "hex": "#DEEEF6",
+      "name": "흰 파랑 (얼음색)",
+      "category": "memory_color",
+      "lch": [
+        93.16,
+        6.78,
+        236.61
+      ]
+    },
+    "고드름": {
+      "hex": "#DEEEF6",
+      "name": "흰 파랑 (얼음색)",
+      "category": "memory_color",
+      "lch": [
+        93.16,
+        6.78,
+        236.61
+      ]
+    }
+  }
+}

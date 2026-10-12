@@ -185,9 +185,14 @@ class CorpusRAG:
                                "color_note": p.get("color_note", ""), "score": h.score, "status": p["status"]})
         objs = []
         for o in objects:
-            if o.how == "corpus":
+            if o.how in ("corpus", "table"):                   # table = 코퍼스 팀 확정 사물 색 (2026-10-12)
                 p = self.object_of(o.name)
-                objs.append({"id": p["id"], "name": o.name, "grade": list(o.descriptor), "status": p["status"]})
+                if p is not None:
+                    objs.append({"id": p["id"], "name": o.name, "grade": list(o.descriptor), "status": p["status"],
+                                 "source": o.how})
+                else:
+                    objs.append({"id": f"table:{o.name}", "name": o.name, "grade": list(o.descriptor),
+                                 "status": "confirmed", "source": "table"})
         rules = set()
         if affect is not None and getattr(affect, "how", "none") != "none":
             rules |= {"affect.valence_lightness", "affect.arousal_chroma"}

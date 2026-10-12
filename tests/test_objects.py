@@ -12,7 +12,9 @@ RES = {"emotion": R("emotion", "warm_nostalgia"), "space": R("space", "grandma_h
 
 def test_no_objects_keeps_eng10_colors_but_fixes_name():
     p = synthesize(RES, KB())["palette"]
-    assert [x["hex"] for x in p] == ["#F0C3AB", "#B48865", "#EDDBBB", "#E47570"]   # 스크린샷 eng-1.0 과 같은 색
+    # kb-0.2 (2026-10-12): 추억(Peach Cream)·노을빛 강조색이 코퍼스 팀 확정값으로 바뀌었다. 바탕·시간색은 그대로
+    # 바탕 #F0C3AB→#D2A795 · 시간·장소색은 ΔE<2 · 강조색은 바탕과 함께 옮겨 #E47570→#C45B60 (채도 폭주 없음)
+    assert [x["hex"] for x in p] == ["#D2A795", "#B48866", "#EFDABB", "#C45B60"]
     assert p[0]["color_name"] != p[3]["color_name"]                                # 'Peach Cream' 중복 해소
 
 

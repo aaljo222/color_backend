@@ -65,10 +65,11 @@ def test_keyword_and_label_still_win_over_corpus():
 
 # ── ② 사물 등급 ─────────────────────────────────────────────────────────
 def test_corpus_object_grade_beats_llm_grade_and_lexicon_beats_corpus():
+    # 2026-10-12: 코퍼스 사물은 모두 팀 확정 표(object_colors.json)에 HEX 로 들어갔다 → table 이 가장 먼저
     a = resolve_objects([{"name": "참외", "hue": "파랑", "lightness": 2, "chroma": 1}], learn=False)
     b = resolve_objects([{"name": "참외"}], learn=False)
-    assert a[0].how == b[0].how == "corpus" and a[0].descriptor == b[0].descriptor == ("노랑", 8, 4)
-    assert a[0].lch == b[0].lch                                            # 같은 낱말 = 같은 색
+    assert a[0].how == b[0].how == "table" and a[0].descriptor == b[0].descriptor == ("노랑", 8, 4)
+    assert a[0].lch == b[0].lch                                            # 같은 낱말 = 같은 색 (모델 등급 무시)
     assert resolve_objects([{"name": "수박"}], learn=False)[0].how == "lexicon"
     assert resolve_objects([{"name": "감귤"}], learn=False)[0].descriptor == ("주황", 7, 4)   # 별칭
 
