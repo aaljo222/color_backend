@@ -1,0 +1,96 @@
+{"axis": "time", "phrase": "나는 이른 아침에 집을 나섰다", "expected": "morning", "word": "이른", "situation": "1. 시각이 평소보다 빠름", "kind": "ex"}
+{"axis": "time", "phrase": "이른 시간부터 공항에 사람들이 모여들었다", "expected": "morning", "word": "이른", "situation": "1. 시각이 평소보다 빠름", "kind": "ex"}
+{"axis": "time", "phrase": "그는 이른 새벽부터 운동을 시작했다", "expected": "night", "word": "이른", "situation": "1. 시각이 평소보다 빠름", "kind": "ex"}
+{"axis": "time", "phrase": "우리는 이른 아침 기차를 타고 서울로 향했다", "expected": "morning", "word": "이른", "situation": "1. 시각이 평소보다 빠름", "kind": "ex"}
+{"axis": "time", "phrase": "이른 시간에 도착한 덕분에 줄을 서지 않았다", "expected": "morning", "word": "이른", "situation": "1. 시각이 평소보다 빠름", "kind": "ex"}
+{"axis": "time", "phrase": "오늘은 이른 시간에 만나기로 했다", "expected": ["morning", null], "word": "이른", "situation": "1. 시각이 평소보다 빠름", "kind": "amb"}
+{"axis": "time", "phrase": "이른 때부터 준비를 시작했다", "expected": ["morning", null], "word": "이른", "situation": "1. 시각이 평소보다 빠름", "kind": "amb"}
+{"axis": "time", "phrase": "그 일은 이른 시각에 진행되었다", "expected": ["morning", null], "word": "이른", "situation": "1. 시각이 평소보다 빠름", "kind": "amb"}
+{"axis": "time", "phrase": "이른 봄에 매화가 꽃을 피웠다", "expected": null, "word": "이른", "situation": "2. 계절이 평년보다 일찍 찾아옴", "kind": "ex"}
+{"axis": "time", "phrase": "올해는 이른 여름부터 더위가 시작되었다", "expected": null, "word": "이른", "situation": "2. 계절이 평년보다 일찍 찾아옴", "kind": "ex"}
+{"axis": "time", "phrase": "이른 봄바람이 들판을 스쳐 지나갔다", "expected": null, "word": "이른", "situation": "2. 계절이 평년보다 일찍 찾아옴", "kind": "ex"}
+{"axis": "time", "phrase": "이른 가을부터 단풍이 들기 시작했다", "expected": null, "word": "이른", "situation": "2. 계절이 평년보다 일찍 찾아옴", "kind": "ex"}
+{"axis": "time", "phrase": "이른 겨울 추위에 농작물이 피해를 입었다", "expected": "winter", "word": "이른", "situation": "2. 계절이 평년보다 일찍 찾아옴", "kind": "ex"}
+{"axis": "time", "phrase": "이른 봄에 그곳을 방문했다", "expected": null, "word": "이른", "situation": "2. 계절이 평년보다 일찍 찾아옴", "kind": "amb"}
+{"axis": "time", "phrase": "이른 여름의 풍경이 아름다웠다", "expected": null, "word": "이른", "situation": "2. 계절이 평년보다 일찍 찾아옴", "kind": "amb"}
+{"axis": "time", "phrase": "이른 가을부터 새로운 계획을 세웠다", "expected": null, "word": "이른", "situation": "2. 계절이 평년보다 일찍 찾아옴", "kind": "amb"}
+{"axis": "time", "phrase": "그는 일이 끝나 이른 퇴근을 했다", "expected": null, "word": "이른", "situation": "3. 어떤 사건이나 단계가 예상보다 빠르게 발생함", "kind": "ex"}
+{"axis": "time", "phrase": "선수는 부상 때문에 이른 은퇴를 결정했다", "expected": null, "word": "이른", "situation": "3. 어떤 사건이나 단계가 예상보다 빠르게 발생함", "kind": "ex"}
+{"axis": "time", "phrase": "회사는 실적 악화로 이른 구조조정에 들어갔다", "expected": null, "word": "이른", "situation": "3. 어떤 사건이나 단계가 예상보다 빠르게 발생함", "kind": "ex"}
+{"axis": "time", "phrase": "예상보다 이른 합격 소식에 가족들이 기뻐했다", "expected": null, "word": "이른", "situation": "3. 어떤 사건이나 단계가 예상보다 빠르게 발생함", "kind": "ex"}
+{"axis": "time", "phrase": "이른 결혼을 선택한 친구는 새로운 생활을 시작했다", "expected": null, "word": "이른", "situation": "3. 어떤 사건이나 단계가 예상보다 빠르게 발생함", "kind": "ex"}
+{"axis": "time", "phrase": "그의 이른 결정은 모두를 놀라게 했다", "expected": null, "word": "이른", "situation": "3. 어떤 사건이나 단계가 예상보다 빠르게 발생함", "kind": "amb"}
+{"axis": "time", "phrase": "이른 시작이 좋은 결과를 가져왔다", "expected": null, "word": "이른", "situation": "3. 어떤 사건이나 단계가 예상보다 빠르게 발생함", "kind": "amb"}
+{"axis": "time", "phrase": "사람들은 이른 변화에 적응해야 했다", "expected": null, "word": "이른", "situation": "3. 어떤 사건이나 단계가 예상보다 빠르게 발생함", "kind": "amb"}
+{"axis": "time", "phrase": "그는 이른 나이에 작가로 데뷔했다", "expected": null, "word": "이른", "situation": "4. 나이 또는 성장 단계가 평균보다 어림", "kind": "ex"}
+{"axis": "time", "phrase": "아이는 이른 시기에 글자를 읽기 시작했다", "expected": null, "word": "이른", "situation": "4. 나이 또는 성장 단계가 평균보다 어림", "kind": "ex"}
+{"axis": "time", "phrase": "그녀는 이른 나이에 독립 생활을 시작했다", "expected": null, "word": "이른", "situation": "4. 나이 또는 성장 단계가 평균보다 어림", "kind": "ex"}
+{"axis": "time", "phrase": "어린 선수는 이른 나이에 국가대표로 선발되었다", "expected": null, "word": "이른", "situation": "4. 나이 또는 성장 단계가 평균보다 어림", "kind": "ex"}
+{"axis": "time", "phrase": "그는 이른 나이에 자신의 사업을 시작했다", "expected": null, "word": "이른", "situation": "4. 나이 또는 성장 단계가 평균보다 어림", "kind": "ex"}
+{"axis": "time", "phrase": "이른 나이에 많은 것을 경험했다", "expected": null, "word": "이른", "situation": "4. 나이 또는 성장 단계가 평균보다 어림", "kind": "amb"}
+{"axis": "time", "phrase": "아이의 이른 성장이 화제가 되었다", "expected": null, "word": "이른", "situation": "4. 나이 또는 성장 단계가 평균보다 어림", "kind": "amb"}
+{"axis": "time", "phrase": "그는 이른 시기부터 자신의 길을 찾았다", "expected": null, "word": "이른", "situation": "4. 나이 또는 성장 단계가 평균보다 어림", "kind": "amb"}
+{"axis": "emotion", "phrase": "오늘은 날씨가 따뜻해서 산책하기 좋다", "expected": null, "word": "따뜻한", "situation": "1. 날씨나 기온이 높아 추위가 느껴지지 않음", "kind": "ex"}
+{"axis": "emotion", "phrase": "따뜻한 봄바람이 창문으로 들어왔다", "expected": null, "word": "따뜻한", "situation": "1. 날씨나 기온이 높아 추위가 느껴지지 않음", "kind": "ex"}
+{"axis": "emotion", "phrase": "오후가 되자 공기가 한층 따뜻해졌다", "expected": null, "word": "따뜻한", "situation": "1. 날씨나 기온이 높아 추위가 느껴지지 않음", "kind": "ex"}
+{"axis": "emotion", "phrase": "따뜻한 날씨 덕분에 공원에 사람들이 많았다", "expected": null, "word": "따뜻한", "situation": "1. 날씨나 기온이 높아 추위가 느껴지지 않음", "kind": "ex"}
+{"axis": "emotion", "phrase": "겨울이 끝나고 따뜻한 햇볕이 내리쬐기 시작했다", "expected": null, "word": "따뜻한", "situation": "1. 날씨나 기온이 높아 추위가 느껴지지 않음", "kind": "ex"}
+{"axis": "emotion", "phrase": "오늘은 따뜻한 날이 될 것 같다", "expected": null, "word": "따뜻한", "situation": "1. 날씨나 기온이 높아 추위가 느껴지지 않음", "kind": "amb"}
+{"axis": "emotion", "phrase": "따뜻한 바람이 불어왔다", "expected": null, "word": "따뜻한", "situation": "1. 날씨나 기온이 높아 추위가 느껴지지 않음", "kind": "amb"}
+{"axis": "emotion", "phrase": "따뜻한 기운이 주변에 퍼졌다", "expected": null, "word": "따뜻한", "situation": "1. 날씨나 기온이 높아 추위가 느껴지지 않음", "kind": "amb"}
+{"axis": "emotion", "phrase": "나는 따뜻한 물로 손을 씻었다", "expected": null, "word": "따뜻한", "situation": "2. 물체나 음식의 온도가 적당히 높음", "kind": "ex"}
+{"axis": "emotion", "phrase": "어머니는 추운 날 따뜻한 국을 끓여 주셨다", "expected": null, "word": "따뜻한", "situation": "2. 물체나 음식의 온도가 적당히 높음", "kind": "ex"}
+{"axis": "emotion", "phrase": "그는 따뜻한 커피를 두 손으로 감쌌다", "expected": null, "word": "따뜻한", "situation": "2. 물체나 음식의 온도가 적당히 높음", "kind": "ex"}
+{"axis": "emotion", "phrase": "식탁 위에는 따뜻한 밥이 놓여 있었다", "expected": null, "word": "따뜻한", "situation": "2. 물체나 음식의 온도가 적당히 높음", "kind": "ex"}
+{"axis": "emotion", "phrase": "샤워를 마친 뒤 따뜻한 수건으로 몸을 닦았다", "expected": null, "word": "따뜻한", "situation": "2. 물체나 음식의 온도가 적당히 높음", "kind": "ex"}
+{"axis": "emotion", "phrase": "나는 따뜻한 것을 찾았다", "expected": null, "word": "따뜻한", "situation": "2. 물체나 음식의 온도가 적당히 높음", "kind": "amb"}
+{"axis": "emotion", "phrase": "그는 따뜻한 물체를 만졌다", "expected": null, "word": "따뜻한", "situation": "2. 물체나 음식의 온도가 적당히 높음", "kind": "amb"}
+{"axis": "emotion", "phrase": "식탁 위에 따뜻한 것이 놓여 있었다", "expected": null, "word": "따뜻한", "situation": "2. 물체나 음식의 온도가 적당히 높음", "kind": "amb"}
+{"axis": "emotion", "phrase": "친구는 힘들어하는 나에게 따뜻한 위로를 건넸다", "expected": ["warm_nostalgia", "stability_affection"], "word": "따뜻한", "situation": "3. 타인의 마음이 다정하고 배려심이 있음", "kind": "ex"}
+{"axis": "emotion", "phrase": "선생님의 따뜻한 배려에 학생들은 감동했다", "expected": ["warm_nostalgia", "stability_affection"], "word": "따뜻한", "situation": "3. 타인의 마음이 다정하고 배려심이 있음", "kind": "ex"}
+{"axis": "emotion", "phrase": "그는 어려운 이웃을 돕는 따뜻한 마음을 지녔다", "expected": ["warm_nostalgia", "stability_affection"], "word": "따뜻한", "situation": "3. 타인의 마음이 다정하고 배려심이 있음", "kind": "ex"}
+{"axis": "emotion", "phrase": "낯선 사람에게도 따뜻한 말을 건네는 사람이 있다", "expected": ["warm_nostalgia", "stability_affection"], "word": "따뜻한", "situation": "3. 타인의 마음이 다정하고 배려심이 있음", "kind": "ex"}
+{"axis": "emotion", "phrase": "할머니는 언제나 따뜻한 사랑으로 가족을 보살피셨다", "expected": ["warm_nostalgia", "stability_affection"], "word": "따뜻한", "situation": "3. 타인의 마음이 다정하고 배려심이 있음", "kind": "ex"}
+{"axis": "emotion", "phrase": "그 사람은 참 따뜻하다", "expected": ["warm_nostalgia", "stability_affection", null], "word": "따뜻한", "situation": "3. 타인의 마음이 다정하고 배려심이 있음", "kind": "amb"}
+{"axis": "emotion", "phrase": "그의 따뜻한 말이 오래 기억에 남았다", "expected": ["warm_nostalgia", "stability_affection", null], "word": "따뜻한", "situation": "3. 타인의 마음이 다정하고 배려심이 있음", "kind": "amb"}
+{"axis": "emotion", "phrase": "나는 따뜻한 마음을 느꼈다", "expected": ["warm_nostalgia", "stability_affection", null], "word": "따뜻한", "situation": "3. 타인의 마음이 다정하고 배려심이 있음", "kind": "amb"}
+{"axis": "emotion", "phrase": "작은 카페는 따뜻한 분위기로 꾸며져 있었다", "expected": ["warm_nostalgia", "stability_affection"], "word": "따뜻한", "situation": "4. 분위기나 관계가 편안하고 정감이 있음", "kind": "ex"}
+{"axis": "emotion", "phrase": "가족들이 모인 거실에는 따뜻한 기운이 감돌았다", "expected": ["warm_nostalgia", "stability_affection"], "word": "따뜻한", "situation": "4. 분위기나 관계가 편안하고 정감이 있음", "kind": "ex"}
+{"axis": "emotion", "phrase": "영화는 이웃 간의 따뜻한 정을 그려 냈다", "expected": ["warm_nostalgia", "stability_affection"], "word": "따뜻한", "situation": "4. 분위기나 관계가 편안하고 정감이 있음", "kind": "ex"}
+{"axis": "emotion", "phrase": "그 집은 소박하지만 따뜻한 느낌을 주었다", "expected": ["warm_nostalgia", "stability_affection"], "word": "따뜻한", "situation": "4. 분위기나 관계가 편안하고 정감이 있음", "kind": "ex"}
+{"axis": "emotion", "phrase": "두 사람은 오랜 친구처럼 따뜻한 관계를 유지했다", "expected": ["warm_nostalgia", "stability_affection"], "word": "따뜻한", "situation": "4. 분위기나 관계가 편안하고 정감이 있음", "kind": "ex"}
+{"axis": "emotion", "phrase": "그곳은 따뜻한 공간이었다", "expected": ["warm_nostalgia", "stability_affection", null], "word": "따뜻한", "situation": "4. 분위기나 관계가 편안하고 정감이 있음", "kind": "amb"}
+{"axis": "emotion", "phrase": "두 사람 사이에는 따뜻한 것이 있었다", "expected": ["warm_nostalgia", "stability_affection", null], "word": "따뜻한", "situation": "4. 분위기나 관계가 편안하고 정감이 있음", "kind": "amb"}
+{"axis": "emotion", "phrase": "따뜻한 분위기가 주변을 감쌌다", "expected": ["warm_nostalgia", "stability_affection", null], "word": "따뜻한", "situation": "4. 분위기나 관계가 편안하고 정감이 있음", "kind": "amb"}
+{"axis": "quality", "phrase": "이 사진은 색상이 선명하다", "expected": null, "word": "선명하다", "situation": "1. 시각적으로 또렷하고 분명함", "kind": "ex"}
+{"axis": "quality", "phrase": "화면에 글자가 선명하게 표시되었다", "expected": null, "word": "선명하다", "situation": "1. 시각적으로 또렷하고 분명함", "kind": "ex"}
+{"axis": "quality", "phrase": "파란 하늘과 흰 구름의 대비가 선명했다", "expected": null, "word": "선명하다", "situation": "1. 시각적으로 또렷하고 분명함", "kind": "ex"}
+{"axis": "quality", "phrase": "고화질 카메라로 찍은 사진은 윤곽이 선명하다", "expected": null, "word": "선명하다", "situation": "1. 시각적으로 또렷하고 분명함", "kind": "ex"}
+{"axis": "quality", "phrase": "빨간색과 노란색이 선명하게 구분되었다", "expected": null, "word": "선명하다", "situation": "1. 시각적으로 또렷하고 분명함", "kind": "ex"}
+{"axis": "quality", "phrase": "화면이 선명하다", "expected": null, "word": "선명하다", "situation": "1. 시각적으로 또렷하고 분명함", "kind": "amb"}
+{"axis": "quality", "phrase": "선명한 색이 눈에 들어왔다", "expected": null, "word": "선명하다", "situation": "1. 시각적으로 또렷하고 분명함", "kind": "amb"}
+{"axis": "quality", "phrase": "멀리 있는 물체가 선명하게 보였다", "expected": null, "word": "선명하다", "situation": "1. 시각적으로 또렷하고 분명함", "kind": "amb"}
+{"axis": "quality", "phrase": "새로 산 마이크는 목소리를 선명하게 전달한다", "expected": null, "word": "선명하다", "situation": "2. 소리가 뚜렷하고 명확하게 들림", "kind": "ex"}
+{"axis": "quality", "phrase": "잡음이 줄어들자 상대방의 음성이 선명하게 들렸다", "expected": null, "word": "선명하다", "situation": "2. 소리가 뚜렷하고 명확하게 들림", "kind": "ex"}
+{"axis": "quality", "phrase": "이 스피커는 고음역의 소리가 선명하다", "expected": null, "word": "선명하다", "situation": "2. 소리가 뚜렷하고 명확하게 들림", "kind": "ex"}
+{"axis": "quality", "phrase": "녹음 파일에서 발표자의 발음이 선명하게 들렸다", "expected": null, "word": "선명하다", "situation": "2. 소리가 뚜렷하고 명확하게 들림", "kind": "ex"}
+{"axis": "quality", "phrase": "통화 품질이 좋아져 상대방의 말소리가 선명해졌다", "expected": null, "word": "선명하다", "situation": "2. 소리가 뚜렷하고 명확하게 들림", "kind": "ex"}
+{"axis": "quality", "phrase": "소리가 선명하다", "expected": null, "word": "선명하다", "situation": "2. 소리가 뚜렷하고 명확하게 들림", "kind": "amb"}
+{"axis": "quality", "phrase": "그의 목소리가 선명하게 들렸다", "expected": null, "word": "선명하다", "situation": "2. 소리가 뚜렷하고 명확하게 들림", "kind": "amb"}
+{"axis": "quality", "phrase": "선명한 소리가 공간에 울려 퍼졌다", "expected": null, "word": "선명하다", "situation": "2. 소리가 뚜렷하고 명확하게 들림", "kind": "amb"}
+{"axis": "quality", "phrase": "나는 어린 시절의 그날을 아직도 선명하게 기억한다", "expected": "vivid", "word": "선명하다", "situation": "3. 기억이나 인상이 생생하고 뚜렷함", "kind": "ex"}
+{"axis": "quality", "phrase": "사고 당시의 장면이 머릿속에 선명하게 남아 있다", "expected": "vivid", "word": "선명하다", "situation": "3. 기억이나 인상이 생생하고 뚜렷함", "kind": "ex"}
+{"axis": "quality", "phrase": "그의 얼굴은 오랜 시간이 지나도 선명하게 떠올랐다", "expected": "vivid", "word": "선명하다", "situation": "3. 기억이나 인상이 생생하고 뚜렷함", "kind": "ex"}
+{"axis": "quality", "phrase": "첫 여행의 기억이 지금도 선명하다", "expected": "vivid", "word": "선명하다", "situation": "3. 기억이나 인상이 생생하고 뚜렷함", "kind": "ex"}
+{"axis": "quality", "phrase": "꿈에서 본 풍경이 아침까지 선명하게 남아 있었다", "expected": "vivid", "word": "선명하다", "situation": "3. 기억이나 인상이 생생하고 뚜렷함", "kind": "ex"}
+{"axis": "quality", "phrase": "그 장면은 아직도 선명하다", "expected": "vivid", "word": "선명하다", "situation": "3. 기억이나 인상이 생생하고 뚜렷함", "kind": "amb"}
+{"axis": "quality", "phrase": "오래전 일이 선명하게 떠올랐다", "expected": "vivid", "word": "선명하다", "situation": "3. 기억이나 인상이 생생하고 뚜렷함", "kind": "amb"}
+{"axis": "quality", "phrase": "그의 모습이 선명하게 남아 있다", "expected": "vivid", "word": "선명하다", "situation": "3. 기억이나 인상이 생생하고 뚜렷함", "kind": "amb"}
+{"axis": "quality", "phrase": "그는 자신의 진로 목표가 선명하다", "expected": null, "word": "선명하다", "situation": "4. 생각이나 목표, 차이가 명확함", "kind": "ex"}
+{"axis": "quality", "phrase": "두 제품의 성능 차이가 선명하게 드러났다", "expected": null, "word": "선명하다", "situation": "4. 생각이나 목표, 차이가 명확함", "kind": "ex"}
+{"axis": "quality", "phrase": "보고서에는 문제의 원인이 선명하게 제시되어 있다", "expected": null, "word": "선명하다", "situation": "4. 생각이나 목표, 차이가 명확함", "kind": "ex"}
+{"axis": "quality", "phrase": "경험이 쌓이면서 내가 원하는 삶의 방향이 선명해졌다", "expected": null, "word": "선명하다", "situation": "4. 생각이나 목표, 차이가 명확함", "kind": "ex"}
+{"axis": "quality", "phrase": "두 이론의 차이를 선명하게 구분할 수 있다", "expected": null, "word": "선명하다", "situation": "4. 생각이나 목표, 차이가 명확함", "kind": "ex"}
+{"axis": "quality", "phrase": "그의 생각은 선명하다", "expected": null, "word": "선명하다", "situation": "4. 생각이나 목표, 차이가 명확함", "kind": "amb"}
+{"axis": "quality", "phrase": "차이가 선명하게 나타났다", "expected": null, "word": "선명하다", "situation": "4. 생각이나 목표, 차이가 명확함", "kind": "amb"}
+{"axis": "quality", "phrase": "앞으로의 방향이 선명해졌다", "expected": null, "word": "선명하다", "situation": "4. 생각이나 목표, 차이가 명확함", "kind": "amb"}

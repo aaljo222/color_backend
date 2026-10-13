@@ -41,8 +41,8 @@ DIM = int(os.getenv("SIMILAR_DIM", "1024"))
 
 
 def provider() -> str | None:
-    p = (os.getenv("SIMILAR_PROVIDER") or "").lower()
-    if p in ("voyage", "gemini"):
+    p = (os.getenv("SIMILAR_PROVIDER") or os.getenv("EMBED_PROVIDER") or "").lower()
+    if p in ("voyage", "gemini", "openai"):
         return p if os.getenv(f"{p.upper()}_API_KEY") else None
     if os.getenv("VOYAGE_API_KEY"):
         return "voyage"
@@ -57,6 +57,9 @@ def model_name() -> str | None:
         return f"voyage:{os.getenv('VOYAGE_MODEL', 'voyage-4')}:{DIM}"
     if p == "gemini":
         return f"gemini:{os.getenv('GEMINI_EMBED_MODEL', 'gemini-embedding-001')}:{DIM}"
+    if p == "openai":
+        from core.embed_cache import OPENAI_MODEL
+        return f"openai:{OPENAI_MODEL}:{DIM}"
     return None
 
 
@@ -99,12 +102,24 @@ def _embed_voyage(texts: list[str], kind: str) -> list[list[float]]:
                       input_type=kind, output_dimension=DIM)          # kind = "query" | "document"
     return [list(v) for v in r.embeddings]
 
+_GEMINI = None
+
+
+def _gemini_client():
+    """Gemini 클라이언트를 한 번 만들어 계속 쓴다. 호출마다 genai.Client(...) 를 새로 만들면 그 임시 객체가 요청이 끝나기 전에
+    정리되면서 연결이 닫혀 임베딩 요청이 간헐적으로 실패했다 (2026-10-11 로컬에서 재현)."""
+    global _GEMINI
+    if _GEMINI is None:
+        from google import genai
+        _GEMINI = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+    return _GEMINI
+
 
 def _embed_gemini(texts: list[str], kind: str) -> list[list[float]]:
     from google import genai
     from google.genai import types
     task = "RETRIEVAL_QUERY" if kind == "query" else "RETRIEVAL_DOCUMENT"
-    r = genai.Client(api_key=os.environ["GEMINI_API_KEY"]).models.embed_content(
+    r = _gemini_client().models.embed_content(
         model=os.getenv("GEMINI_EMBED_MODEL", "gemini-embedding-001"), contents=texts,
         config=types.EmbedContentConfig(task_type=task, output_dimensionality=DIM))
     return [list(e.values) for e in r.embeddings]
@@ -113,11 +128,17 @@ def _embed_gemini(texts: list[str], kind: str) -> list[list[float]]:
 def embed_many(texts: list[str], kind: str = "document") -> list[list[float]]:
     """여러 문장 임베딩 (예외를 그대로 올린다 — 채우기 스크립트용)."""
     p = provider()
-    if p == "voyage":
-        return _embed_voyage(texts, kind)
-    if p == "gemini":
-        return _embed_gemini(texts, kind)
-    raise RuntimeError("임베딩 제공자 키가 없습니다 (VOYAGE_API_KEY 또는 GEMINI_API_KEY)")
+    if p not in ("voyage", "gemini", "openai"):
+        raise RuntimeError("임베딩 제공자 키가 없습니다 (VOYAGE_API_KEY 또는 GEMINI_API_KEY)")
+    if p == "openai":
+        from core.embed_cache import openai_embed
+        call = lambda b: openai_embed(b, DIM)
+    else:
+        call = (lambda b: _embed_voyage(b, kind)) if p == "voyage" else (lambda b: _embed_gemini(b, kind))
+    if kind == "query":                                  # 질의만 캐시 (core/embed_cache.py)
+        from core.embed_cache import cached
+        return cached(f"{model_name()}:{kind}", texts, call)
+    return call(texts)
 
 
 def embed(text: str, kind: str = "query") -> list[float] | None:

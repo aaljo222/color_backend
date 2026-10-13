@@ -1,0 +1,14 @@
+MaC 코퍼스·RAG (cues-0.1) 덮어쓰기용 파일 — 2026-10-13
+
+1. 이 압축을 프로젝트 폴더(main.py 가 있는 폴더)에 풀고 "덮어쓰기"를 고른다.
+   팀 main(ee5963d) 기준 26개 파일: 새 파일 13 · 바뀐 파일 13 · 지운 파일 없음.
+   팀 main 이후 직접 고친 파일이 있으면 덮어쓰기 전에 따로 복사해 둘 것.
+2. 따로 받은 임베딩 파일 2개를 data 폴더에 넣는다:
+   data/kb_embeddings.json · data/corpus_embeddings.json
+3. python -m pytest -q          → 141 passed
+4. .env 에 GEMINI_API_KEY 와 RETRIEVER=embedding · RETRIEVAL_TAU=0.7 · CORPUS_TAU=0.75
+5. 정확도 확인 (VOYAGE_API_KEY 가 있으면 코퍼스를 Gemini 로 맞춰서):
+   Git Bash   : SIMILAR_PROVIDER=gemini python scripts/eval_full.py
+   PowerShell : $env:SIMILAR_PROVIDER="gemini"; python scripts/eval_full.py
+   첫 줄에 "코퍼스 embedding corpus-0.1+e78b29b1 (203 장면)" · 합계 294/334 이면 정상.
+자세한 내용: CHANGES_cues-0.1.md

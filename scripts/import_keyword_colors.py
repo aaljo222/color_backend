@@ -43,6 +43,8 @@ MATCH_DE = 12.0      # 표 HEX 묶음이 KB 항목의 '그 색'이라고 볼 거
 
 def main(src: str):
     rows = json.loads(Path(src).read_text(encoding="utf-8-sig"))
+    # v3: quality(기억 질감) 행은 색이 아니라 보정 규칙이라 hex 가 없다 → 색 합치기에서 뺀다 (KB quality 항목은 그대로)
+    rows = [r for r in rows if r.get("hex") and r.get("category") != "quality"]
     kb = json.loads(KB_PATH.read_text(encoding="utf-8"))
     by_hex = defaultdict(list)
     for r in rows:

@@ -17,6 +17,9 @@ import numpy as np
 logger = logging.getLogger("uvicorn")
 KB_PATH = Path(os.getenv("KB_PATH", Path(__file__).resolve().parent.parent / "data" / "color_kb.json"))
 AXES = ("emotion", "time", "space", "quality")
+CUES_ON = os.getenv("CUES", "1") == "1"                  # 0 이면 kb-0.2.1 의 부분 문자열 키워드 (core/cues.py)
+NEED_LEMMA = os.getenv("CORPUS_NEED_LEMMA", "1") == "1"  # 0 이면 ngram 검색 낱말 겹침 검사 끔
+WEAK_FALLBACK = os.getenv("WEAK_FALLBACK", "0") == "1"   # 약한 낱말만 걸리고 문장으로도 못 정하면 그 낱말 항목으로 (기본: 기본 톤)
 
 
 @dataclass(frozen=True)
@@ -26,7 +29,7 @@ class Resolution:
     kb_id: str
     how: str          # keyword | label | corpus | retrieval | fallback
     score: float
-    ref: str = ""     # how=corpus 일 때 근거가 된 장면 문단 id (eng-2.2)
+    ref: str = ""     # how=corpus: 장면 문단 id (eng-2.2) · keyword: "kw:낱말" · fallback: "cue:막는 단서" (cues-0.1)
 
 
 class KB:
@@ -94,6 +97,9 @@ class EmbeddingRetriever:
         self.kb = kb
         path = path or KB_PATH.parent / "kb_embeddings.json"
         data = json.loads(Path(path).read_text(encoding="utf-8"))
+        from core.llm import embed_model_name
+        if data.get("model") and data["model"] != embed_model_name():   # 다른 모델로 만든 파일이면 점수가 무의미
+            raise RuntimeError(f"임베딩 파일 모델 {data['model']} ≠ 지금 {embed_model_name()} — build_kb_embeddings.py 다시")
         if data.get("kb_version") != kb.version:
             logger.warning(f"[KB] 임베딩 파일 버전({data.get('kb_version')}) ≠ KB 버전({kb.version}) — 재생성 필요")
         self.ids = data["ids"]
@@ -128,21 +134,82 @@ class SupabaseRetriever:
 # ── 해석기 ────────────────────────────────────────────────────────────────
 class Resolver:
     """키워드 → 모델 라벨 → 코퍼스 장면 문단 ≥ τc (eng-2.2, rag 가 있을 때) → KB 설명 검색 ≥ τ → 기본 톤."""
-    def __init__(self, kb: KB, retriever, tau: float, rag=None):
+    def __init__(self, kb: KB, retriever, tau: float, rag=None, cues="auto"):
         self.kb, self.retriever, self.tau, self.rag = kb, retriever, tau, rag
+        if cues == "auto":                                    # cues-0.1: 낱말 경계·원형·약한 낱말·막는 단서 (core/cues.py)
+            cues = None
+            if CUES_ON:
+                try:
+                    from core.cues import Cues
+                    cues = Cues(kb)
+                except Exception as ex:
+                    logger.warning(f"[KB] 단서 사전 사용 불가 → 부분 문자열 키워드: {type(ex).__name__}")
+        self.cues = cues
+
+    def _keyword(self, axis: str, phrase: str):
+        """① 키워드. (결과 Resolution 또는 None, 막는 단서, 약한 낱말 후보)."""
+        if self.cues is None:                                 # 예전 방식: 부분 문자열
+            for e in self.kb.by_axis[axis]:
+                if any(k in phrase for k in e.get("keywords", [])):
+                    return Resolution(axis, phrase, e["id"], "keyword", 1.0), None, []
+            return None, None, []
+        from core.cues import analyze
+        an = analyze(phrase)
+        hits = self.cues.hits(axis, an)
+        blocked = self.cues.blocked(axis, an)
+        weak = list(dict.fromkeys(h.kb_id for h in hits if h.strength == "weak"))
+        if blocked:
+            return None, blocked, weak
+        strong = [h for h in hits if h.strength != "weak"]
+        ids = list(dict.fromkeys(h.kb_id for h in strong))
+        if len(ids) > 1:                                      # 한 축에 여러 항목: 시간·장소를 직접 말한 낱말이 이긴다
+            primary = list(dict.fromkeys(h.kb_id for h in strong if h.strength == "strong"))
+            ids = primary or ids
+        if len(ids) == 1:
+            h = next(h for h in strong if h.kb_id == ids[0])
+            return Resolution(axis, phrase, ids[0], "keyword", 1.0, f"kw:{h.keyword}"), None, weak
+        if len(ids) > 1 and self.rag is not None:             # 그래도 여럿이면 문장 전체를 코퍼스에 물어 후보 중에서
+            best = None
+            for c in ids:
+                hs = self.rag.search(phrase, axis=axis, kb_id=c, k=1)
+                if hs and (best is None or hs[0].score > best[0]):
+                    best = (hs[0].score, c)
+            if best is not None and best[0] > 0:
+                return Resolution(axis, phrase, best[1], "keyword", 1.0, "kw:" + "|".join(ids)), None, weak
+        if len(ids) > 1 and axis != "emotion":
+            return Resolution(axis, phrase, ids[0], "keyword", 1.0, "kw:" + "|".join(ids)), None, weak
+        return None, None, weak
+
+    def _overlaps(self, axis: str, phrase: str, doc: str) -> bool:
+        """낱말 겹침 검사 (ngram 검색일 때만): 내용 형태소 원형이 하나도 안 겹치고 글자 조각('~던', '~에서')만
+        비슷하면 받지 않는다. 감정 축에서는 문맥 따라 정서가 갈리는 낱말(아빠·눈물·혼자…)을 겹침으로 치지 않는다."""
+        if not NEED_LEMMA or self.cues is None:
+            return True
+        from core.cues import content_lemmas
+        emo = axis == "emotion"
+        a = content_lemmas(phrase, emo, frozenset(self.cues.context))
+        b = content_lemmas(doc, emo, frozenset(self.cues.context))
+        if a is None or b is None:
+            return True
+        return bool((a & b) - self.cues.weak_lemmas(axis))       # 약한 낱말('이른' 등)만 겹친 건 겹침으로 치지 않는다
 
     def resolve(self, axis: str, phrase: str, label: Optional[str] = None) -> Resolution:
         phrase = (phrase or "").strip()
-        for e in self.kb.by_axis[axis]:                       # ① 키워드 (결정론)
-            if any(k in phrase for k in e.get("keywords", [])):
-                return Resolution(axis, phrase, e["id"], "keyword", 1.0)
+        kw, blocked, weak = self._keyword(axis, phrase) if phrase else (None, None, [])
+        if kw is not None:                                    # ① 키워드 (결정론)
+            return kw
         if label and label in self.kb.by_id and self.kb.by_id[label]["axis"] == axis:   # ② LLM 닫힌 라벨
             return Resolution(axis, phrase, label, "label", 1.0)
+        if blocked:                                           # KB 에 없는 정서(불안·공포·갈등…) → 기본 톤
+            return Resolution(axis, phrase, self.kb.defaults[axis], "fallback", 0.0, f"cue:{blocked}")
         if phrase and self.rag is not None:                   # ③ 코퍼스: 같은 항목을 여러 말투로 쓴 문단에서 찾는다
             try:
                 hit = self.rag.resolve_axis(phrase, axis)
             except Exception as ex:
                 logger.warning(f"[KB] 코퍼스 검색 실패 → KB 검색: {type(ex).__name__}")
+                hit = None
+            if hit is not None and getattr(self.rag, "method", "ngram") == "ngram" \
+                    and not self._overlaps(axis, phrase, hit.passage["text"]):
                 hit = None
             if hit is not None:
                 return Resolution(axis, phrase, hit.passage["kb_id"], "corpus", hit.score, hit.passage["id"])
@@ -152,11 +219,14 @@ class Resolver:
             except Exception as ex:                           # 검색 장애 시 기본 톤으로 안전하게
                 logger.warning(f"[KB] retriever 실패 → fallback: {type(ex).__name__}")
                 ranked = []
-            if ranked and ranked[0][0] >= self.tau:
+            if ranked and ranked[0][0] >= self.tau and (getattr(self.retriever, "name", "") != "ngram"
+                                                        or self._overlaps(axis, phrase, self.kb.text_of(self.kb.by_id[ranked[0][1]]))):
                 return Resolution(axis, phrase, ranked[0][1], "retrieval", round(ranked[0][0], 4))
             score = round(ranked[0][0], 4) if ranked else 0.0
         else:
             score = 0.0
+        if WEAK_FALLBACK and len(weak) == 1:                  # 약한 낱말뿐이고 문장 전체로도 못 정했으면 (선택)
+            return Resolution(axis, phrase, weak[0], "keyword", 0.5, "weak")
         return Resolution(axis, phrase, self.kb.defaults[axis], "fallback", score)   # ⑤ 기본 톤
 
 
@@ -176,11 +246,23 @@ def make_retriever(kb: KB, kind: Optional[str] = None):
 DEFAULT_TAU = {"ngram": 0.25, "embedding": 0.60, "supabase": 0.60}
 
 
+def tau_for(r) -> float:
+    """RETRIEVAL_TAU 는 RETRIEVER 로 고른 검색기의 기준선이다. 그 검색기를 못 쓰고 ngram 으로 내려가면
+    ngram 기본값을 쓴다 — 임베딩용 0.7 이 ngram 에 걸리면 거의 아무것도 통과 못 해 놓침만 는다 (2026-10-13)."""
+    wanted = (os.getenv("RETRIEVER") or "ngram").lower()
+    env = os.getenv("RETRIEVAL_TAU")
+    if env and r.name == wanted:
+        return float(env)
+    if env:
+        logger.warning(f"[KB] RETRIEVAL_TAU={env} 는 {wanted} 용 — 지금 검색기 {r.name} 기본값 {DEFAULT_TAU.get(r.name, 0.25)} 사용")
+    return DEFAULT_TAU.get(r.name, 0.25)
+
+
 @lru_cache(maxsize=1)
 def get_resolver() -> Resolver:
     kb = KB()
     r = make_retriever(kb)
-    tau = float(os.getenv("RETRIEVAL_TAU") or DEFAULT_TAU.get(r.name, 0.25))
+    tau = tau_for(r)
     from core.rag import get_rag                     # 지연 import (rag 가 kb 를 쓴다)
     rag = get_rag()
     logger.info(f"[KB] {kb.version} · retriever={r.name} · τ={tau} · corpus={'on' if rag else 'off'}")

@@ -1,84 +1,203 @@
-{"id": "sc-wn-01", "axis": "emotion", "kb_id": "warm_nostalgia", "text": "엄마가 해 주던 밥 냄새가 떠오르는 따뜻한 옛날 기억", "color_note": "크림빛 살구색, 부드럽고 밝은 난색", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-wn-02", "axis": "emotion", "kb_id": "warm_nostalgia", "text": "어릴 적 동생과 이불 속에서 키득거리던 정다운 시간", "color_note": "포근한 살구빛과 우윳빛", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-wn-03", "axis": "emotion", "kb_id": "warm_nostalgia", "text": "온 식구가 둘러앉아 웃던 명절 저녁의 정겨움", "color_note": "따뜻한 복숭아빛, 낮은 채도의 난색", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-wn-04", "axis": "emotion", "kb_id": "warm_nostalgia", "text": "옛날 사진첩을 넘기며 미소 짓게 되는 그때 그 시절", "color_note": "바랜 듯 따뜻한 크림색", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-wn-05", "axis": "emotion", "kb_id": "warm_nostalgia", "text": "할머니 품에 안겨 잠들던 안온하고 정다운 느낌", "color_note": "밝은 살구색과 연한 베이지", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-je-01", "axis": "emotion", "kb_id": "joy_excitement", "text": "가슴이 두근거리고 들떠서 소리 지르며 뛰어다니던 날", "color_note": "선명한 금빛 노랑, 높은 채도", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-je-02", "axis": "emotion", "kb_id": "joy_excitement", "text": "생일 파티에서 촛불을 끄며 너무 기뻤던 순간", "color_note": "밝고 쨍한 노랑과 주황", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-je-03", "axis": "emotion", "kb_id": "joy_excitement", "text": "합격 소식을 듣고 날아갈 듯 신이 났던 기분", "color_note": "빛나는 금색, 생기 있는 난색", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-je-04", "axis": "emotion", "kb_id": "joy_excitement", "text": "친구들과 깔깔대며 정신없이 놀던 신나는 오후", "color_note": "선명한 노랑, 들뜬 고채도", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-je-05", "axis": "emotion", "kb_id": "joy_excitement", "text": "불꽃놀이가 터질 때마다 환호하던 들뜬 밤", "color_note": "반짝이는 금빛과 선명한 원색", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-cp-01", "axis": "emotion", "kb_id": "calm_peace", "text": "아무 걱정 없이 느긋하게 누워 있던 편안한 시간", "color_note": "맑고 옅은 하늘색, 낮은 채도", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-cp-02", "axis": "emotion", "kb_id": "calm_peace", "text": "잔잔한 호숫가에 앉아 숨을 고르던 차분한 마음", "color_note": "부드러운 하늘빛과 물빛", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-cp-03", "axis": "emotion", "kb_id": "calm_peace", "text": "창문을 열고 선선한 공기를 마시던 한가로운 주말", "color_note": "밝고 가벼운 하늘색", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-cp-04", "axis": "emotion", "kb_id": "calm_peace", "text": "마음이 가라앉고 숨이 편해지던 쉼의 순간", "color_note": "옅은 청색 계열, 고요한 저채도", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-sa-01", "axis": "emotion", "kb_id": "stability_affection", "text": "아버지 등에 업혀 집으로 오던 든든한 밤길", "color_note": "짙은 나무색, 묵직한 갈색", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-sa-02", "axis": "emotion", "kb_id": "stability_affection", "text": "언제나 내 편이 되어 준 사람이 곁에 있어 안심되던 마음", "color_note": "따뜻하고 깊은 갈색", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-sa-03", "axis": "emotion", "kb_id": "stability_affection", "text": "큰 손이 내 손을 꼭 잡아 주어 무섭지 않던 기억", "color_note": "안정감 있는 진한 나무색", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-sa-04", "axis": "emotion", "kb_id": "stability_affection", "text": "흔들릴 때마다 기댈 수 있던 믿음직한 존재", "color_note": "어두운 호두나무 갈색", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-lm-01", "axis": "emotion", "kb_id": "longing_melancholy", "text": "다시는 돌아갈 수 없어 마음 한쪽이 시린 기억", "color_note": "흐린 라벤더, 저채도 보랏빛", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-lm-02", "axis": "emotion", "kb_id": "longing_melancholy", "text": "떠나간 사람을 생각하면 아직도 먹먹해지는 마음", "color_note": "어스름한 보라와 회색빛", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-lm-03", "axis": "emotion", "kb_id": "longing_melancholy", "text": "헤어지던 날 뒤돌아보며 눈물을 참았던 순간", "color_note": "가라앉은 연보라", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-lm-04", "axis": "emotion", "kb_id": "longing_melancholy", "text": "그 시절이 사무치게 생각나 울컥하는 밤", "color_note": "희미한 보랏빛 회색", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-lm-05", "axis": "emotion", "kb_id": "longing_melancholy", "text": "연락이 끊긴 친구가 문득 생각나 허전한 마음", "color_note": "탁한 라벤더와 회청색", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-qs-01", "axis": "emotion", "kb_id": "quiet_solitude", "text": "홀로 책상 스탠드 불빛 아래 공부에 빠져 있던 밤", "color_note": "스탠드 불빛 같은 노란 주황", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-qs-02", "axis": "emotion", "kb_id": "quiet_solitude", "text": "아무도 없는 방에서 그림 그리기에 푹 빠졌던 시간", "color_note": "따뜻한 전등빛 노랑", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-qs-03", "axis": "emotion", "kb_id": "quiet_solitude", "text": "말없이 혼자 걸으며 생각을 정리하던 고독한 시간", "color_note": "은은한 호박색", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-qs-04", "axis": "emotion", "kb_id": "quiet_solitude", "text": "밤새 코드를 짜며 시간 가는 줄 몰랐던 날", "color_note": "어둠 속 전등빛 노랑", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-af-01", "axis": "time", "kb_id": "afternoon", "text": "점심 먹고 나른하게 해가 높이 떠 있던 시간", "color_note": "밝고 따스한 연노랑 햇빛", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-af-02", "axis": "time", "kb_id": "afternoon", "text": "볕이 마루까지 깊숙이 들어오던 한낮", "color_note": "부드러운 햇빛 노랑", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-af-03", "axis": "time", "kb_id": "afternoon", "text": "학교가 끝나고 해가 아직 쨍쨍하던 하굣길", "color_note": "환한 연노랑", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-af-04", "axis": "time", "kb_id": "afternoon", "text": "여름 한낮 매미가 울고 볕이 내리쬐던 때", "color_note": "눈부신 밝은 노랑빛", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-ss-01", "axis": "time", "kb_id": "sunset", "text": "해가 산 너머로 넘어가며 하늘이 붉게 물들던 때", "color_note": "붉은 산호색과 주황", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-ss-02", "axis": "time", "kb_id": "sunset", "text": "강물 위로 해가 지며 주황빛이 번지던 무렵", "color_note": "타오르는 주황과 분홍", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-ss-03", "axis": "time", "kb_id": "sunset", "text": "놀다가 해 떨어질 때쯤 집에 들어오라고 부르던 시간", "color_note": "붉게 기우는 산호빛", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-ss-04", "axis": "time", "kb_id": "sunset", "text": "어스름이 내리기 직전 하늘이 분홍과 주황으로 갈라지던 때", "color_note": "산호색에서 보라로 번지는 하늘", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-nt-01", "axis": "time", "kb_id": "night", "text": "모두 잠든 깊은 시간 창밖이 캄캄하던 때", "color_note": "짙은 남색 어둠", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-nt-02", "axis": "time", "kb_id": "night", "text": "별이 총총하던 시골의 깜깜한 하늘 아래", "color_note": "깊은 남색과 검푸른 빛", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-nt-03", "axis": "time", "kb_id": "night", "text": "야근을 마치고 텅 빈 거리를 걸어 돌아오던 늦은 시각", "color_note": "어두운 청회색과 희미한 불빛", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-nt-04", "axis": "time", "kb_id": "night", "text": "달빛만 비치던 고요한 한밤중", "color_note": "검푸른 남색, 낮은 명도", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-mn-01", "axis": "time", "kb_id": "morning", "text": "해가 막 떠오르며 창문이 뿌옇게 밝아오던 때", "color_note": "옅고 맑은 아이보리빛", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-mn-02", "axis": "time", "kb_id": "morning", "text": "새소리에 눈을 뜬 상쾌한 이른 시간", "color_note": "투명하고 밝은 연노랑", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-mn-03", "axis": "time", "kb_id": "morning", "text": "물안개가 피어오르던 동틀 무렵", "color_note": "흐릿하고 밝은 우윳빛", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-mn-04", "axis": "time", "kb_id": "morning", "text": "엄마가 깨워서 졸린 눈으로 일어나던 학교 가기 전", "color_note": "옅은 아침빛 크림색", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-wt-01", "axis": "time", "kb_id": "winter", "text": "손이 꽁꽁 얼고 하얀 김이 나던 추운 날", "color_note": "차갑고 창백한 흰 하늘빛", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-wt-02", "axis": "time", "kb_id": "winter", "text": "온 세상이 하얗게 덮여 발자국을 남기던 날", "color_note": "흰빛에 가까운 아주 옅은 청색", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-wt-03", "axis": "time", "kb_id": "winter", "text": "크리스마스 무렵 찬바람이 불던 연말", "color_note": "창백한 은빛 청색", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-wt-04", "axis": "time", "kb_id": "winter", "text": "얼음판에서 썰매를 타던 한겨울 방학", "color_note": "얼음 같은 옅은 하늘빛", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-ap-01", "axis": "space", "kb_id": "amusement_park", "text": "롤러코스터와 관람차가 돌아가던 유원지", "color_note": "분홍빛과 사탕 같은 파스텔", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-ap-02", "axis": "space", "kb_id": "amusement_park", "text": "솜사탕을 들고 퍼레이드를 구경하던 놀이동산", "color_note": "솜사탕 분홍과 밝은 원색", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-ap-03", "axis": "space", "kb_id": "amusement_park", "text": "범퍼카와 바이킹 앞에 줄 서 있던 놀이기구 광장", "color_note": "밝은 분홍과 노랑 조명", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-ap-04", "axis": "space", "kb_id": "amusement_park", "text": "알록달록한 풍선과 음악이 가득하던 유원지 입구", "color_note": "경쾌한 분홍 계열", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-se-01", "axis": "space", "kb_id": "sea", "text": "모래사장에서 조개를 줍던 여름 해수욕장", "color_note": "맑은 청록 바닷빛", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-se-02", "axis": "space", "kb_id": "sea", "text": "갈매기가 날던 항구와 방파제", "color_note": "푸른 물빛과 회청색", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-se-03", "axis": "space", "kb_id": "sea", "text": "수평선이 끝없이 펼쳐진 동해 바닷가", "color_note": "짙고 시원한 청록", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-se-04", "axis": "space", "kb_id": "sea", "text": "발끝에 물결이 밀려오던 섬마을 갯가", "color_note": "투명한 하늘빛 바다", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-al-01", "axis": "space", "kb_id": "alley", "text": "낡은 대문이 이어지던 좁은 동네 길목", "color_note": "바랜 회갈색 돌빛", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-al-02", "axis": "space", "kb_id": "alley", "text": "구멍가게 앞에서 친구를 기다리던 오래된 마을 어귀", "color_note": "흐린 베이지와 회색 담장빛", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-al-03", "axis": "space", "kb_id": "alley", "text": "계단이 구불구불 이어지던 달동네 언덕길", "color_note": "낮은 채도의 돌 회색", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-al-04", "axis": "space", "kb_id": "alley", "text": "덕수궁 돌담을 따라 걷던 오래된 길", "color_note": "따뜻한 회갈색 돌담", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-rw-01", "axis": "space", "kb_id": "rain_window", "text": "유리창에 빗방울이 흘러내리던 방 안", "color_note": "젖은 회청색, 낮은 채도", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-rw-02", "axis": "space", "kb_id": "rain_window", "text": "우산 없이 처마 밑에서 비를 피하던 곳", "color_note": "흐린 잿빛 하늘", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-rw-03", "axis": "space", "kb_id": "rain_window", "text": "소나기가 쏟아지던 카페 창가 자리", "color_note": "축축한 회색과 은빛", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-rw-04", "axis": "space", "kb_id": "rain_window", "text": "빗줄기가 굵어지던 버스 정류장 유리 안쪽", "color_note": "차분한 청회색", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-gh-01", "axis": "space", "kb_id": "grandma_house", "text": "아궁이와 장독대가 있던 외가 마당", "color_note": "흙빛 갈색과 나무색", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-gh-02", "axis": "space", "kb_id": "grandma_house", "text": "툇마루에 앉아 감을 먹던 시골 기와집", "color_note": "따뜻한 원목 갈색", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-gh-03", "axis": "space", "kb_id": "grandma_house", "text": "평상에 누워 있던 큰집 뒤뜰", "color_note": "볕에 바랜 나무색", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-gh-04", "axis": "space", "kb_id": "grandma_house", "text": "방학마다 내려가던 논밭 옆 고향 집", "color_note": "황토빛 갈색", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-sc-01", "axis": "space", "kb_id": "school", "text": "칠판과 나무 책상이 줄지어 있던 교실 안", "color_note": "칠판 같은 짙은 초록", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-sc-02", "axis": "space", "kb_id": "school", "text": "체육 시간에 뛰놀던 흙 먼지 날리던 학교 마당", "color_note": "녹색 칠판빛과 흙빛", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-sc-03", "axis": "space", "kb_id": "school", "text": "도서관 열람실에서 시험공부를 하던 자리", "color_note": "차분한 녹색", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-sc-04", "axis": "space", "kb_id": "school", "text": "복도 끝 사물함 앞에서 친구와 수다 떨던 중학교", "color_note": "흐린 초록과 회색", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-fr-01", "axis": "space", "kb_id": "flower_road", "text": "꽃잎이 바람에 흩날리던 봄날 산책로", "color_note": "아주 연한 분홍", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-fr-02", "axis": "space", "kb_id": "flower_road", "text": "진달래와 개나리가 흐드러지게 피던 언덕", "color_note": "연분홍과 연노랑", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-fr-03", "axis": "space", "kb_id": "flower_road", "text": "유채꽃밭과 튤립 정원 사이를 걷던 길", "color_note": "밝은 분홍과 꽃빛 파스텔", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-fr-04", "axis": "space", "kb_id": "flower_road", "text": "장미 넝쿨이 드리운 공원 화단 옆", "color_note": "부드러운 장밋빛 분홍", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-ch-01", "axis": "quality", "kb_id": "cherished", "text": "평생 간직하고 싶은 소중한 장면", "color_note": "원래 색 그대로", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-ch-02", "axis": "quality", "kb_id": "cherished", "text": "가끔 꺼내 보며 미소 짓는 귀한 기억", "color_note": "원래 색 그대로", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-ch-03", "axis": "quality", "kb_id": "cherished", "text": "마음속 보물처럼 아끼는 날", "color_note": "원래 색 그대로", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-fd-01", "axis": "quality", "kb_id": "faded", "text": "너무 오래전 일이라 가물가물한 기억", "color_note": "바래고 흐릿한 색, 대비가 약함", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-fd-02", "axis": "quality", "kb_id": "faded", "text": "꿈이었는지 진짜였는지 헷갈리는 장면", "color_note": "안개 낀 듯 탁한 색", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-fd-03", "axis": "quality", "kb_id": "faded", "text": "얼굴이 잘 떠오르지 않을 만큼 흐려진 기억", "color_note": "빛바랜 저채도", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-vv-01", "axis": "quality", "kb_id": "vivid", "text": "어제 일처럼 또렷하게 기억나는 장면", "color_note": "또렷하고 선명한 색, 대비가 큼", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-vv-02", "axis": "quality", "kb_id": "vivid", "text": "눈을 감으면 지금도 생생히 그려지는 그날", "color_note": "쨍하고 맑은 색", "source": "mac_corpus_draft", "status": "draft"}
-{"id": "sc-vv-03", "axis": "quality", "kb_id": "vivid", "text": "그 순간의 소리와 냄새까지 다 기억나는 날", "color_note": "선명한 고채도", "source": "mac_corpus_draft", "status": "draft"}
+{"id": "sc-wn-01", "axis": "emotion", "kb_id": "warm_nostalgia", "text": "엄마가 해 주던 밥 냄새가 떠오르는 따뜻한 옛날 기억", "color_note": "크림빛 살구색, 부드럽고 밝은 난색", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-wn-02", "axis": "emotion", "kb_id": "warm_nostalgia", "text": "어릴 적 동생과 이불 속에서 키득거리던 정다운 시간", "color_note": "포근한 살구빛과 우윳빛", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-wn-03", "axis": "emotion", "kb_id": "warm_nostalgia", "text": "온 식구가 둘러앉아 웃던 명절 저녁의 정겨움", "color_note": "따뜻한 복숭아빛, 낮은 채도의 난색", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-wn-04", "axis": "emotion", "kb_id": "warm_nostalgia", "text": "옛날 사진첩을 넘기며 미소 짓게 되는 그때 그 시절", "color_note": "바랜 듯 따뜻한 크림색", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-wn-05", "axis": "emotion", "kb_id": "warm_nostalgia", "text": "할머니 품에 안겨 잠들던 안온하고 정다운 느낌", "color_note": "밝은 살구색과 연한 베이지", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-je-01", "axis": "emotion", "kb_id": "joy_excitement", "text": "가슴이 두근거리고 들떠서 소리 지르며 뛰어다니던 날", "color_note": "선명한 금빛 노랑, 높은 채도", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-je-02", "axis": "emotion", "kb_id": "joy_excitement", "text": "생일 파티에서 촛불을 끄며 너무 기뻤던 순간", "color_note": "밝고 쨍한 노랑과 주황", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-je-03", "axis": "emotion", "kb_id": "joy_excitement", "text": "합격 소식을 듣고 날아갈 듯 신이 났던 기분", "color_note": "빛나는 금색, 생기 있는 난색", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-je-04", "axis": "emotion", "kb_id": "joy_excitement", "text": "친구들과 깔깔대며 정신없이 놀던 신나는 오후", "color_note": "선명한 노랑, 들뜬 고채도", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-je-05", "axis": "emotion", "kb_id": "joy_excitement", "text": "불꽃놀이가 터질 때마다 환호하던 들뜬 밤", "color_note": "반짝이는 금빛과 선명한 원색", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-cp-01", "axis": "emotion", "kb_id": "calm_peace", "text": "아무 걱정 없이 느긋하게 누워 있던 편안한 시간", "color_note": "맑고 옅은 하늘색, 낮은 채도", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-cp-02", "axis": "emotion", "kb_id": "calm_peace", "text": "잔잔한 호숫가에 앉아 숨을 고르던 차분한 마음", "color_note": "부드러운 하늘빛과 물빛", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-cp-03", "axis": "emotion", "kb_id": "calm_peace", "text": "창문을 열고 선선한 공기를 마시던 한가로운 주말", "color_note": "밝고 가벼운 하늘색", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-cp-04", "axis": "emotion", "kb_id": "calm_peace", "text": "마음이 가라앉고 숨이 편해지던 쉼의 순간", "color_note": "옅은 청색 계열, 고요한 저채도", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-sa-01", "axis": "emotion", "kb_id": "stability_affection", "text": "아버지 등에 업혀 집으로 오던 든든한 밤길", "color_note": "차분한 나무색, 중간 밝기의 갈색", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-sa-02", "axis": "emotion", "kb_id": "stability_affection", "text": "언제나 내 편이 되어 준 사람이 곁에 있어 안심되던 마음", "color_note": "따뜻하고 차분한 갈색", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-sa-03", "axis": "emotion", "kb_id": "stability_affection", "text": "큰 손이 내 손을 꼭 잡아 주어 무섭지 않던 기억", "color_note": "안정감 있는 나무 마루빛", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-sa-04", "axis": "emotion", "kb_id": "stability_affection", "text": "흔들릴 때마다 기댈 수 있던 믿음직한 존재", "color_note": "부드러운 호두나무 갈색", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-lm-01", "axis": "emotion", "kb_id": "longing_melancholy", "text": "다시는 돌아갈 수 없어 마음 한쪽이 시린 기억", "color_note": "흐린 회청색, 채도가 낮은 파랑", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-lm-02", "axis": "emotion", "kb_id": "longing_melancholy", "text": "떠나간 사람을 생각하면 아직도 먹먹해지는 마음", "color_note": "어스름한 파랑과 회색빛", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-lm-03", "axis": "emotion", "kb_id": "longing_melancholy", "text": "헤어지던 날 뒤돌아보며 눈물을 참았던 순간", "color_note": "가라앉은 푸른빛", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-lm-04", "axis": "emotion", "kb_id": "longing_melancholy", "text": "그 시절이 사무치게 생각나 울컥하는 밤", "color_note": "희미한 푸른 회색", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-lm-05", "axis": "emotion", "kb_id": "longing_melancholy", "text": "연락이 끊긴 친구가 문득 생각나 허전한 마음", "color_note": "탁한 회청색과 옅은 남빛", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-qs-01", "axis": "emotion", "kb_id": "quiet_solitude", "text": "홀로 책상 스탠드 불빛 아래 공부에 빠져 있던 밤", "color_note": "스탠드 불빛 같은 은은한 미색", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-qs-02", "axis": "emotion", "kb_id": "quiet_solitude", "text": "아무도 없는 방에서 그림 그리기에 푹 빠졌던 시간", "color_note": "낮은 채도의 따뜻한 베이지", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-qs-03", "axis": "emotion", "kb_id": "quiet_solitude", "text": "말없이 혼자 걸으며 생각을 정리하던 고독한 시간", "color_note": "은은한 호박색", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-qs-04", "axis": "emotion", "kb_id": "quiet_solitude", "text": "밤새 코드를 짜며 시간 가는 줄 몰랐던 날", "color_note": "어둠 속 은은한 전등빛 베이지", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-af-01", "axis": "time", "kb_id": "afternoon", "text": "점심 먹고 나른하게 해가 높이 떠 있던 시간", "color_note": "밝고 따스한 연노랑 햇빛", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-af-02", "axis": "time", "kb_id": "afternoon", "text": "볕이 마루까지 깊숙이 들어오던 한낮", "color_note": "부드러운 햇빛 노랑", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-af-03", "axis": "time", "kb_id": "afternoon", "text": "학교가 끝나고 해가 아직 쨍쨍하던 하굣길", "color_note": "환한 연노랑", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-af-04", "axis": "time", "kb_id": "afternoon", "text": "여름 한낮 매미가 울고 볕이 내리쬐던 때", "color_note": "눈부신 밝은 노랑빛", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-ss-01", "axis": "time", "kb_id": "sunset", "text": "해가 산 너머로 넘어가며 하늘이 붉게 물들던 때", "color_note": "붉은 산호색과 주황", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-ss-02", "axis": "time", "kb_id": "sunset", "text": "강물 위로 해가 지며 주황빛이 번지던 무렵", "color_note": "타오르는 주황과 분홍", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-ss-03", "axis": "time", "kb_id": "sunset", "text": "놀다가 해 떨어질 때쯤 집에 들어오라고 부르던 시간", "color_note": "붉게 기우는 산호빛", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-ss-04", "axis": "time", "kb_id": "sunset", "text": "어스름이 내리기 직전 하늘이 분홍과 주황으로 갈라지던 때", "color_note": "산호색에서 보라로 번지는 하늘", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-nt-01", "axis": "time", "kb_id": "night", "text": "모두 잠든 깊은 시간 창밖이 캄캄하던 때", "color_note": "짙은 남색 어둠", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-nt-02", "axis": "time", "kb_id": "night", "text": "별이 총총하던 시골의 깜깜한 하늘 아래", "color_note": "깊은 남색과 검푸른 빛", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-nt-03", "axis": "time", "kb_id": "night", "text": "야근을 마치고 텅 빈 거리를 걸어 돌아오던 늦은 시각", "color_note": "어두운 청회색과 희미한 불빛", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-nt-04", "axis": "time", "kb_id": "night", "text": "달빛만 비치던 고요한 한밤중", "color_note": "검푸른 남색, 낮은 명도", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-mn-01", "axis": "time", "kb_id": "morning", "text": "해가 막 떠오르며 창문이 뿌옇게 밝아오던 때", "color_note": "옅고 맑은 아이보리빛", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-mn-02", "axis": "time", "kb_id": "morning", "text": "새소리에 눈을 뜬 상쾌한 이른 시간", "color_note": "투명하고 밝은 연노랑", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-mn-03", "axis": "time", "kb_id": "morning", "text": "물안개가 피어오르던 동틀 무렵", "color_note": "흐릿하고 밝은 우윳빛", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-mn-04", "axis": "time", "kb_id": "morning", "text": "엄마가 깨워서 졸린 눈으로 일어나던 학교 가기 전", "color_note": "옅은 아침빛 크림색", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-wt-01", "axis": "time", "kb_id": "winter", "text": "손이 꽁꽁 얼고 하얀 김이 나던 추운 날", "color_note": "차갑고 창백한 흰 하늘빛", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-wt-02", "axis": "time", "kb_id": "winter", "text": "온 세상이 하얗게 덮여 발자국을 남기던 날", "color_note": "흰빛에 가까운 아주 옅은 청색", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-wt-03", "axis": "time", "kb_id": "winter", "text": "크리스마스 무렵 찬바람이 불던 연말", "color_note": "창백한 은빛 청색", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-wt-04", "axis": "time", "kb_id": "winter", "text": "얼음판에서 썰매를 타던 한겨울 방학", "color_note": "얼음 같은 옅은 하늘빛", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-ap-01", "axis": "space", "kb_id": "amusement_park", "text": "롤러코스터와 관람차가 돌아가던 유원지", "color_note": "분홍빛과 사탕 같은 파스텔", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-ap-02", "axis": "space", "kb_id": "amusement_park", "text": "솜사탕을 들고 퍼레이드를 구경하던 놀이동산", "color_note": "솜사탕 분홍과 밝은 원색", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-ap-03", "axis": "space", "kb_id": "amusement_park", "text": "범퍼카와 바이킹 앞에 줄 서 있던 놀이기구 광장", "color_note": "밝은 분홍과 노랑 조명", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-ap-04", "axis": "space", "kb_id": "amusement_park", "text": "알록달록한 풍선과 음악이 가득하던 유원지 입구", "color_note": "경쾌한 분홍 계열", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-se-01", "axis": "space", "kb_id": "sea", "text": "모래사장에서 조개를 줍던 여름 해수욕장", "color_note": "맑은 청록 바닷빛", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-se-02", "axis": "space", "kb_id": "sea", "text": "갈매기가 날던 항구와 방파제", "color_note": "푸른 물빛과 회청색", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-se-03", "axis": "space", "kb_id": "sea", "text": "수평선이 끝없이 펼쳐진 동해 바닷가", "color_note": "짙고 시원한 청록", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-se-04", "axis": "space", "kb_id": "sea", "text": "발끝에 물결이 밀려오던 섬마을 갯가", "color_note": "투명한 하늘빛 바다", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-al-01", "axis": "space", "kb_id": "alley", "text": "낡은 대문이 이어지던 좁은 동네 길목", "color_note": "바랜 회갈색 돌빛", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-al-02", "axis": "space", "kb_id": "alley", "text": "구멍가게 앞에서 친구를 기다리던 오래된 마을 어귀", "color_note": "흐린 베이지와 회색 담장빛", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-al-03", "axis": "space", "kb_id": "alley", "text": "계단이 구불구불 이어지던 달동네 언덕길", "color_note": "낮은 채도의 돌 회색", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-al-04", "axis": "space", "kb_id": "alley", "text": "덕수궁 돌담을 따라 걷던 오래된 길", "color_note": "따뜻한 회갈색 돌담", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-rw-01", "axis": "space", "kb_id": "rain_window", "text": "유리창에 빗방울이 흘러내리던 방 안", "color_note": "젖은 회청색, 낮은 채도", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-rw-02", "axis": "space", "kb_id": "rain_window", "text": "우산 없이 처마 밑에서 비를 피하던 곳", "color_note": "흐린 잿빛 하늘", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-rw-03", "axis": "space", "kb_id": "rain_window", "text": "소나기가 쏟아지던 카페 창가 자리", "color_note": "축축한 회색과 은빛", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-rw-04", "axis": "space", "kb_id": "rain_window", "text": "빗줄기가 굵어지던 버스 정류장 유리 안쪽", "color_note": "차분한 청회색", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-gh-01", "axis": "space", "kb_id": "grandma_house", "text": "아궁이와 장독대가 있던 외가 마당", "color_note": "흙빛 갈색과 나무색", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-gh-02", "axis": "space", "kb_id": "grandma_house", "text": "툇마루에 앉아 감을 먹던 시골 기와집", "color_note": "따뜻한 원목 갈색", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-gh-03", "axis": "space", "kb_id": "grandma_house", "text": "평상에 누워 있던 큰집 뒤뜰", "color_note": "볕에 바랜 나무색", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-gh-04", "axis": "space", "kb_id": "grandma_house", "text": "방학마다 내려가던 논밭 옆 고향 집", "color_note": "황토빛 갈색", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-sc-01", "axis": "space", "kb_id": "school", "text": "칠판과 나무 책상이 줄지어 있던 교실 안", "color_note": "칠판 같은 짙은 초록", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-sc-02", "axis": "space", "kb_id": "school", "text": "체육 시간에 뛰놀던 흙 먼지 날리던 학교 마당", "color_note": "녹색 칠판빛과 흙빛", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-sc-03", "axis": "space", "kb_id": "school", "text": "도서관 열람실에서 시험공부를 하던 자리", "color_note": "차분한 녹색", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-sc-04", "axis": "space", "kb_id": "school", "text": "복도 끝 사물함 앞에서 친구와 수다 떨던 중학교", "color_note": "흐린 초록과 회색", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-fr-01", "axis": "space", "kb_id": "flower_road", "text": "꽃잎이 바람에 흩날리던 봄날 산책로", "color_note": "아주 연한 분홍", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-fr-02", "axis": "space", "kb_id": "flower_road", "text": "진달래와 개나리가 흐드러지게 피던 언덕", "color_note": "연분홍과 연노랑", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-fr-03", "axis": "space", "kb_id": "flower_road", "text": "유채꽃밭과 튤립 정원 사이를 걷던 길", "color_note": "밝은 분홍과 꽃빛 파스텔", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-fr-04", "axis": "space", "kb_id": "flower_road", "text": "장미 넝쿨이 드리운 공원 화단 옆", "color_note": "부드러운 장밋빛 분홍", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-ch-01", "axis": "quality", "kb_id": "cherished", "text": "평생 간직하고 싶은 소중한 장면", "color_note": "원래 색 그대로", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-ch-02", "axis": "quality", "kb_id": "cherished", "text": "가끔 꺼내 보며 미소 짓는 귀한 기억", "color_note": "원래 색 그대로", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-ch-03", "axis": "quality", "kb_id": "cherished", "text": "마음속 보물처럼 아끼는 날", "color_note": "원래 색 그대로", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-fd-01", "axis": "quality", "kb_id": "faded", "text": "너무 오래전 일이라 가물가물한 기억", "color_note": "바래고 흐릿한 색, 대비가 약함", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-fd-02", "axis": "quality", "kb_id": "faded", "text": "꿈이었는지 진짜였는지 헷갈리는 장면", "color_note": "안개 낀 듯 탁한 색", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-fd-03", "axis": "quality", "kb_id": "faded", "text": "얼굴이 잘 떠오르지 않을 만큼 흐려진 기억", "color_note": "빛바랜 저채도", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-vv-01", "axis": "quality", "kb_id": "vivid", "text": "어제 일처럼 또렷하게 기억나는 장면", "color_note": "또렷하고 선명한 색, 대비가 큼", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-vv-02", "axis": "quality", "kb_id": "vivid", "text": "눈을 감으면 지금도 생생히 그려지는 그날", "color_note": "쨍하고 맑은 색", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-vv-03", "axis": "quality", "kb_id": "vivid", "text": "그 순간의 소리와 냄새까지 다 기억나는 날", "color_note": "선명한 고채도", "source": "mac_corpus_draft", "status": "confirmed"}
+{"id": "sc-wn-06", "axis": "emotion", "kb_id": "warm_nostalgia", "text": "연탄불에 고구마 구워 나눠 먹던 정겨운 옛 시절", "color_note": "따뜻한 살구빛과 부드러운 난색", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-wn-07", "axis": "emotion", "kb_id": "warm_nostalgia", "text": "아랫목에 발 넣고 다 같이 텔레비전 보던 겨울 저녁", "color_note": "따뜻한 살구빛과 부드러운 난색", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-wn-08", "axis": "emotion", "kb_id": "warm_nostalgia", "text": "외삼촌이 사 온 통닭 봉지를 뜯던 들뜬 거실", "color_note": "따뜻한 살구빛과 부드러운 난색", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-wn-09", "axis": "emotion", "kb_id": "warm_nostalgia", "text": "누렇게 바랜 앨범 속 웃고 있는 꼬마 시절의 나", "color_note": "따뜻한 살구빛과 부드러운 난색", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-je-06", "axis": "emotion", "kb_id": "joy_excitement", "text": "응원하던 팀이 역전골을 넣어 얼싸안고 소리치던 순간", "color_note": "선명한 노란빛과 밝은 금빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-je-07", "axis": "emotion", "kb_id": "joy_excitement", "text": "택배 상자를 뜯으며 심장이 쿵쾅거리던 기분", "color_note": "선명한 노란빛과 밝은 금빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-je-08", "axis": "emotion", "kb_id": "joy_excitement", "text": "첫 월급으로 부모님 선물을 사며 신바람 나던 날", "color_note": "선명한 노란빛과 밝은 금빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-je-09", "axis": "emotion", "kb_id": "joy_excitement", "text": "무대 인사가 끝나고 박수가 쏟아질 때의 짜릿함", "color_note": "선명한 노란빛과 밝은 금빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-cp-05", "axis": "emotion", "kb_id": "calm_peace", "text": "해먹에 누워 흔들리며 아무 생각 없이 쉬던 오후", "color_note": "맑은 하늘색과 옅은 물빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-cp-06", "axis": "emotion", "kb_id": "calm_peace", "text": "따뜻한 차 한 잔을 두 손으로 감싸고 있던 고즈넉한 시간", "color_note": "맑은 하늘색과 옅은 물빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-cp-07", "axis": "emotion", "kb_id": "calm_peace", "text": "명상하듯 눈을 감고 숨을 천천히 내쉬던 때", "color_note": "맑은 하늘색과 옅은 물빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-cp-08", "axis": "emotion", "kb_id": "calm_peace", "text": "할 일을 다 끝내고 소파에 몸을 맡긴 홀가분함", "color_note": "맑은 하늘색과 옅은 물빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-sa-05", "axis": "emotion", "kb_id": "stability_affection", "text": "아플 때 밤새 이마에 물수건을 올려 주던 손길", "color_note": "차분한 나무 갈색과 낮은 채도의 흙빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-sa-06", "axis": "emotion", "kb_id": "stability_affection", "text": "길을 잃었을 때 멀리서 내 이름을 부르며 달려오던 사람", "color_note": "차분한 나무 갈색과 낮은 채도의 흙빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-sa-07", "axis": "emotion", "kb_id": "stability_affection", "text": "무슨 일이 있어도 네 편이라고 말해 주던 든든한 목소리", "color_note": "차분한 나무 갈색과 낮은 채도의 흙빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-sa-08", "axis": "emotion", "kb_id": "stability_affection", "text": "큰 어깨에 무등 타고 세상을 내려다보던 기억", "color_note": "차분한 나무 갈색과 낮은 채도의 흙빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-lm-06", "axis": "emotion", "kb_id": "longing_melancholy", "text": "주인 없는 빈방을 정리하다 손이 멈추던 순간", "color_note": "가라앉은 푸른빛과 회색 섞인 파랑", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-lm-07", "axis": "emotion", "kb_id": "longing_melancholy", "text": "전학 가던 날 창밖으로 손 흔드는 친구들이 작아지던 모습", "color_note": "가라앉은 푸른빛과 회색 섞인 파랑", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-lm-08", "axis": "emotion", "kb_id": "longing_melancholy", "text": "이제는 없어진 단골 가게 자리를 지나며 울적해지던 마음", "color_note": "가라앉은 푸른빛과 회색 섞인 파랑", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-lm-09", "axis": "emotion", "kb_id": "longing_melancholy", "text": "옛 연인의 노래가 흘러나와 가슴 한구석이 아릿하던 밤", "color_note": "가라앉은 푸른빛과 회색 섞인 파랑", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-qs-05", "axis": "emotion", "kb_id": "quiet_solitude", "text": "아무 방해 없이 뜨개질 코만 세며 보내던 긴 저녁", "color_note": "낮은 채도의 베이지와 은은한 불빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-qs-06", "axis": "emotion", "kb_id": "quiet_solitude", "text": "독서대 앞에서 책장 넘기는 소리만 들리던 시간", "color_note": "낮은 채도의 베이지와 은은한 불빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-qs-07", "axis": "emotion", "kb_id": "quiet_solitude", "text": "작업실 구석에서 혼잣말을 하며 모형을 조립하던 날", "color_note": "낮은 채도의 베이지와 은은한 불빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-qs-08", "axis": "emotion", "kb_id": "quiet_solitude", "text": "음악 한 곡만 반복해 틀어 놓고 그림에 파묻혀 있던 밤", "color_note": "낮은 채도의 베이지와 은은한 불빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-af-05", "axis": "time", "kb_id": "afternoon", "text": "점심 먹고 꾸벅꾸벅 졸음이 쏟아지던 두세 시쯤", "color_note": "크림빛 노란 햇빛과 따뜻한 미색", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-af-06", "axis": "time", "kb_id": "afternoon", "text": "볕에 데워진 놀이 기구 쇠붙이가 뜨끈하던 때", "color_note": "크림빛 노란 햇빛과 따뜻한 미색", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-af-07", "axis": "time", "kb_id": "afternoon", "text": "빨랫줄의 이불이 바삭하게 마르던 한창때 볕", "color_note": "크림빛 노란 햇빛과 따뜻한 미색", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-af-08", "axis": "time", "kb_id": "afternoon", "text": "창으로 들어온 햇빛에 먼지가 반짝이며 떠다니던 무렵", "color_note": "크림빛 노란 햇빛과 따뜻한 미색", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-ss-05", "axis": "time", "kb_id": "sunset", "text": "학원 가는 버스 창으로 하늘이 주홍빛으로 번지던 때", "color_note": "산호빛 주황과 분홍이 섞인 저물녘 빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-ss-06", "axis": "time", "kb_id": "sunset", "text": "논두렁 위로 해가 내려앉으며 사방이 불그스레해지던 무렵", "color_note": "산호빛 주황과 분홍이 섞인 저물녘 빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-ss-07", "axis": "time", "kb_id": "sunset", "text": "놀이를 멈추고 길게 늘어진 친구들 실루엣을 보던 때", "color_note": "산호빛 주황과 분홍이 섞인 저물녘 빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-ss-08", "axis": "time", "kb_id": "sunset", "text": "빌딩 유리창마다 지는 해가 비쳐 금빛으로 타오르던 시각", "color_note": "산호빛 주황과 분홍이 섞인 저물녘 빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-nt-05", "axis": "time", "kb_id": "night", "text": "불 끄고 누워 천장의 야광별을 세던 시간", "color_note": "짙은 남색 어둠과 작은 불빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-nt-06", "axis": "time", "kb_id": "night", "text": "편의점 불빛만 환하던 늦은 귀갓길", "color_note": "짙은 남색 어둠과 작은 불빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-nt-07", "axis": "time", "kb_id": "night", "text": "온 동네가 잠들고 개 짖는 소리만 멀리 들리던 때", "color_note": "짙은 남색 어둠과 작은 불빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-nt-08", "axis": "time", "kb_id": "night", "text": "이불 속에서 손전등 켜고 만화책을 몰래 보던 시각", "color_note": "짙은 남색 어둠과 작은 불빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-mn-05", "axis": "time", "kb_id": "morning", "text": "밥 짓는 냄새에 눈이 떠지던 해돋이 무렵", "color_note": "옅은 안개빛과 맑은 우윳빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-mn-06", "axis": "time", "kb_id": "morning", "text": "첫 버스를 기다리며 입김 대신 찬 공기를 들이마시던 시각", "color_note": "옅은 안개빛과 맑은 우윳빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-mn-07", "axis": "time", "kb_id": "morning", "text": "운동장에 아무도 없고 새들만 지저귀던 동틀 녘", "color_note": "옅은 안개빛과 맑은 우윳빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-mn-08", "axis": "time", "kb_id": "morning", "text": "커튼 틈으로 희뿌연 빛이 막 스며들던 때", "color_note": "옅은 안개빛과 맑은 우윳빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-wt-05", "axis": "time", "kb_id": "winter", "text": "장갑 낀 손을 호호 불며 등교하던 매서운 철", "color_note": "희고 푸르스름한 찬 빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-wt-06", "axis": "time", "kb_id": "winter", "text": "처마 끝에 고드름이 주렁주렁 매달리던 무렵", "color_note": "희고 푸르스름한 찬 빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-wt-07", "axis": "time", "kb_id": "winter", "text": "털모자와 목도리로 꽁꽁 싸매고 나가던 추운 계절", "color_note": "희고 푸르스름한 찬 빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-wt-08", "axis": "time", "kb_id": "winter", "text": "얼어붙은 개울에서 팽이 치던 방학 무렵", "color_note": "희고 푸르스름한 찬 빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-ap-05", "axis": "space", "kb_id": "amusement_park", "text": "바이킹이 하늘 높이 솟을 때마다 비명이 터지던 곳", "color_note": "알록달록한 분홍과 밝은 원색", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-ap-06", "axis": "space", "kb_id": "amusement_park", "text": "귀신의 집 앞에서 친구 팔을 꼭 붙잡던 놀이동산", "color_note": "알록달록한 분홍과 밝은 원색", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-ap-07", "axis": "space", "kb_id": "amusement_park", "text": "츄러스를 들고 안내 지도를 펼쳐 보던 놀이동산 정문", "color_note": "알록달록한 분홍과 밝은 원색", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-ap-08", "axis": "space", "kb_id": "amusement_park", "text": "밤이 되자 조명이 반짝이던 놀이 시설 거리", "color_note": "알록달록한 분홍과 밝은 원색", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-se-05", "axis": "space", "kb_id": "sea", "text": "튜브를 끼고 물장구치던 여름 해수욕장", "color_note": "깊고 맑은 바다 파랑과 물빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-se-06", "axis": "space", "kb_id": "sea", "text": "등대가 서 있던 방파제 끝", "color_note": "깊고 맑은 바다 파랑과 물빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-se-07", "axis": "space", "kb_id": "sea", "text": "소금기 섞인 바람이 불던 백사장", "color_note": "깊고 맑은 바다 파랑과 물빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-se-08", "axis": "space", "kb_id": "sea", "text": "조개구이 연기가 피어오르던 바닷가 횟집 앞", "color_note": "깊고 맑은 바다 파랑과 물빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-al-05", "axis": "space", "kb_id": "alley", "text": "담배 가게 앞 좁은 길모퉁이", "color_note": "바랜 돌담빛 베이지와 회색", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-al-06", "axis": "space", "kb_id": "alley", "text": "벽화가 그려진 언덕 위 오래된 마을길", "color_note": "바랜 돌담빛 베이지와 회색", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-al-07", "axis": "space", "kb_id": "alley", "text": "자전거 한 대가 겨우 지나가던 집과 집 사이", "color_note": "바랜 돌담빛 베이지와 회색", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-al-08", "axis": "space", "kb_id": "alley", "text": "녹슨 철문과 화분이 늘어선 오래된 주택가 샛길", "color_note": "바랜 돌담빛 베이지와 회색", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-rw-05", "axis": "space", "kb_id": "rain_window", "text": "창에 맺힌 빗방울을 손가락으로 따라 그리던 방", "color_note": "차분한 회청색과 젖은 유리빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-rw-06", "axis": "space", "kb_id": "rain_window", "text": "처마에서 낙숫물 떨어지는 소리를 듣던 방 안", "color_note": "차분한 회청색과 젖은 유리빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-rw-07", "axis": "space", "kb_id": "rain_window", "text": "흐린 창 너머로 우산 행렬을 내려다보던 이층 창가", "color_note": "차분한 회청색과 젖은 유리빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-rw-08", "axis": "space", "kb_id": "rain_window", "text": "젖은 우산을 털며 들어선 따뜻한 분식집 안", "color_note": "차분한 회청색과 젖은 유리빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-gh-05", "axis": "space", "kb_id": "grandma_house", "text": "장작 패는 소리가 들리던 시골집 뒤꼍", "color_note": "윤기 나는 나무 마루빛과 흙빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-gh-06", "axis": "space", "kb_id": "grandma_house", "text": "고추를 널어 말리던 볕 좋은 안마당", "color_note": "윤기 나는 나무 마루빛과 흙빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-gh-07", "axis": "space", "kb_id": "grandma_house", "text": "뒷마당 우물가에서 수박을 띄워 두던 집", "color_note": "윤기 나는 나무 마루빛과 흙빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-gh-08", "axis": "space", "kb_id": "grandma_house", "text": "할머니가 쪄 주신 옥수수를 먹던 대청", "color_note": "윤기 나는 나무 마루빛과 흙빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-sc-05", "axis": "space", "kb_id": "school", "text": "종이 울리자 우르르 쏟아져 나오던 복도", "color_note": "칠판 초록과 나무 책상빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-sc-06", "axis": "space", "kb_id": "school", "text": "실내화 주머니를 흔들며 오르던 학교 계단", "color_note": "칠판 초록과 나무 책상빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-sc-07", "axis": "space", "kb_id": "school", "text": "체육복으로 갈아입던 소란한 탈의실", "color_note": "칠판 초록과 나무 책상빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-sc-08", "axis": "space", "kb_id": "school", "text": "방과 후 혼자 남아 청소하던 텅 빈 교실", "color_note": "칠판 초록과 나무 책상빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-fr-05", "axis": "space", "kb_id": "flower_road", "text": "꽃잎이 눈처럼 흩날리던 봄 가로수길", "color_note": "연분홍과 흰 꽃잎빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-fr-06", "axis": "space", "kb_id": "flower_road", "text": "튤립이 줄지어 핀 공원 화단 사이 길", "color_note": "연분홍과 흰 꽃잎빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-fr-07", "axis": "space", "kb_id": "flower_road", "text": "유채꽃 사이로 난 노란 들길", "color_note": "연분홍과 흰 꽃잎빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-fr-08", "axis": "space", "kb_id": "flower_road", "text": "꽃향기가 진하게 풍기던 봄날 둘레길", "color_note": "연분홍과 흰 꽃잎빛", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-ch-04", "axis": "quality", "kb_id": "cherished", "text": "지갑 속 부적처럼 몰래 아껴 두는 장면", "color_note": "원래 색을 그대로 아껴 두는 따뜻한 결", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-ch-05", "axis": "quality", "kb_id": "cherished", "text": "힘들 때마다 떠올리며 힘을 얻는 하루", "color_note": "원래 색을 그대로 아껴 두는 따뜻한 결", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-ch-06", "axis": "quality", "kb_id": "cherished", "text": "남들에겐 사소해도 나에겐 보석 같은 순간", "color_note": "원래 색을 그대로 아껴 두는 따뜻한 결", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-ch-07", "axis": "quality", "kb_id": "cherished", "text": "평생 잊고 싶지 않아 자꾸 되새기는 날", "color_note": "원래 색을 그대로 아껴 두는 따뜻한 결", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-fd-04", "axis": "quality", "kb_id": "faded", "text": "어디였는지 장소조차 떠오르지 않는 기억", "color_note": "색이 바래고 경계가 흐려진 결", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-fd-05", "axis": "quality", "kb_id": "faded", "text": "누가 함께 있었는지 헷갈리는 오래된 일", "color_note": "색이 바래고 경계가 흐려진 결", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-fd-06", "axis": "quality", "kb_id": "faded", "text": "빛바랜 필름처럼 군데군데 지워진 장면", "color_note": "색이 바래고 경계가 흐려진 결", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-fd-07", "axis": "quality", "kb_id": "faded", "text": "말로 들은 건지 직접 본 건지 모를 어린 시절 일", "color_note": "색이 바래고 경계가 흐려진 결", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-vv-04", "axis": "quality", "kb_id": "vivid", "text": "그날 입었던 옷 색깔까지 기억나는 장면", "color_note": "색이 또렷하고 대비가 살아 있는 결", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-vv-05", "axis": "quality", "kb_id": "vivid", "text": "지금 눈을 감아도 그때 공기의 온도가 느껴지는 날", "color_note": "색이 또렷하고 대비가 살아 있는 결", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-vv-06", "axis": "quality", "kb_id": "vivid", "text": "하나도 흐려지지 않고 고스란히 남은 순간", "color_note": "색이 또렷하고 대비가 살아 있는 결", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-vv-07", "axis": "quality", "kb_id": "vivid", "text": "몇 년이 지나도 방금 겪은 일처럼 떠오르는 일", "color_note": "색이 또렷하고 대비가 살아 있는 결", "source": "mac_corpus_v0.2 (2026-10-11 보강)", "status": "confirmed"}
+{"id": "sc-je-10", "axis": "emotion", "kb_id": "joy_excitement", "text": "칭찬을 듬뿍 받고 괜히 우쭐해져 자랑하고 다니던 날", "color_note": "선명한 금빛 노랑, 높은 채도", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-je-11", "axis": "emotion", "kb_id": "joy_excitement", "text": "친구들과 배를 잡고 데굴데굴 구르며 웃어 대던 시간", "color_note": "선명한 금빛 노랑, 높은 채도", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-je-12", "axis": "emotion", "kb_id": "joy_excitement", "text": "웃다가 눈물이 찔끔 날 만큼 즐거웠던 수다", "color_note": "선명한 금빛 노랑, 높은 채도", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-cp-09", "axis": "emotion", "kb_id": "calm_peace", "text": "약속도 숙제도 없는 주말 아침 이불 속에서 뒹굴던 느긋함", "color_note": "맑고 옅은 하늘색, 낮은 채도", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-cp-10", "axis": "emotion", "kb_id": "calm_peace", "text": "흐르는 강물을 멍하니 바라보며 머리를 비우던 오후", "color_note": "맑고 옅은 하늘색, 낮은 채도", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-cp-11", "axis": "emotion", "kb_id": "calm_peace", "text": "장작불을 바라보며 아무 생각 없이 앉아 있던 밤", "color_note": "맑고 옅은 하늘색, 낮은 채도", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-sa-09", "axis": "emotion", "kb_id": "stability_affection", "text": "누나 뒤에 숨어 있으면 무서울 것 하나 없던 어린 날", "color_note": "차분한 나무색, 중간 밝기의 갈색", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-sa-10", "axis": "emotion", "kb_id": "stability_affection", "text": "큰 손이 어깨를 감싸 주면 어디든 갈 수 있을 것 같던 마음", "color_note": "차분한 나무색, 중간 밝기의 갈색", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-lm-10", "axis": "emotion", "kb_id": "longing_melancholy", "text": "돌아가신 분의 사진 앞에서 한참 말을 잇지 못하던 저녁", "color_note": "흐린 회청색, 채도가 낮은 파랑", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-lm-11", "axis": "emotion", "kb_id": "longing_melancholy", "text": "다시는 오지 않을 시절이 아까워 코끝이 찡해지던 순간", "color_note": "흐린 회청색, 채도가 낮은 파랑", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-lm-12", "axis": "emotion", "kb_id": "longing_melancholy", "text": "아무것도 하기 싫을 만큼 마음이 가라앉고 우울하던 날", "color_note": "흐린 회청색, 채도가 낮은 파랑", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-qs-09", "axis": "emotion", "kb_id": "quiet_solitude", "text": "아무에게도 보여 주지 않을 글을 혼자 끄적이던 밤", "color_note": "스탠드 불빛 같은 은은한 미색", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-qs-10", "axis": "emotion", "kb_id": "quiet_solitude", "text": "색칠 공부 책에 혼자 빠져 시간 가는 줄 모르던 오후", "color_note": "스탠드 불빛 같은 은은한 미색", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-af-09", "axis": "time", "kb_id": "afternoon", "text": "해가 가장 높이 떠 그림자가 거의 사라지던 정오 무렵", "color_note": "밝고 따스한 연노랑 햇빛", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-af-10", "axis": "time", "kb_id": "afternoon", "text": "햇볕에 운동장 모래가 하얗게 달아오르던 한창때", "color_note": "밝고 따스한 연노랑 햇빛", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-mn-09", "axis": "time", "kb_id": "morning", "text": "풀숲에 맺힌 물방울이 반짝이던 이른 시간", "color_note": "옅고 맑은 아이보리빛", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-mn-10", "axis": "time", "kb_id": "morning", "text": "밤새 내린 서리가 아직 녹지 않은 동틀 녘", "color_note": "옅고 맑은 아이보리빛", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-wt-09", "axis": "time", "kb_id": "winter", "text": "동지 팥죽을 쑤어 먹던 한겨울", "color_note": "차갑고 창백한 흰 하늘빛", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-wt-10", "axis": "time", "kb_id": "winter", "text": "섣달 칼바람에 귀가 떨어질 것 같던 날", "color_note": "차갑고 창백한 흰 하늘빛", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-ap-09", "axis": "space", "kb_id": "amusement_park", "text": "놀이기구 표를 사려고 길게 줄 서던 매표소 앞", "color_note": "분홍빛과 사탕 같은 파스텔", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-ap-10", "axis": "space", "kb_id": "amusement_park", "text": "높은 탈것이 떨어질 때마다 비명이 울리던 놀이 시설", "color_note": "분홍빛과 사탕 같은 파스텔", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-se-09", "axis": "space", "kb_id": "sea", "text": "물 빠진 갯벌에서 조개를 캐던 바닷가 마을", "color_note": "맑은 청록 바닷빛", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-se-10", "axis": "space", "kb_id": "sea", "text": "햇빛에 바닷물이 잘게 부서지며 반짝이던 해안 길", "color_note": "맑은 청록 바닷빛", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-al-09", "axis": "space", "kb_id": "alley", "text": "연탄을 지게로 나르던 산동네 비탈길", "color_note": "바랜 회갈색 돌빛", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-al-10", "axis": "space", "kb_id": "alley", "text": "집집마다 빨래를 내다 건 언덕 위 좁은 계단", "color_note": "바랜 회갈색 돌빛", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-rw-09", "axis": "space", "kb_id": "rain_window", "text": "차창에 빗줄기가 부딪히던 자동차 뒷자리", "color_note": "젖은 회청색, 낮은 채도", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-rw-10", "axis": "space", "kb_id": "rain_window", "text": "버스 창에 김이 서리고 빗물이 흐르던 퇴근길", "color_note": "젖은 회청색, 낮은 채도", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-sc-09", "axis": "space", "kb_id": "school", "text": "선생님이 이름을 하나씩 불러 대답하던 아침 조회 시간", "color_note": "칠판 같은 짙은 초록", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-sc-10", "axis": "space", "kb_id": "school", "text": "식판을 들고 줄 서서 반찬을 받던 급식실", "color_note": "칠판 같은 짙은 초록", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-fr-09", "axis": "space", "kb_id": "flower_road", "text": "노란 봄꽃이 줄지어 핀 하천 산책로", "color_note": "아주 연한 분홍", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-fr-10", "axis": "space", "kb_id": "flower_road", "text": "꽃나무가 양옆으로 늘어선 강둑길", "color_note": "아주 연한 분홍", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-fd-08", "axis": "quality", "kb_id": "faded", "text": "테두리만 남고 속은 비어 버린 기억", "color_note": "바래고 흐릿한 색, 대비가 약함", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-fd-09", "axis": "quality", "kb_id": "faded", "text": "얼굴은 지워지고 목소리만 어렴풋이 남은 장면", "color_note": "바래고 흐릿한 색, 대비가 약함", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-ch-08", "axis": "quality", "kb_id": "cherished", "text": "누구에게도 내주고 싶지 않은 나만의 장면", "color_note": "원래 색 그대로", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}
+{"id": "sc-ch-09", "axis": "quality", "kb_id": "cherished", "text": "주머니 속 조약돌처럼 몰래 쥐고 있는 기억", "color_note": "원래 색 그대로", "source": "mac_corpus_v0.3 (2026-10-13 보강, 검토 전)", "status": "draft"}

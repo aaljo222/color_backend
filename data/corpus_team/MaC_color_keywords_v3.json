@@ -1,0 +1,2042 @@
+[
+  {
+    "keyword": "추억",
+    "category": "emotion",
+    "color_name": "흐린 주황 (복숭아크림색)",
+    "hex": "#D2A795",
+    "lch_l": 71.9,
+    "lch_c": 20.21,
+    "lch_h": 49.29,
+    "match": "strong"
+  },
+  {
+    "keyword": "어린 시절",
+    "category": "emotion",
+    "color_name": "흐린 주황 (복숭아크림색)",
+    "hex": "#D2A795",
+    "lch_l": 71.9,
+    "lch_c": 20.21,
+    "lch_h": 49.29,
+    "match": "strong"
+  },
+  {
+    "keyword": "다정하다",
+    "category": "emotion",
+    "color_name": "흐린 주황 (복숭아크림색)",
+    "hex": "#D2A795",
+    "lch_l": 71.9,
+    "lch_c": 20.21,
+    "lch_h": 49.29,
+    "match": "strong"
+  },
+  {
+    "keyword": "포근하다",
+    "category": "emotion",
+    "color_name": "흐린 주황 (복숭아크림색)",
+    "hex": "#D2A795",
+    "lch_l": 71.9,
+    "lch_c": 20.21,
+    "lch_h": 49.29,
+    "match": "strong"
+  },
+  {
+    "keyword": "손잡다",
+    "category": "emotion",
+    "color_name": "흐린 주황 (복숭아크림색)",
+    "hex": "#D2A795",
+    "lch_l": 71.9,
+    "lch_c": 20.21,
+    "lch_h": 49.29,
+    "match": "strong"
+  },
+  {
+    "keyword": "가족",
+    "category": "emotion",
+    "color_name": "흐린 주황 (복숭아크림색)",
+    "hex": "#D2A795",
+    "lch_l": 71.9,
+    "lch_c": 20.21,
+    "lch_h": 49.29,
+    "match": "weak"
+  },
+  {
+    "keyword": "설렘",
+    "category": "emotion",
+    "color_name": "밝은 노랑 (회전목마금빛)",
+    "hex": "#DCBE6A",
+    "lch_l": 77.92,
+    "lch_c": 45.99,
+    "lch_h": 89.74,
+    "match": "strong"
+  },
+  {
+    "keyword": "환희",
+    "category": "emotion",
+    "color_name": "밝은 노랑 (회전목마금빛)",
+    "hex": "#DCBE6A",
+    "lch_l": 77.92,
+    "lch_c": 45.99,
+    "lch_h": 89.74,
+    "match": "strong"
+  },
+  {
+    "keyword": "축제",
+    "category": "emotion",
+    "color_name": "밝은 노랑 (회전목마금빛)",
+    "hex": "#DCBE6A",
+    "lch_l": 77.92,
+    "lch_c": 45.99,
+    "lch_h": 89.74,
+    "match": "strong"
+  },
+  {
+    "keyword": "신나다",
+    "category": "emotion",
+    "color_name": "밝은 노랑 (회전목마금빛)",
+    "hex": "#DCBE6A",
+    "lch_l": 77.92,
+    "lch_c": 45.99,
+    "lch_h": 89.74,
+    "match": "strong"
+  },
+  {
+    "keyword": "설레다",
+    "category": "emotion",
+    "color_name": "밝은 노랑 (회전목마금빛)",
+    "hex": "#DCBE6A",
+    "lch_l": 77.92,
+    "lch_c": 45.99,
+    "lch_h": 89.74,
+    "match": "strong"
+  },
+  {
+    "keyword": "즐겁다",
+    "category": "emotion",
+    "color_name": "밝은 노랑 (회전목마금빛)",
+    "hex": "#DCBE6A",
+    "lch_l": 77.92,
+    "lch_c": 45.99,
+    "lch_h": 89.74,
+    "match": "strong"
+  },
+  {
+    "keyword": "유쾌하다",
+    "category": "emotion",
+    "color_name": "밝은 노랑 (회전목마금빛)",
+    "hex": "#DCBE6A",
+    "lch_l": 77.92,
+    "lch_c": 45.99,
+    "lch_h": 89.74,
+    "match": "strong"
+  },
+  {
+    "keyword": "깔깔",
+    "category": "emotion",
+    "color_name": "밝은 노랑 (회전목마금빛)",
+    "hex": "#DCBE6A",
+    "lch_l": 77.92,
+    "lch_c": 45.99,
+    "lch_h": 89.74,
+    "match": "strong"
+  },
+  {
+    "keyword": "두근거리다",
+    "category": "emotion",
+    "color_name": "밝은 노랑 (회전목마금빛)",
+    "hex": "#DCBE6A",
+    "lch_l": 77.92,
+    "lch_c": 45.99,
+    "lch_h": 89.74,
+    "match": "strong"
+  },
+  {
+    "keyword": "웃음",
+    "category": "emotion",
+    "color_name": "밝은 노랑 (회전목마금빛)",
+    "hex": "#DCBE6A",
+    "lch_l": 77.92,
+    "lch_c": 45.99,
+    "lch_h": 89.74,
+    "match": "weak"
+  },
+  {
+    "keyword": "평온",
+    "category": "emotion",
+    "color_name": "연한 파랑 (오월하늘색)",
+    "hex": "#A8C6D2",
+    "lch_l": 78.09,
+    "lch_c": 11.95,
+    "lch_h": 231.39,
+    "match": "strong"
+  },
+  {
+    "keyword": "고요",
+    "category": "emotion",
+    "color_name": "연한 파랑 (오월하늘색)",
+    "hex": "#A8C6D2",
+    "lch_l": 78.09,
+    "lch_c": 11.95,
+    "lch_h": 231.39,
+    "match": "strong"
+  },
+  {
+    "keyword": "휴식",
+    "category": "emotion",
+    "color_name": "연한 파랑 (오월하늘색)",
+    "hex": "#A8C6D2",
+    "lch_l": 78.09,
+    "lch_c": 11.95,
+    "lch_h": 231.39,
+    "match": "strong"
+  },
+  {
+    "keyword": "산들바람",
+    "category": "sensory",
+    "color_name": "연한 파랑 (오월하늘색)",
+    "hex": "#A8C6D2",
+    "lch_l": 78.09,
+    "lch_c": 11.95,
+    "lch_h": 231.39,
+    "match": "secondary"
+  },
+  {
+    "keyword": "바람 쐬다",
+    "category": "emotion",
+    "color_name": "연한 파랑 (오월하늘색)",
+    "hex": "#A8C6D2",
+    "lch_l": 78.09,
+    "lch_c": 11.95,
+    "lch_h": 231.39,
+    "match": "strong"
+  },
+  {
+    "keyword": "편안하다",
+    "category": "emotion",
+    "color_name": "연한 파랑 (오월하늘색)",
+    "hex": "#A8C6D2",
+    "lch_l": 78.09,
+    "lch_c": 11.95,
+    "lch_h": 231.39,
+    "match": "strong"
+  },
+  {
+    "keyword": "잔잔하다",
+    "category": "emotion",
+    "color_name": "연한 파랑 (오월하늘색)",
+    "hex": "#A8C6D2",
+    "lch_l": 78.09,
+    "lch_c": 11.95,
+    "lch_h": 231.39,
+    "match": "strong"
+  },
+  {
+    "keyword": "차분하다",
+    "category": "emotion",
+    "color_name": "연한 파랑 (오월하늘색)",
+    "hex": "#A8C6D2",
+    "lch_l": 78.09,
+    "lch_c": 11.95,
+    "lch_h": 231.39,
+    "match": "strong"
+  },
+  {
+    "keyword": "하늘",
+    "category": "emotion",
+    "color_name": "연한 파랑 (오월하늘색)",
+    "hex": "#A8C6D2",
+    "lch_l": 78.09,
+    "lch_c": 11.95,
+    "lch_h": 231.39,
+    "match": "weak"
+  },
+  {
+    "keyword": "바람",
+    "category": "emotion",
+    "color_name": "연한 파랑 (오월하늘색)",
+    "hex": "#A8C6D2",
+    "lch_l": 78.09,
+    "lch_c": 11.95,
+    "lch_h": 231.39,
+    "match": "weak"
+  },
+  {
+    "keyword": "든든하다",
+    "category": "emotion",
+    "color_name": "갈색 (마루나무색)",
+    "hex": "#9E7F6A",
+    "lch_l": 55.57,
+    "lch_c": 18.22,
+    "lch_h": 61.1,
+    "match": "strong"
+  },
+  {
+    "keyword": "의지",
+    "category": "emotion",
+    "color_name": "갈색 (마루나무색)",
+    "hex": "#9E7F6A",
+    "lch_l": 55.57,
+    "lch_c": 18.22,
+    "lch_h": 61.1,
+    "match": "strong"
+  },
+  {
+    "keyword": "신뢰",
+    "category": "emotion",
+    "color_name": "갈색 (마루나무색)",
+    "hex": "#9E7F6A",
+    "lch_l": 55.57,
+    "lch_c": 18.22,
+    "lch_h": 61.1,
+    "match": "strong"
+  },
+  {
+    "keyword": "그리움",
+    "category": "emotion",
+    "color_name": "흐린 남색 (어스름청색)",
+    "hex": "#8DA1C4",
+    "lch_l": 65.86,
+    "lch_c": 20.29,
+    "lch_h": 272.94,
+    "match": "strong"
+  },
+  {
+    "keyword": "아련하다",
+    "category": "emotion",
+    "color_name": "흐린 남색 (어스름청색)",
+    "hex": "#8DA1C4",
+    "lch_l": 65.86,
+    "lch_c": 20.29,
+    "lch_h": 272.94,
+    "match": "strong"
+  },
+  {
+    "keyword": "보고 싶다",
+    "category": "emotion",
+    "color_name": "흐린 남색 (어스름청색)",
+    "hex": "#8DA1C4",
+    "lch_l": 65.86,
+    "lch_c": 20.29,
+    "lch_h": 272.94,
+    "match": "strong"
+  },
+  {
+    "keyword": "이별",
+    "category": "emotion",
+    "color_name": "흐린 남색 (어스름청색)",
+    "hex": "#8DA1C4",
+    "lch_l": 65.86,
+    "lch_c": 20.29,
+    "lch_h": 272.94,
+    "match": "strong"
+  },
+  {
+    "keyword": "쓸쓸하다",
+    "category": "emotion",
+    "color_name": "흐린 남색 (어스름청색)",
+    "hex": "#8DA1C4",
+    "lch_l": 65.86,
+    "lch_c": 20.29,
+    "lch_h": 272.94,
+    "match": "strong"
+  },
+  {
+    "keyword": "외롭다",
+    "category": "emotion",
+    "color_name": "흐린 남색 (어스름청색)",
+    "hex": "#8DA1C4",
+    "lch_l": 65.86,
+    "lch_c": 20.29,
+    "lch_h": 272.94,
+    "match": "strong"
+  },
+  {
+    "keyword": "빈자리",
+    "category": "emotion",
+    "color_name": "흐린 남색 (어스름청색)",
+    "hex": "#8DA1C4",
+    "lch_l": 65.86,
+    "lch_c": 20.29,
+    "lch_h": 272.94,
+    "match": "strong"
+  },
+  {
+    "keyword": "서럽다",
+    "category": "emotion",
+    "color_name": "흐린 남색 (어스름청색)",
+    "hex": "#8DA1C4",
+    "lch_l": 65.86,
+    "lch_c": 20.29,
+    "lch_h": 272.94,
+    "match": "strong"
+  },
+  {
+    "keyword": "그리워하다",
+    "category": "emotion",
+    "color_name": "흐린 남색 (어스름청색)",
+    "hex": "#8DA1C4",
+    "lch_l": 65.86,
+    "lch_c": 20.29,
+    "lch_h": 272.94,
+    "match": "strong"
+  },
+  {
+    "keyword": "상실",
+    "category": "emotion",
+    "color_name": "흐린 남색 (어스름청색)",
+    "hex": "#8DA1C4",
+    "lch_l": 65.86,
+    "lch_c": 20.29,
+    "lch_h": 272.94,
+    "match": "strong"
+  },
+  {
+    "keyword": "혼자",
+    "category": "emotion",
+    "color_name": "흐린 노랑 (스탠드불빛)",
+    "hex": "#B69C7E",
+    "lch_l": 65.93,
+    "lch_c": 19.94,
+    "lch_h": 75.28,
+    "match": "weak"
+  },
+  {
+    "keyword": "몰두",
+    "category": "emotion",
+    "color_name": "흐린 노랑 (스탠드불빛)",
+    "hex": "#B69C7E",
+    "lch_l": 65.93,
+    "lch_c": 19.94,
+    "lch_h": 75.28,
+    "match": "strong"
+  },
+  {
+    "keyword": "집중",
+    "category": "emotion",
+    "color_name": "흐린 노랑 (스탠드불빛)",
+    "hex": "#B69C7E",
+    "lch_l": 65.93,
+    "lch_c": 19.94,
+    "lch_h": 75.28,
+    "match": "strong"
+  },
+  {
+    "keyword": "조용하다",
+    "category": "emotion",
+    "color_name": "흐린 노랑 (스탠드불빛)",
+    "hex": "#B69C7E",
+    "lch_l": 65.93,
+    "lch_c": 19.94,
+    "lch_h": 75.28,
+    "match": "strong"
+  },
+  {
+    "keyword": "조용히",
+    "category": "emotion",
+    "color_name": "흐린 노랑 (스탠드불빛)",
+    "hex": "#B69C7E",
+    "lch_l": 65.93,
+    "lch_c": 19.94,
+    "lch_h": 75.28,
+    "match": "weak"
+  },
+  {
+    "keyword": "오후",
+    "category": "time",
+    "color_name": "흰 노랑 (오후햇살색)",
+    "hex": "#EDDBBB",
+    "lch_l": 88.09,
+    "lch_c": 18.04,
+    "lch_h": 86.2,
+    "match": "strong"
+  },
+  {
+    "keyword": "햇살",
+    "category": "light",
+    "color_name": "흰 노랑 (오후햇살색)",
+    "hex": "#EDDBBB",
+    "lch_l": 88.09,
+    "lch_c": 18.04,
+    "lch_h": 86.2,
+    "match": "secondary"
+  },
+  {
+    "keyword": "한낮",
+    "category": "time",
+    "color_name": "흰 노랑 (오후햇살색)",
+    "hex": "#EDDBBB",
+    "lch_l": 88.09,
+    "lch_c": 18.04,
+    "lch_h": 86.2,
+    "match": "strong"
+  },
+  {
+    "keyword": "대낮",
+    "category": "time",
+    "color_name": "흰 노랑 (오후햇살색)",
+    "hex": "#EDDBBB",
+    "lch_l": 88.09,
+    "lch_c": 18.04,
+    "lch_h": 86.2,
+    "match": "strong"
+  },
+  {
+    "keyword": "낮잠",
+    "category": "time",
+    "color_name": "흰 노랑 (오후햇살색)",
+    "hex": "#EDDBBB",
+    "lch_l": 88.09,
+    "lch_c": 18.04,
+    "lch_h": 86.2,
+    "match": "strong"
+  },
+  {
+    "keyword": "낮",
+    "category": "time",
+    "color_name": "흰 노랑 (오후햇살색)",
+    "hex": "#EDDBBB",
+    "lch_l": 88.09,
+    "lch_c": 18.04,
+    "lch_h": 86.2,
+    "match": "strong"
+  },
+  {
+    "keyword": "노을",
+    "category": "light",
+    "color_name": "주황 (노을산호색)",
+    "hex": "#EA8E6E",
+    "lch_l": 67.99,
+    "lch_c": 44.93,
+    "lch_h": 45.11,
+    "match": "secondary"
+  },
+  {
+    "keyword": "황혼",
+    "category": "time",
+    "color_name": "주황 (노을산호색)",
+    "hex": "#EA8E6E",
+    "lch_l": 67.99,
+    "lch_c": 44.93,
+    "lch_h": 45.11,
+    "match": "strong"
+  },
+  {
+    "keyword": "해질녘",
+    "category": "time",
+    "color_name": "주황 (노을산호색)",
+    "hex": "#EA8E6E",
+    "lch_l": 67.99,
+    "lch_c": 44.93,
+    "lch_h": 45.11,
+    "match": "strong"
+  },
+  {
+    "keyword": "저녁",
+    "category": "time",
+    "color_name": "주황 (노을산호색)",
+    "hex": "#EA8E6E",
+    "lch_l": 67.99,
+    "lch_c": 44.93,
+    "lch_h": 45.11,
+    "match": "strong"
+  },
+  {
+    "keyword": "밤",
+    "category": "time",
+    "color_name": "어두운 파랑 (가로등밤색)",
+    "hex": "#2B445D",
+    "lch_l": 27.95,
+    "lch_c": 17.83,
+    "lch_h": 264.87,
+    "match": "strong"
+  },
+  {
+    "keyword": "새벽",
+    "category": "time",
+    "color_name": "어두운 파랑 (가로등밤색)",
+    "hex": "#2B445D",
+    "lch_l": 27.95,
+    "lch_c": 17.83,
+    "lch_h": 264.87,
+    "match": "strong"
+  },
+  {
+    "keyword": "어둠",
+    "category": "light",
+    "color_name": "어두운 파랑 (가로등밤색)",
+    "hex": "#2B445D",
+    "lch_l": 27.95,
+    "lch_c": 17.83,
+    "lch_h": 264.87,
+    "match": "secondary"
+  },
+  {
+    "keyword": "한밤중",
+    "category": "time",
+    "color_name": "어두운 파랑 (가로등밤색)",
+    "hex": "#2B445D",
+    "lch_l": 27.95,
+    "lch_c": 17.83,
+    "lch_h": 264.87,
+    "match": "strong"
+  },
+  {
+    "keyword": "한밤",
+    "category": "time",
+    "color_name": "어두운 파랑 (가로등밤색)",
+    "hex": "#2B445D",
+    "lch_l": 27.95,
+    "lch_c": 17.83,
+    "lch_h": 264.87,
+    "match": "strong"
+  },
+  {
+    "keyword": "밤하늘",
+    "category": "time",
+    "color_name": "어두운 파랑 (가로등밤색)",
+    "hex": "#2B445D",
+    "lch_l": 27.95,
+    "lch_c": 17.83,
+    "lch_h": 264.87,
+    "match": "strong"
+  },
+  {
+    "keyword": "밤길",
+    "category": "time",
+    "color_name": "어두운 파랑 (가로등밤색)",
+    "hex": "#2B445D",
+    "lch_l": 27.95,
+    "lch_c": 17.83,
+    "lch_h": 264.87,
+    "match": "strong"
+  },
+  {
+    "keyword": "밤공기",
+    "category": "time",
+    "color_name": "어두운 파랑 (가로등밤색)",
+    "hex": "#2B445D",
+    "lch_l": 27.95,
+    "lch_c": 17.83,
+    "lch_h": 264.87,
+    "match": "strong"
+  },
+  {
+    "keyword": "밤바다",
+    "category": "time",
+    "color_name": "어두운 파랑 (가로등밤색)",
+    "hex": "#2B445D",
+    "lch_l": 27.95,
+    "lch_c": 17.83,
+    "lch_h": 264.87,
+    "match": "strong"
+  },
+  {
+    "keyword": "아침",
+    "category": "time",
+    "color_name": "흰 노랑 (아침안개색)",
+    "hex": "#EFE8D5",
+    "lch_l": 92.07,
+    "lch_c": 10.12,
+    "lch_h": 94.57,
+    "match": "strong"
+  },
+  {
+    "keyword": "출근길",
+    "category": "time",
+    "color_name": "흰 노랑 (아침안개색)",
+    "hex": "#EFE8D5",
+    "lch_l": 92.07,
+    "lch_c": 10.12,
+    "lch_h": 94.57,
+    "match": "strong"
+  },
+  {
+    "keyword": "등굣길",
+    "category": "time",
+    "color_name": "흰 노랑 (아침안개색)",
+    "hex": "#EFE8D5",
+    "lch_l": 92.07,
+    "lch_c": 10.12,
+    "lch_h": 94.57,
+    "match": "strong"
+  },
+  {
+    "keyword": "이른",
+    "category": "time",
+    "color_name": "흰 노랑 (아침안개색)",
+    "hex": "#EFE8D5",
+    "lch_l": 92.07,
+    "lch_c": 10.12,
+    "lch_h": 94.57,
+    "match": "weak"
+  },
+  {
+    "keyword": "겨울",
+    "category": "time",
+    "color_name": "흰 파랑 (겨울흰빛)",
+    "hex": "#D3E5EF",
+    "lch_l": 89.91,
+    "lch_c": 7.97,
+    "lch_h": 239.86,
+    "match": "strong"
+  },
+  {
+    "keyword": "첫눈",
+    "category": "time",
+    "color_name": "흰 파랑 (겨울흰빛)",
+    "hex": "#D3E5EF",
+    "lch_l": 89.91,
+    "lch_c": 7.97,
+    "lch_h": 239.86,
+    "match": "strong"
+  },
+  {
+    "keyword": "입김",
+    "category": "time",
+    "color_name": "흰 파랑 (겨울흰빛)",
+    "hex": "#D3E5EF",
+    "lch_l": 89.91,
+    "lch_c": 7.97,
+    "lch_h": 239.86,
+    "match": "strong"
+  },
+  {
+    "keyword": "함박눈",
+    "category": "time",
+    "color_name": "흰 파랑 (겨울흰빛)",
+    "hex": "#D3E5EF",
+    "lch_l": 89.91,
+    "lch_c": 7.97,
+    "lch_h": 239.86,
+    "match": "strong"
+  },
+  {
+    "keyword": "눈사람",
+    "category": "memory_color",
+    "color_name": "흰 파랑 (겨울흰빛)",
+    "hex": "#D3E5EF",
+    "lch_l": 89.91,
+    "lch_c": 7.97,
+    "lch_h": 239.86,
+    "match": "object"
+  },
+  {
+    "keyword": "눈싸움",
+    "category": "time",
+    "color_name": "흰 파랑 (겨울흰빛)",
+    "hex": "#D3E5EF",
+    "lch_l": 89.91,
+    "lch_c": 7.97,
+    "lch_h": 239.86,
+    "match": "strong"
+  },
+  {
+    "keyword": "눈밭",
+    "category": "time",
+    "color_name": "흰 파랑 (겨울흰빛)",
+    "hex": "#D3E5EF",
+    "lch_l": 89.91,
+    "lch_c": 7.97,
+    "lch_h": 239.86,
+    "match": "strong"
+  },
+  {
+    "keyword": "눈 오다",
+    "category": "time",
+    "color_name": "흰 파랑 (겨울흰빛)",
+    "hex": "#D3E5EF",
+    "lch_l": 89.91,
+    "lch_c": 7.97,
+    "lch_h": 239.86,
+    "match": "strong"
+  },
+  {
+    "keyword": "눈 내리다",
+    "category": "time",
+    "color_name": "흰 파랑 (겨울흰빛)",
+    "hex": "#D3E5EF",
+    "lch_l": 89.91,
+    "lch_c": 7.97,
+    "lch_h": 239.86,
+    "match": "strong"
+  },
+  {
+    "keyword": "눈 쌓이다",
+    "category": "time",
+    "color_name": "흰 파랑 (겨울흰빛)",
+    "hex": "#D3E5EF",
+    "lch_l": 89.91,
+    "lch_c": 7.97,
+    "lch_h": 239.86,
+    "match": "strong"
+  },
+  {
+    "keyword": "눈",
+    "category": "time",
+    "color_name": "흰 파랑 (겨울흰빛)",
+    "hex": "#D3E5EF",
+    "lch_l": 89.91,
+    "lch_c": 7.97,
+    "lch_h": 239.86,
+    "match": "weak"
+  },
+  {
+    "keyword": "놀이공원",
+    "category": "space",
+    "color_name": "밝은 분홍 (축제분홍)",
+    "hex": "#FAABC2",
+    "lch_l": 78.08,
+    "lch_c": 32.11,
+    "lch_h": 0.2,
+    "match": "strong"
+  },
+  {
+    "keyword": "테마파크",
+    "category": "space",
+    "color_name": "밝은 분홍 (축제분홍)",
+    "hex": "#FAABC2",
+    "lch_l": 78.08,
+    "lch_c": 32.11,
+    "lch_h": 0.2,
+    "match": "strong"
+  },
+  {
+    "keyword": "바다",
+    "category": "space",
+    "color_name": "진한 파랑 (바다색)",
+    "hex": "#00678F",
+    "lch_l": 40.71,
+    "lch_c": 30.63,
+    "lch_h": 251.12,
+    "match": "strong"
+  },
+  {
+    "keyword": "해변",
+    "category": "space",
+    "color_name": "진한 파랑 (바다색)",
+    "hex": "#00678F",
+    "lch_l": 40.71,
+    "lch_c": 30.63,
+    "lch_h": 251.12,
+    "match": "strong"
+  },
+  {
+    "keyword": "바닷가",
+    "category": "space",
+    "color_name": "진한 파랑 (바다색)",
+    "hex": "#00678F",
+    "lch_l": 40.71,
+    "lch_c": 30.63,
+    "lch_h": 251.12,
+    "match": "strong"
+  },
+  {
+    "keyword": "골목",
+    "category": "space",
+    "color_name": "회노랑 (골목돌담색)",
+    "hex": "#AB9F8F",
+    "lch_l": 66.09,
+    "lch_c": 10.06,
+    "lch_h": 80.65,
+    "match": "strong"
+  },
+  {
+    "keyword": "동네",
+    "category": "space",
+    "color_name": "회노랑 (골목돌담색)",
+    "hex": "#AB9F8F",
+    "lch_l": 66.09,
+    "lch_c": 10.06,
+    "lch_h": 80.65,
+    "match": "strong"
+  },
+  {
+    "keyword": "골목길",
+    "category": "space",
+    "color_name": "회노랑 (골목돌담색)",
+    "hex": "#AB9F8F",
+    "lch_l": 66.09,
+    "lch_c": 10.06,
+    "lch_h": 80.65,
+    "match": "strong"
+  },
+  {
+    "keyword": "담벼락",
+    "category": "space",
+    "color_name": "회노랑 (골목돌담색)",
+    "hex": "#AB9F8F",
+    "lch_l": 66.09,
+    "lch_c": 10.06,
+    "lch_h": 80.65,
+    "match": "strong"
+  },
+  {
+    "keyword": "창밖",
+    "category": "space",
+    "color_name": "회파랑 (빗창회색)",
+    "hex": "#7D8E97",
+    "lch_l": 57.98,
+    "lch_c": 7.96,
+    "lch_h": 239.02,
+    "match": "strong"
+  },
+  {
+    "keyword": "장마",
+    "category": "time",
+    "color_name": "회파랑 (빗창회색)",
+    "hex": "#7D8E97",
+    "lch_l": 57.98,
+    "lch_c": 7.96,
+    "lch_h": 239.02,
+    "match": "strong"
+  },
+  {
+    "keyword": "빗소리",
+    "category": "sensory",
+    "color_name": "회파랑 (빗창회색)",
+    "hex": "#7D8E97",
+    "lch_l": 57.98,
+    "lch_c": 7.96,
+    "lch_h": 239.02,
+    "match": "secondary"
+  },
+  {
+    "keyword": "비 오다",
+    "category": "space",
+    "color_name": "회파랑 (빗창회색)",
+    "hex": "#7D8E97",
+    "lch_l": 57.98,
+    "lch_c": 7.96,
+    "lch_h": 239.02,
+    "match": "strong"
+  },
+  {
+    "keyword": "비 내리다",
+    "category": "space",
+    "color_name": "회파랑 (빗창회색)",
+    "hex": "#7D8E97",
+    "lch_l": 57.98,
+    "lch_c": 7.96,
+    "lch_h": 239.02,
+    "match": "strong"
+  },
+  {
+    "keyword": "봄비",
+    "category": "space",
+    "color_name": "회파랑 (빗창회색)",
+    "hex": "#7D8E97",
+    "lch_l": 57.98,
+    "lch_c": 7.96,
+    "lch_h": 239.02,
+    "match": "strong"
+  },
+  {
+    "keyword": "장대비",
+    "category": "space",
+    "color_name": "회파랑 (빗창회색)",
+    "hex": "#7D8E97",
+    "lch_l": 57.98,
+    "lch_c": 7.96,
+    "lch_h": 239.02,
+    "match": "strong"
+  },
+  {
+    "keyword": "소나기",
+    "category": "space",
+    "color_name": "회파랑 (빗창회색)",
+    "hex": "#7D8E97",
+    "lch_l": 57.98,
+    "lch_c": 7.96,
+    "lch_h": 239.02,
+    "match": "strong"
+  },
+  {
+    "keyword": "가랑비",
+    "category": "space",
+    "color_name": "회파랑 (빗창회색)",
+    "hex": "#7D8E97",
+    "lch_l": 57.98,
+    "lch_c": 7.96,
+    "lch_h": 239.02,
+    "match": "strong"
+  },
+  {
+    "keyword": "이슬비",
+    "category": "space",
+    "color_name": "회파랑 (빗창회색)",
+    "hex": "#7D8E97",
+    "lch_l": 57.98,
+    "lch_c": 7.96,
+    "lch_h": 239.02,
+    "match": "strong"
+  },
+  {
+    "keyword": "빗방울",
+    "category": "space",
+    "color_name": "회파랑 (빗창회색)",
+    "hex": "#7D8E97",
+    "lch_l": 57.98,
+    "lch_c": 7.96,
+    "lch_h": 239.02,
+    "match": "strong"
+  },
+  {
+    "keyword": "빗줄기",
+    "category": "space",
+    "color_name": "회파랑 (빗창회색)",
+    "hex": "#7D8E97",
+    "lch_l": 57.98,
+    "lch_c": 7.96,
+    "lch_h": 239.02,
+    "match": "strong"
+  },
+  {
+    "keyword": "빗물",
+    "category": "space",
+    "color_name": "회파랑 (빗창회색)",
+    "hex": "#7D8E97",
+    "lch_l": 57.98,
+    "lch_c": 7.96,
+    "lch_h": 239.02,
+    "match": "strong"
+  },
+  {
+    "keyword": "비",
+    "category": "space",
+    "color_name": "회파랑 (빗창회색)",
+    "hex": "#7D8E97",
+    "lch_l": 57.98,
+    "lch_c": 7.96,
+    "lch_h": 239.02,
+    "match": "strong"
+  },
+  {
+    "keyword": "시골",
+    "category": "space",
+    "color_name": "흐린 주황 (툇마루색)",
+    "hex": "#B38865",
+    "lch_l": 60.01,
+    "lch_c": 27.78,
+    "lch_h": 64.77,
+    "match": "strong"
+  },
+  {
+    "keyword": "외갓집",
+    "category": "space",
+    "color_name": "흐린 주황 (툇마루색)",
+    "hex": "#B38865",
+    "lch_l": 60.01,
+    "lch_c": 27.78,
+    "lch_h": 64.77,
+    "match": "strong"
+  },
+  {
+    "keyword": "외가",
+    "category": "space",
+    "color_name": "흐린 주황 (툇마루색)",
+    "hex": "#B38865",
+    "lch_l": 60.01,
+    "lch_c": 27.78,
+    "lch_h": 64.77,
+    "match": "strong"
+  },
+  {
+    "keyword": "할머니",
+    "category": "space",
+    "color_name": "흐린 주황 (툇마루색)",
+    "hex": "#B38865",
+    "lch_l": 60.01,
+    "lch_c": 27.78,
+    "lch_h": 64.77,
+    "match": "strong"
+  },
+  {
+    "keyword": "할아버지",
+    "category": "space",
+    "color_name": "흐린 주황 (툇마루색)",
+    "hex": "#B38865",
+    "lch_l": 60.01,
+    "lch_c": 27.78,
+    "lch_h": 64.77,
+    "match": "strong"
+  },
+  {
+    "keyword": "학교",
+    "category": "space",
+    "color_name": "탁한 초록 (분필초록)",
+    "hex": "#638D6D",
+    "lch_l": 54.87,
+    "lch_c": 24.81,
+    "lch_h": 149.65,
+    "match": "strong"
+  },
+  {
+    "keyword": "운동장",
+    "category": "space",
+    "color_name": "탁한 초록 (분필초록)",
+    "hex": "#638D6D",
+    "lch_l": 54.87,
+    "lch_c": 24.81,
+    "lch_h": 149.65,
+    "match": "strong"
+  },
+  {
+    "keyword": "교실",
+    "category": "space",
+    "color_name": "탁한 초록 (분필초록)",
+    "hex": "#638D6D",
+    "lch_l": 54.87,
+    "lch_c": 24.81,
+    "lch_h": 149.65,
+    "match": "strong"
+  },
+  {
+    "keyword": "독서실",
+    "category": "space",
+    "color_name": "탁한 초록 (분필초록)",
+    "hex": "#638D6D",
+    "lch_l": 54.87,
+    "lch_c": 24.81,
+    "lch_h": 149.65,
+    "match": "strong"
+  },
+  {
+    "keyword": "벚꽃",
+    "category": "memory_color",
+    "color_name": "흰 분홍 (벚꽃색)",
+    "hex": "#F0DFDF",
+    "lch_l": 90.15,
+    "lch_c": 6.18,
+    "lch_h": 19.85,
+    "match": "object"
+  },
+  {
+    "keyword": "꽃길",
+    "category": "space",
+    "color_name": "흰 분홍 (벚꽃색)",
+    "hex": "#F0DFDF",
+    "lch_l": 90.15,
+    "lch_c": 6.18,
+    "lch_h": 19.85,
+    "match": "strong"
+  },
+  {
+    "keyword": "꽃밭",
+    "category": "space",
+    "color_name": "흰 분홍 (벚꽃색)",
+    "hex": "#F0DFDF",
+    "lch_l": 90.15,
+    "lch_c": 6.18,
+    "lch_h": 19.85,
+    "match": "strong"
+  },
+  {
+    "keyword": "꽃잎",
+    "category": "memory_color",
+    "color_name": "흰 분홍 (벚꽃색)",
+    "hex": "#F0DFDF",
+    "lch_l": 90.15,
+    "lch_c": 6.18,
+    "lch_h": 19.85,
+    "match": "object"
+  },
+  {
+    "keyword": "꽃구경",
+    "category": "space",
+    "color_name": "흰 분홍 (벚꽃색)",
+    "hex": "#F0DFDF",
+    "lch_l": 90.15,
+    "lch_c": 6.18,
+    "lch_h": 19.85,
+    "match": "strong"
+  },
+  {
+    "keyword": "꽃 피다",
+    "category": "space",
+    "color_name": "흰 분홍 (벚꽃색)",
+    "hex": "#F0DFDF",
+    "lch_l": 90.15,
+    "lch_c": 6.18,
+    "lch_h": 19.85,
+    "match": "strong"
+  },
+  {
+    "keyword": "들꽃",
+    "category": "space",
+    "color_name": "흰 분홍 (벚꽃색)",
+    "hex": "#F0DFDF",
+    "lch_l": 90.15,
+    "lch_c": 6.18,
+    "lch_h": 19.85,
+    "match": "strong"
+  },
+  {
+    "keyword": "꽃향기",
+    "category": "sensory",
+    "color_name": "흰 분홍 (벚꽃색)",
+    "hex": "#F0DFDF",
+    "lch_l": 90.15,
+    "lch_c": 6.18,
+    "lch_h": 19.85,
+    "match": "secondary"
+  },
+  {
+    "keyword": "꽃나무",
+    "category": "space",
+    "color_name": "흰 분홍 (벚꽃색)",
+    "hex": "#F0DFDF",
+    "lch_l": 90.15,
+    "lch_c": 6.18,
+    "lch_h": 19.85,
+    "match": "strong"
+  },
+  {
+    "keyword": "꽃",
+    "category": "space",
+    "color_name": "흰 분홍 (벚꽃색)",
+    "hex": "#F0DFDF",
+    "lch_l": 90.15,
+    "lch_c": 6.18,
+    "lch_h": 19.85,
+    "match": "strong"
+  },
+  {
+    "keyword": "참외",
+    "category": "memory_color",
+    "color_name": "밝은 노랑 (참외색)",
+    "hex": "#EED059",
+    "lch_l": 83.97,
+    "lch_c": 61.34,
+    "lch_h": 92.71,
+    "match": "object"
+  },
+  {
+    "keyword": "귤",
+    "category": "memory_color",
+    "color_name": "밝은 주황 (귤색)",
+    "hex": "#FB9D59",
+    "lch_l": 73.12,
+    "lch_c": 57.42,
+    "lch_h": 59.58,
+    "match": "object"
+  },
+  {
+    "keyword": "감귤",
+    "category": "memory_color",
+    "color_name": "밝은 주황 (귤색)",
+    "hex": "#FB9D59",
+    "lch_l": 73.12,
+    "lch_c": 57.42,
+    "lch_h": 59.58,
+    "match": "object"
+  },
+  {
+    "keyword": "밀감",
+    "category": "memory_color",
+    "color_name": "밝은 주황 (귤색)",
+    "hex": "#FB9D59",
+    "lch_l": 73.12,
+    "lch_c": 57.42,
+    "lch_h": 59.58,
+    "match": "object"
+  },
+  {
+    "keyword": "홍시",
+    "category": "memory_color",
+    "color_name": "선명한 주황 (홍시색)",
+    "hex": "#C56C21",
+    "lch_l": 54.77,
+    "lch_c": 61.78,
+    "lch_h": 60.66,
+    "match": "object"
+  },
+  {
+    "keyword": "딸기",
+    "category": "memory_color",
+    "color_name": "선명한 빨강 (딸기색)",
+    "hex": "#E24942",
+    "lch_l": 53.31,
+    "lch_c": 69.8,
+    "lch_h": 32.72,
+    "match": "object"
+  },
+  {
+    "keyword": "포도",
+    "category": "memory_color",
+    "color_name": "진한 보라 (포도색)",
+    "hex": "#593F74",
+    "lch_l": 31.67,
+    "lch_c": 34.84,
+    "lch_h": 310.97,
+    "match": "object"
+  },
+  {
+    "keyword": "오이",
+    "category": "memory_color",
+    "color_name": "흐린 초록 (오이색)",
+    "hex": "#5D9669",
+    "lch_l": 57.23,
+    "lch_c": 33.85,
+    "lch_h": 147.88,
+    "match": "object"
+  },
+  {
+    "keyword": "솜사탕",
+    "category": "memory_color",
+    "color_name": "연한 분홍 (솜사탕색)",
+    "hex": "#FFDEE5",
+    "lch_l": 91.31,
+    "lch_c": 12.52,
+    "lch_h": 3.61,
+    "match": "object"
+  },
+  {
+    "keyword": "떡볶이",
+    "category": "memory_color",
+    "color_name": "진한 빨강 (떡볶이색)",
+    "hex": "#AB413A",
+    "lch_l": 42.37,
+    "lch_c": 50.79,
+    "lch_h": 32.11,
+    "match": "object"
+  },
+  {
+    "keyword": "군고구마",
+    "category": "memory_color",
+    "color_name": "갈색 (군고구마색)",
+    "hex": "#905A33",
+    "lch_l": 43.48,
+    "lch_c": 36.34,
+    "lch_h": 59.78,
+    "match": "object"
+  },
+  {
+    "keyword": "고구마",
+    "category": "memory_color",
+    "color_name": "갈색 (군고구마색)",
+    "hex": "#905A33",
+    "lch_l": 43.48,
+    "lch_c": 36.34,
+    "lch_h": 59.78,
+    "match": "object"
+  },
+  {
+    "keyword": "붕어빵",
+    "category": "memory_color",
+    "color_name": "주황 (붕어빵색)",
+    "hex": "#CA8F67",
+    "lch_l": 64.31,
+    "lch_c": 34.95,
+    "lch_h": 59.56,
+    "match": "object"
+  },
+  {
+    "keyword": "아이스크림",
+    "category": "memory_color",
+    "color_name": "흰 분홍 (아이스크림색)",
+    "hex": "#F8E6E8",
+    "lch_l": 92.74,
+    "lch_c": 6.57,
+    "lch_h": 10.87,
+    "match": "object"
+  },
+  {
+    "keyword": "빙과",
+    "category": "memory_color",
+    "color_name": "흰 분홍 (아이스크림색)",
+    "hex": "#F8E6E8",
+    "lch_l": 92.74,
+    "lch_c": 6.57,
+    "lch_h": 10.87,
+    "match": "object"
+  },
+  {
+    "keyword": "케이크",
+    "category": "memory_color",
+    "color_name": "흰 분홍 (케이크색)",
+    "hex": "#F8E6E8",
+    "lch_l": 92.74,
+    "lch_c": 6.57,
+    "lch_h": 10.87,
+    "match": "object"
+  },
+  {
+    "keyword": "생일케이크",
+    "category": "memory_color",
+    "color_name": "흰 분홍 (케이크색)",
+    "hex": "#F8E6E8",
+    "lch_l": 92.74,
+    "lch_c": 6.57,
+    "lch_h": 10.87,
+    "match": "object"
+  },
+  {
+    "keyword": "해바라기",
+    "category": "memory_color",
+    "color_name": "밝은 노랑 (해바라기색)",
+    "hex": "#DBB400",
+    "lch_l": 74.64,
+    "lch_c": 76.9,
+    "lch_h": 89.58,
+    "match": "object"
+  },
+  {
+    "keyword": "개나리",
+    "category": "memory_color",
+    "color_name": "밝은 노랑 (개나리색)",
+    "hex": "#F8CD00",
+    "lch_l": 83.77,
+    "lch_c": 84.61,
+    "lch_h": 89.88,
+    "match": "object"
+  },
+  {
+    "keyword": "진달래",
+    "category": "memory_color",
+    "color_name": "선명한 자주 (진달래색)",
+    "hex": "#D779BA",
+    "lch_l": 63.07,
+    "lch_c": 48.72,
+    "lch_h": 338.02,
+    "match": "object"
+  },
+  {
+    "keyword": "장미",
+    "category": "memory_color",
+    "color_name": "선명한 빨강 (장미색)",
+    "hex": "#BE2323",
+    "lch_l": 41.64,
+    "lch_c": 71.67,
+    "lch_h": 34.33,
+    "match": "object"
+  },
+  {
+    "keyword": "라벤더",
+    "category": "memory_color",
+    "color_name": "보라 (라벤더색)",
+    "hex": "#AB90CC",
+    "lch_l": 64.13,
+    "lch_c": 34.87,
+    "lch_h": 308.84,
+    "match": "object"
+  },
+  {
+    "keyword": "유채꽃",
+    "category": "memory_color",
+    "color_name": "밝은 노랑 (유채꽃색)",
+    "hex": "#F8CD00",
+    "lch_l": 83.77,
+    "lch_c": 84.61,
+    "lch_h": 89.88,
+    "match": "object"
+  },
+  {
+    "keyword": "유채",
+    "category": "memory_color",
+    "color_name": "밝은 노랑 (유채꽃색)",
+    "hex": "#F8CD00",
+    "lch_l": 83.77,
+    "lch_c": 84.61,
+    "lch_h": 89.88,
+    "match": "object"
+  },
+  {
+    "keyword": "수국",
+    "category": "memory_color",
+    "color_name": "남색 (수국색)",
+    "hex": "#7E9FD7",
+    "lch_l": 65.07,
+    "lch_c": 32.23,
+    "lch_h": 275.2,
+    "match": "object"
+  },
+  {
+    "keyword": "잔디",
+    "category": "memory_color",
+    "color_name": "초록 (잔디색)",
+    "hex": "#399D57",
+    "lch_l": 57.72,
+    "lch_c": 52.97,
+    "lch_h": 147.78,
+    "match": "object"
+  },
+  {
+    "keyword": "잔디밭",
+    "category": "memory_color",
+    "color_name": "초록 (잔디색)",
+    "hex": "#399D57",
+    "lch_l": 57.72,
+    "lch_c": 52.97,
+    "lch_h": 147.78,
+    "match": "object"
+  },
+  {
+    "keyword": "갈대",
+    "category": "memory_color",
+    "color_name": "회노랑 (갈대색)",
+    "hex": "#A89F7B",
+    "lch_l": 65.4,
+    "lch_c": 20.18,
+    "lch_h": 97.33,
+    "match": "object"
+  },
+  {
+    "keyword": "억새",
+    "category": "memory_color",
+    "color_name": "회노랑 (갈대색)",
+    "hex": "#A89F7B",
+    "lch_l": 65.4,
+    "lch_c": 20.18,
+    "lch_h": 97.33,
+    "match": "object"
+  },
+  {
+    "keyword": "모래",
+    "category": "memory_color",
+    "color_name": "연한 주황 (모래색)",
+    "hex": "#ECC9B2",
+    "lch_l": 83.35,
+    "lch_c": 18.39,
+    "lch_h": 61,
+    "match": "object"
+  },
+  {
+    "keyword": "모래사장",
+    "category": "memory_color",
+    "color_name": "연한 주황 (모래색)",
+    "hex": "#ECC9B2",
+    "lch_l": 83.35,
+    "lch_c": 18.39,
+    "lch_h": 61,
+    "match": "object"
+  },
+  {
+    "keyword": "백사장",
+    "category": "memory_color",
+    "color_name": "연한 주황 (모래색)",
+    "hex": "#ECC9B2",
+    "lch_l": 83.35,
+    "lch_c": 18.39,
+    "lch_h": 61,
+    "match": "object"
+  },
+  {
+    "keyword": "파도",
+    "category": "memory_color",
+    "color_name": "흐린 청록 (파도색)",
+    "hex": "#52B0AB",
+    "lch_l": 66.36,
+    "lch_c": 29.53,
+    "lch_h": 191.55,
+    "match": "object"
+  },
+  {
+    "keyword": "물결",
+    "category": "memory_color",
+    "color_name": "흐린 청록 (파도색)",
+    "hex": "#52B0AB",
+    "lch_l": 66.36,
+    "lch_c": 29.53,
+    "lch_h": 191.55,
+    "match": "object"
+  },
+  {
+    "keyword": "호수",
+    "category": "memory_color",
+    "color_name": "흐린 청록 (호수색)",
+    "hex": "#62908D",
+    "lch_l": 56.55,
+    "lch_c": 16.58,
+    "lch_h": 191.83,
+    "match": "object"
+  },
+  {
+    "keyword": "구름",
+    "category": "memory_color",
+    "color_name": "흰색 (구름색)",
+    "hex": "#EBEBEB",
+    "lch_l": 93.05,
+    "lch_c": 0,
+    "lch_h": 0,
+    "match": "object"
+  },
+  {
+    "keyword": "달",
+    "category": "light",
+    "color_name": "연한 노랑 (달색)",
+    "hex": "#F5ECC6",
+    "lch_l": 93.22,
+    "lch_c": 19.78,
+    "lch_h": 98.68,
+    "match": "secondary"
+  },
+  {
+    "keyword": "달빛",
+    "category": "light",
+    "color_name": "연한 노랑 (달색)",
+    "hex": "#F5ECC6",
+    "lch_l": 93.22,
+    "lch_c": 19.78,
+    "lch_h": 98.68,
+    "match": "secondary"
+  },
+  {
+    "keyword": "보름달",
+    "category": "light",
+    "color_name": "연한 노랑 (달색)",
+    "hex": "#F5ECC6",
+    "lch_l": 93.22,
+    "lch_c": 19.78,
+    "lch_h": 98.68,
+    "match": "secondary"
+  },
+  {
+    "keyword": "별",
+    "category": "light",
+    "color_name": "흰 노랑 (별색)",
+    "hex": "#EFEBDD",
+    "lch_l": 93.01,
+    "lch_c": 7.34,
+    "lch_h": 98.11,
+    "match": "secondary"
+  },
+  {
+    "keyword": "별빛",
+    "category": "light",
+    "color_name": "흰 노랑 (별색)",
+    "hex": "#EFEBDD",
+    "lch_l": 93.01,
+    "lch_c": 7.34,
+    "lch_h": 98.11,
+    "match": "secondary"
+  },
+  {
+    "keyword": "가로등",
+    "category": "light",
+    "color_name": "밝은 주황 (가로등색)",
+    "hex": "#FB9D59",
+    "lch_l": 73.12,
+    "lch_c": 57.42,
+    "lch_h": 59.58,
+    "match": "secondary"
+  },
+  {
+    "keyword": "촛불",
+    "category": "light",
+    "color_name": "밝은 주황 (촛불색)",
+    "hex": "#FB9D59",
+    "lch_l": 73.12,
+    "lch_c": 57.42,
+    "lch_h": 59.58,
+    "match": "secondary"
+  },
+  {
+    "keyword": "양초",
+    "category": "light",
+    "color_name": "밝은 주황 (촛불색)",
+    "hex": "#FB9D59",
+    "lch_l": 73.12,
+    "lch_c": 57.42,
+    "lch_h": 59.58,
+    "match": "secondary"
+  },
+  {
+    "keyword": "불꽃놀이",
+    "category": "light",
+    "color_name": "밝은 노랑 (불꽃놀이색)",
+    "hex": "#F8CD00",
+    "lch_l": 83.77,
+    "lch_c": 84.61,
+    "lch_h": 89.88,
+    "match": "secondary"
+  },
+  {
+    "keyword": "폭죽",
+    "category": "light",
+    "color_name": "밝은 노랑 (불꽃놀이색)",
+    "hex": "#F8CD00",
+    "lch_l": 83.77,
+    "lch_c": 84.61,
+    "lch_h": 89.88,
+    "match": "secondary"
+  },
+  {
+    "keyword": "우산",
+    "category": "memory_color",
+    "color_name": "진한 남색 (우산색)",
+    "hex": "#4A699D",
+    "lch_l": 44.22,
+    "lch_c": 31.94,
+    "lch_h": 277.62,
+    "match": "object"
+  },
+  {
+    "keyword": "장독대",
+    "category": "memory_color",
+    "color_name": "갈색 (장독대색)",
+    "hex": "#634632",
+    "lch_l": 32.4,
+    "lch_c": 19.53,
+    "lch_h": 60.23,
+    "match": "object"
+  },
+  {
+    "keyword": "장독",
+    "category": "memory_color",
+    "color_name": "갈색 (장독대색)",
+    "hex": "#634632",
+    "lch_l": 32.4,
+    "lch_c": 19.53,
+    "lch_h": 60.23,
+    "match": "object"
+  },
+  {
+    "keyword": "항아리",
+    "category": "memory_color",
+    "color_name": "갈색 (장독대색)",
+    "hex": "#634632",
+    "lch_l": 32.4,
+    "lch_c": 19.53,
+    "lch_h": 60.23,
+    "match": "object"
+  },
+  {
+    "keyword": "마루",
+    "category": "memory_color",
+    "color_name": "갈색 (마루색)",
+    "hex": "#9E7F6A",
+    "lch_l": 55.57,
+    "lch_c": 18.22,
+    "lch_h": 61.1,
+    "match": "object"
+  },
+  {
+    "keyword": "툇마루",
+    "category": "memory_color",
+    "color_name": "갈색 (마루색)",
+    "hex": "#9E7F6A",
+    "lch_l": 55.57,
+    "lch_c": 18.22,
+    "lch_h": 61.1,
+    "match": "object"
+  },
+  {
+    "keyword": "대청마루",
+    "category": "memory_color",
+    "color_name": "갈색 (마루색)",
+    "hex": "#9E7F6A",
+    "lch_l": 55.57,
+    "lch_c": 18.22,
+    "lch_h": 61.1,
+    "match": "object"
+  },
+  {
+    "keyword": "안심",
+    "category": "emotion",
+    "color_name": "갈색 (마루나무색)",
+    "hex": "#9E7F6A",
+    "lch_l": 55.57,
+    "lch_c": 18.22,
+    "lch_h": 61.1,
+    "match": "strong"
+  },
+  {
+    "keyword": "아빠",
+    "category": "emotion",
+    "color_name": "갈색 (마루나무색)",
+    "hex": "#9E7F6A",
+    "lch_l": 55.57,
+    "lch_c": 18.22,
+    "lch_h": 61.1,
+    "match": "weak"
+  },
+  {
+    "keyword": "칠판",
+    "category": "memory_color",
+    "color_name": "어두운 초록 (칠판색)",
+    "hex": "#39553F",
+    "lch_l": 33.41,
+    "lch_c": 18.41,
+    "lch_h": 148.7,
+    "match": "object"
+  },
+  {
+    "keyword": "자전거",
+    "category": "memory_color",
+    "color_name": "회색 (자전거색)",
+    "hex": "#868686",
+    "lch_l": 55.93,
+    "lch_c": 0,
+    "lch_h": 0,
+    "match": "object"
+  },
+  {
+    "keyword": "회전목마",
+    "category": "memory_color",
+    "color_name": "밝은 노랑 (회전목마색)",
+    "hex": "#EED059",
+    "lch_l": 83.97,
+    "lch_c": 61.34,
+    "lch_h": 92.71,
+    "match": "object"
+  },
+  {
+    "keyword": "풍선",
+    "category": "memory_color",
+    "color_name": "선명한 빨강 (풍선색)",
+    "hex": "#E24942",
+    "lch_l": 53.31,
+    "lch_c": 69.8,
+    "lch_h": 32.72,
+    "match": "object"
+  },
+  {
+    "keyword": "목도리",
+    "category": "memory_color",
+    "color_name": "빨간 갈색 (목도리색)",
+    "hex": "#96534C",
+    "lch_l": 43.05,
+    "lch_c": 31.62,
+    "lch_h": 31.2,
+    "match": "object"
+  },
+  {
+    "keyword": "털목도리",
+    "category": "memory_color",
+    "color_name": "빨간 갈색 (목도리색)",
+    "hex": "#96534C",
+    "lch_l": 43.05,
+    "lch_c": 31.62,
+    "lch_h": 31.2,
+    "match": "object"
+  },
+  {
+    "keyword": "연탄",
+    "category": "memory_color",
+    "color_name": "어두운 회색 (연탄색)",
+    "hex": "#333333",
+    "lch_l": 21.25,
+    "lch_c": 0,
+    "lch_h": 0,
+    "match": "object"
+  },
+  {
+    "keyword": "기차",
+    "category": "memory_color",
+    "color_name": "진한 남색 (기차색)",
+    "hex": "#4A699D",
+    "lch_l": 44.22,
+    "lch_c": 31.94,
+    "lch_h": 277.62,
+    "match": "object"
+  },
+  {
+    "keyword": "열차",
+    "category": "memory_color",
+    "color_name": "진한 남색 (기차색)",
+    "hex": "#4A699D",
+    "lch_l": 44.22,
+    "lch_c": 31.94,
+    "lch_h": 277.62,
+    "match": "object"
+  },
+  {
+    "keyword": "커피",
+    "category": "memory_color",
+    "color_name": "어두운 갈색 (커피색)",
+    "hex": "#462C19",
+    "lch_l": 20.73,
+    "lch_c": 19.65,
+    "lch_h": 60.61,
+    "match": "object"
+  },
+  {
+    "keyword": "커피잔",
+    "category": "memory_color",
+    "color_name": "어두운 갈색 (커피색)",
+    "hex": "#462C19",
+    "lch_l": 20.73,
+    "lch_c": 19.65,
+    "lch_h": 60.61,
+    "match": "object"
+  },
+  {
+    "keyword": "녹차",
+    "category": "memory_color",
+    "color_name": "흐린 연두 (녹차색)",
+    "hex": "#92A86A",
+    "lch_l": 65.87,
+    "lch_c": 34.81,
+    "lch_h": 121.89,
+    "match": "object"
+  },
+  {
+    "keyword": "소나무",
+    "category": "memory_color",
+    "color_name": "어두운 초록 (소나무색)",
+    "hex": "#225A31",
+    "lch_l": 33.72,
+    "lch_c": 33.96,
+    "lch_h": 147.35,
+    "match": "object"
+  },
+  {
+    "keyword": "솔숲",
+    "category": "memory_color",
+    "color_name": "어두운 초록 (소나무색)",
+    "hex": "#225A31",
+    "lch_l": 33.72,
+    "lch_c": 33.96,
+    "lch_h": 147.35,
+    "match": "object"
+  },
+  {
+    "keyword": "낙엽",
+    "category": "memory_color",
+    "color_name": "갈색 (낙엽색)",
+    "hex": "#B07750",
+    "lch_l": 55.08,
+    "lch_c": 35.3,
+    "lch_h": 59.33,
+    "match": "object"
+  },
+  {
+    "keyword": "얼음",
+    "category": "memory_color",
+    "color_name": "흰 파랑 (얼음색)",
+    "hex": "#DEEEF6",
+    "lch_l": 93.16,
+    "lch_c": 6.78,
+    "lch_h": 236.61,
+    "match": "object"
+  },
+  {
+    "keyword": "빙판",
+    "category": "memory_color",
+    "color_name": "흰 파랑 (얼음색)",
+    "hex": "#DEEEF6",
+    "lch_l": 93.16,
+    "lch_c": 6.78,
+    "lch_h": 236.61,
+    "match": "object"
+  },
+  {
+    "keyword": "고드름",
+    "category": "memory_color",
+    "color_name": "흰 파랑 (얼음색)",
+    "hex": "#DEEEF6",
+    "lch_l": 93.16,
+    "lch_c": 6.78,
+    "lch_h": 236.61,
+    "match": "object"
+  },
+  {
+    "keyword": "소중한",
+    "category": "quality",
+    "color_name": "소중한 — 보정 규칙 (색 아님): 채도 ×1",
+    "hex": null,
+    "lch_l": null,
+    "lch_c": null,
+    "lch_h": null,
+    "match": "strong"
+  },
+  {
+    "keyword": "기억에 남는",
+    "category": "quality",
+    "color_name": "소중한 — 보정 규칙 (색 아님): 채도 ×1",
+    "hex": null,
+    "lch_l": null,
+    "lch_c": null,
+    "lch_h": null,
+    "match": "strong"
+  },
+  {
+    "keyword": "따뜻한",
+    "category": "quality",
+    "color_name": "소중한 — 보정 규칙 (색 아님): 채도 ×1",
+    "hex": null,
+    "lch_l": null,
+    "lch_c": null,
+    "lch_h": null,
+    "match": "weak"
+  },
+  {
+    "keyword": "아련",
+    "category": "quality",
+    "color_name": "희미한 — 보정 규칙 (색 아님): 채도 ×0.7, 명도를 중간 쪽으로 0.25",
+    "hex": null,
+    "lch_l": null,
+    "lch_c": null,
+    "lch_h": null,
+    "match": "strong"
+  },
+  {
+    "keyword": "희미",
+    "category": "quality",
+    "color_name": "희미한 — 보정 규칙 (색 아님): 채도 ×0.7, 명도를 중간 쪽으로 0.25",
+    "hex": null,
+    "lch_l": null,
+    "lch_c": null,
+    "lch_h": null,
+    "match": "strong"
+  },
+  {
+    "keyword": "오래된",
+    "category": "quality",
+    "color_name": "희미한 — 보정 규칙 (색 아님): 채도 ×0.7, 명도를 중간 쪽으로 0.25",
+    "hex": null,
+    "lch_l": null,
+    "lch_c": null,
+    "lch_h": null,
+    "match": "strong"
+  },
+  {
+    "keyword": "어렴풋",
+    "category": "quality",
+    "color_name": "희미한 — 보정 규칙 (색 아님): 채도 ×0.7, 명도를 중간 쪽으로 0.25",
+    "hex": null,
+    "lch_l": null,
+    "lch_c": null,
+    "lch_h": null,
+    "match": "strong"
+  },
+  {
+    "keyword": "생생",
+    "category": "quality",
+    "color_name": "생생한 — 보정 규칙 (색 아님): 채도 ×1.2, 명도를 바깥쪽으로 0.1",
+    "hex": null,
+    "lch_l": null,
+    "lch_c": null,
+    "lch_h": null,
+    "match": "strong"
+  },
+  {
+    "keyword": "선명",
+    "category": "quality",
+    "color_name": "생생한 — 보정 규칙 (색 아님): 채도 ×1.2, 명도를 바깥쪽으로 0.1",
+    "hex": null,
+    "lch_l": null,
+    "lch_c": null,
+    "lch_h": null,
+    "match": "weak"
+  },
+  {
+    "keyword": "잊을 수 없는",
+    "category": "quality",
+    "color_name": "생생한 — 보정 규칙 (색 아님): 채도 ×1.2, 명도를 바깥쪽으로 0.1",
+    "hex": null,
+    "lch_l": null,
+    "lch_c": null,
+    "lch_h": null,
+    "match": "strong"
+  },
+  {
+    "keyword": "또렷",
+    "category": "quality",
+    "color_name": "생생한 — 보정 규칙 (색 아님): 채도 ×1.2, 명도를 바깥쪽으로 0.1",
+    "hex": null,
+    "lch_l": null,
+    "lch_c": null,
+    "lch_h": null,
+    "match": "strong"
+  }
+]

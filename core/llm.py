@@ -134,7 +134,24 @@ def extract_features(masked_text: str, kb) -> Features:
 
 def _stub_extract(text: str, kb) -> Features:
     """키 없이 동작하는 결정론 추출: 축별로 KB 키워드가 처음 등장하는 위치 주변을 phrase 로."""
+    cues = None
+    try:                                              # cues-0.1: 낱말 경계·약한 낱말·막는 단서로 고른다 ('비행기' ↛ 비, '아빠' 혼자 ↛ 든든함)
+        from core.kb import CUES_ON
+        if CUES_ON:
+            from core.cues import Cues, analyze
+            cues, an = Cues(kb), analyze(text)
+    except Exception:
+        cues = None
+
     def pick(axis):
+        if cues is not None:
+            if cues.blocked(axis, an):
+                return AxisFeature(phrase=text[:40], label="")
+            strong = [h for h in cues.hits(axis, an) if h.strength != "weak"]
+            prim = [h for h in strong if h.strength == "strong"] or strong
+            if prim:
+                return AxisFeature(phrase=prim[0].keyword, label=prim[0].kb_id)
+            return AxisFeature(phrase=text[:40], label="")     # 문장 전체로 코퍼스·검색이 정하게
         best = None
         for e in kb.by_axis[axis]:
             for k in e.get("keywords", []):
@@ -147,7 +164,15 @@ def _stub_extract(text: str, kb) -> Features:
     objs = []
     try:                                              # 사전에 있는 사물 낱말이 문장에 나오면 그 순서대로 (최대 3개)
         from core.objects import _lexicon
-        found = sorted((text.find(w), w) for w in _lexicon() if len(w) >= 2 and text.find(w) >= 0)
+        if cues is not None:                          # 사물 이름은 '명사로' 나온 것만 (이별 ⊅ 별)
+            from core.cues import find_noun, sense_excluded
+            hit = lambda w: ([] if sense_excluded(w, an, cues.sense) else find_noun(w, an))
+            from core.objects import object_table       # 코퍼스 팀 확정 사물 표(꽃잎·달빛…)도 찾는다
+            words = set(_lexicon()) | {v.get("word", k) for k, v in object_table().items()}
+            found = sorted((h[0], w) for w in words if len(w) >= 1 for h in [hit(w)] if h)
+            found = [(i, w) for i, w in found if not any(i2 <= i < i2 + len(w2) and w2 != w and len(w2) > len(w) for i2, w2 in found)]
+        else:
+            found = sorted((text.find(w), w) for w in _lexicon() if len(w) >= 2 and text.find(w) >= 0)
         from core.rag import get_rag                   # eng-2.2: 사전에 없는 사물은 코퍼스 사물 이름에서도 찾는다
         rag = get_rag()
         if rag is not None:
@@ -164,14 +189,49 @@ def _stub_extract(text: str, kb) -> Features:
                     memory_quality=pick("quality"), objects=objs,
                     affect={"valence": aff["valence"], "arousal": aff["arousal"]}, memory_summary=text[:30])
 
+_GEMINI = None
+
+
+def _gemini_client():
+    """Gemini 클라이언트를 한 번 만들어 계속 쓴다. 호출마다 genai.Client(...) 를 새로 만들면 그 임시 객체가 요청이 끝나기 전에
+    정리되면서 연결이 닫혀 임베딩 요청이 간헐적으로 실패했다 (2026-10-11 로컬에서 재현)."""
+    global _GEMINI
+    if _GEMINI is None:
+        from google import genai
+        _GEMINI = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+    return _GEMINI
+
+
+def embed_provider() -> str:
+    """KB 임베딩 제공자: gemini(기본) | openai. 바꾸면 임베딩 파일을 다시 만들고 기준선을 다시 잴 것 (점수 분포가 다르다)."""
+    return (os.getenv("EMBED_PROVIDER") or "gemini").lower()
+
+
+def embed_model_name() -> str:
+    if embed_provider() == "openai":
+        from core.embed_cache import OPENAI_MODEL
+        return f"openai:{OPENAI_MODEL}"
+    return EMBED_MODEL
+
 
 def embed_texts(texts: list[str], task: str = "RETRIEVAL_DOCUMENT") -> list[list[float]]:
-    """선택 기능: 임베딩 검색용. GEMINI_API_KEY 와 google-genai 가 있어야 한다."""
+    """선택 기능: 임베딩 검색용. 기본 Gemini(GEMINI_API_KEY). EMBED_PROVIDER=openai 면 OpenAI(OPENAI_API_KEY)."""
+    if embed_provider() == "openai":
+        from core.embed_cache import cached, openai_embed, OPENAI_MODEL
+        call_o = lambda b: openai_embed(b, EMBED_DIM)
+        if task == "RETRIEVAL_QUERY":
+            return cached(f"openai:{OPENAI_MODEL}:{EMBED_DIM}:{task}", texts, call_o)
+        return call_o(texts)
     if not os.getenv("GEMINI_API_KEY"):
         raise RuntimeError("임베딩 제공자 미설정 (GEMINI_API_KEY 필요) — RETRIEVER=ngram 을 쓰세요")
-    from google import genai
     from google.genai import types
-    r = genai.Client(api_key=os.environ["GEMINI_API_KEY"]).models.embed_content(
-        model=EMBED_MODEL, contents=texts,
-        config=types.EmbedContentConfig(task_type=task, output_dimensionality=EMBED_DIM))
-    return [e.values for e in r.embeddings]
+
+    def call(batch: list[str]) -> list[list[float]]:
+        r = _gemini_client().models.embed_content(
+            model=EMBED_MODEL, contents=batch,
+            config=types.EmbedContentConfig(task_type=task, output_dimensionality=EMBED_DIM))
+        return [e.values for e in r.embeddings]
+    if task == "RETRIEVAL_QUERY":                       # 질의만 캐시 (core/embed_cache.py)
+        from core.embed_cache import cached
+        return cached(f"gemini:{EMBED_MODEL}:{EMBED_DIM}:{task}", texts, call)
+    return call(texts)

@@ -116,7 +116,8 @@ def validate(scenes: list[dict], objects: list[dict], research: list[dict], kb) 
 
 def load(kb, directory: Path | None = None) -> Corpus:
     d = Path(directory or CORPUS_DIR)
-    raw = {f: (d / f).read_bytes() if (d / f).exists() else b"" for f in FILES}
+    # 줄바꿈을 LF 로 맞춘 뒤 해시한다 — Windows 에서 git 이 CRLF 로 받아도 서버(LF)와 같은 코퍼스 버전이 나와야 임베딩 파일을 같이 쓴다
+    raw = {f: (d / f).read_bytes().replace(b"\r\n", b"\n") if (d / f).exists() else b"" for f in FILES}
     scenes = _read_jsonl(d / FILES[0]) if raw[FILES[0]] else []
     objects = _read_jsonl(d / FILES[1]) if raw[FILES[1]] else []
     research = _read_jsonl(d / FILES[2]) if raw[FILES[2]] else []

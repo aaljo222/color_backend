@@ -124,6 +124,12 @@ class CorpusRAG:
         self.emb = _embedding_backend(corpus, ids)
         self.method = self.emb.name if self.emb else "ngram"
         env_tau = os.getenv("CORPUS_TAU")
+        wanted = (os.getenv("CORPUS_METHOD") or "auto").lower()
+        if env_tau and tau is None and self.method == "ngram" and wanted != "ngram":
+            # CORPUS_TAU 는 임베딩용으로 정한 값 — 임베딩을 못 써서 ngram 으로 내려가면 ngram 기본값 (2026-10-13)
+            logger.warning(f"[RAG] CORPUS_TAU={env_tau} 는 임베딩용 — ngram 기본값 {DEFAULT_TAU['ngram']} 사용 "
+                           f"(ngram 에 따로 정하려면 CORPUS_METHOD=ngram)")
+            env_tau = None
         self.tau = float(tau if tau is not None else env_tau or DEFAULT_TAU[self.method])
 
     # ── 검색 ──
@@ -162,8 +168,11 @@ class CorpusRAG:
     def objects_in(self, text: str, limit: int = 3) -> list[str]:
         """문장에 실제로 나온 코퍼스 사물 이름 (문장 속 순서, 겹치는 짧은 이름 제외). 키 없는 stub 추출용."""
         found, taken = [], []
+        from core.cues import analyze, find_noun, sense_excluded, get_cues_raw
+        an, sense = analyze(text), get_cues_raw().get("sense_exclude", {})
         for n in self.corpus.object_names():
-            i = text.find(n)
+            hits = [] if sense_excluded(n, an, sense) else find_noun(n, an)   # 이별 ⊅ 별, 달리던 ⊅ 달
+            i = hits[0] if hits else -1
             if i < 0 or any(a <= i < b or a < i + len(n) <= b for a, b in taken):
                 continue
             taken.append((i, i + len(n)))
