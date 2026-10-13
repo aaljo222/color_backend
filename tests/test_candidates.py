@@ -177,3 +177,10 @@ def test_dark_muted_warm_colors_are_brown():                    # 2026-10-13 운
     assert fam("#871118") == "빨강" and fam("#8B3A3A") == "빨강"     # 짙은 빨강·버건디는 갈색이 아니다
     refs = [r for r in get_rag().corpus.research if "갈색" in (r.get("hues") or [])]
     assert refs and refs[0]["emotions"] == []                      # 갈색은 강한 감정 짝이 없다 (없는 근거를 만들지 않는다)
+
+
+def test_candidate_labels_are_short_names():                     # 2026-10-14 10문장: '밝은 밝은 노랑 (회전목마금빛) · 강조' 같은 이름
+    for t in SENTENCES:
+        a = analyze(t, engine="image_first")
+        for c in a["candidates"]:
+            assert "(" not in c["label"] and "밝은 밝은" not in c["label"] and "짙은 짙은" not in c["label"], c["label"]

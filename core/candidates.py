@@ -145,7 +145,8 @@ def build(res: dict, kb, objects: list, affect, base_palette: list, masked: str)
             add(ax, p["lch"], p.get("color_name", ax), FALLBACK_W if b.get("how") == "fallback" else AXIS_W)
     emo = kb.by_id[res["emotion"].kb_id]
     if not any(c.origin == "emotion" and c.weight < w_emo for c in raw) and emo.get("accent_lch"):
-        add("emotion", emo["accent_lch"], f"{emo.get('name_ko') or emo['name']} · 강조", 0.5 * w_emo)
+        from core.synth import _display_name                # '밝은 노랑 (회전목마금빛)' → '회전목마금빛' (계산 팔레트와 같은 이름)
+        add("emotion", emo["accent_lch"], f"{_display_name(emo)} · 강조", 0.5 * w_emo)
     for i, o in enumerate(objects or []):
         add("object", o.lch, o.name, OBJECT_W * (1.1 if i == 0 else 1.0), tuple(o.descriptor))
     for w, d in find_color_terms(masked):
