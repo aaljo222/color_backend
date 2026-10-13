@@ -35,7 +35,7 @@ LARGE_N = int(os.getenv("CAND_LARGE_N", "4"))          # 넓게 칠할 색 수 =
 LARGE_SHARE = float(os.getenv("CAND_LARGE_SHARE", "0.80"))
 MERGE_DE = float(os.getenv("CAND_MERGE_DE", "7"))            # 이보다 가까운 두 후보는 하나로 (가중치는 큰 쪽)
 MAX_CANDS = int(os.getenv("CAND_MAX", "12"))
-CAND_VERSION = "cand-1"
+CAND_VERSION = "cand-2"   # cand-2 (2026-10-13): 곁색은 부모 색과 한 묶음으로 순위 · 한 묶음에서 칩 하나
 
 # 문장 속 색 말 → 등급 (색상 계열·밝기 1~9·채도 0~5). 설계값 — 코퍼스 팀 검토 대상. 긴 말 먼저 찾는다.
 COLOR_TERMS = {
@@ -66,6 +66,11 @@ class Cand:
     tier: str = "small"
     area: float = 0.0
     merged: list = field(default_factory=list)
+    parent: "Cand | None" = None   # 곁색이면 부모 후보 (같은 색 묶음)
+
+    @property
+    def family(self) -> str:
+        return self.parent.cid if self.parent is not None else self.cid
 
     @property
     def lab(self):
@@ -74,6 +79,7 @@ class Cand:
     def public(self) -> dict:
         return {"id": self.cid, "hex": self.hex, "lch": [round(float(x), 2) for x in self.lch], "origin": self.origin,
                 "label": self.label, "weight": round(self.weight, 3), "tier": self.tier, "area_target": round(self.area, 3),
+                "family": self.family,
                 **({"merged": self.merged} if self.merged else {})}
 
 
@@ -163,6 +169,7 @@ def build(res: dict, kb, objects: list, affect, base_palette: list, masked: str)
             lab = lch2lab(lch)
             if all(delta_e_2000(lab, x.lab) >= MERGE_DE for x in cands):
                 add("shade", lch, f"{tag} {c.label}", SHADE_W)
+                raw[-1].parent = c
                 cands.append(raw[-1])
     cands = sorted(cands, key=lambda c: -c.weight)[:MAX_CANDS]
     for i, c in enumerate(cands):

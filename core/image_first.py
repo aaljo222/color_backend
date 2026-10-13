@@ -493,7 +493,10 @@ def measure_snapped(img: Image.Image, cands: list, seed: int = 0) -> dict:
     """그림 → 후보 중 4색 (eng-2.6). 4색의 HEX 는 언제나 후보 HEX 그대로다 — 그리기 전 문장 분석이 정한 색 밖으로 나가지 않는다.
 
       ① 모든 픽셀을 가장 가까운 후보에 배정 (Lab 거리) → 후보마다 그림 속 면적
-      ② 면적 큰 후보 3개 + 남은 후보 중 주조색과 가장 대비되는 1개(면적 1% 이상) = 4색
+      ② 곁색은 부모 색과 한 묶음(family)으로 면적을 합친다 (cand-2, 2026-10-13 운영: 화가가 중간 톤으로 칠하면
+         픽셀이 곁색으로 몰려 칩 3개가 '목표 1%' 곁색이 되고, 한 계열이 두 칸을 차지했다)
+         면적 큰 묶음 3개 + 남은 묶음 중 주조색과 가장 대비되는 1개(면적 1% 이상) = 4색.
+         묶음마다 칩은 그 묶음에서 그림에 가장 넓게 나온 후보 하나 (부모든 곁색이든 — 그림에 실제로 있는 색)
       ③ 전체 픽셀을 이 4색에 다시 배정 → 면적비
       ④ 충실도: 4색마다 '배정된 픽셀의 실제 색'(핵심 40% 평균)과 후보 색의 ΔE00 — 화가가 그 색을 얼마나 그대로 칠했나
       ⑤ 대표도: 픽셀 1,500개 중, 배정된 4색 무리의 실제 색과 ΔE00 ≤ COVER_DE 인 비율 (eng-2.0 과 같은 뜻)
@@ -504,16 +507,22 @@ def measure_snapped(img: Image.Image, cands: list, seed: int = 0) -> dict:
     d2 = ((lab[:, None, :] - C[None, :, :]) ** 2).sum(-1)
     lbl = d2.argmin(1)
     share = np.bincount(lbl, minlength=len(cands)) / len(lab)
-    order = [int(i) for i in np.argsort(-share, kind="stable")]
-    picked = [i for i in order if share[i] > 0][:3]
-    if len(picked) < 3:                                          # 그림에 거의 안 나온 후보밖에 없으면 가중치 순으로 채운다
-        picked += [i for i in range(len(cands)) if i not in picked][:3 - len(picked)]
+    fam = [getattr(c, "family", c.cid) for c in cands]
+    fams = list(dict.fromkeys(fam))                              # 후보 순서(가중치 순) 그대로
+    fshare = {f: float(sum(share[i] for i in range(len(cands)) if fam[i] == f)) for f in fams}
+    def rep(f):                                                  # 묶음의 대표 = 그림에 가장 넓게 나온 구성원 (같으면 가중치 순 = 부모)
+        return max((i for i in range(len(cands)) if fam[i] == f), key=lambda i: (share[i], -i))
+    forder = sorted(fams, key=lambda f: (-fshare[f], fams.index(f)))
+    top = [f for f in forder if fshare[f] > 0][:3]
+    if len(top) < 3:                                             # 그림에 거의 안 나온 묶음밖에 없으면 가중치 순으로 채운다
+        top += [f for f in fams if f not in top][:3 - len(top)]
+    picked = [rep(f) for f in top]
     dom = C[picked[0]]
-    rest = [i for i in order if i not in picked]
+    rest = [f for f in forder if f not in top]
     if rest:
-        def contrast(i):
-            return delta_e_2000(C[i], dom) * (1 if share[i] >= 0.01 else 0.2)
-        picked.append(max(rest, key=contrast))
+        def contrast(f):
+            return delta_e_2000(C[rep(f)], dom) * (1 if fshare[f] >= 0.01 else 0.2)
+        picked.append(rep(max(rest, key=contrast)))
     cents = C[picked]
     lbl4 = ((lab[:, None, :] - cents[None, :, :]) ** 2).sum(-1).argmin(1)
     ratios = np.bincount(lbl4, minlength=len(picked)) / len(lab)

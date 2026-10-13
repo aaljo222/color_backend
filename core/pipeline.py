@@ -132,6 +132,17 @@ AFFECT_RECONCILE = os.getenv("AFFECT_RECONCILE", "1") == "1"
 RECONCILE_GAP = int(os.getenv("AFFECT_RECONCILE_GAP", "2"))
 
 
+def _keyword_in_sentence(r, masked: str) -> bool:
+    """키워드 해석의 낱말이 '사용자 문장'에 있는가. 키워드는 모델이 쓴 구(phrase)에서 찾기 때문에, 문장에 없는 낱말
+    (모델이 요약하며 붙인 '그리움' 등)로 풀린 경우가 있다 (2026-10-13 운영: 수박 문장 → 구 속 '그리움' → 그리움 고정)."""
+    ref = r.ref or ""
+    words = [w for w in ref[3:].split("|") if w] if ref.startswith("kw:") else []
+    if not words:
+        return False
+    s = "".join((masked or "").split())
+    return any("".join(w.split()) in s for w in words)
+
+
 def reconcile_emotion(res_emo, feats_affect, kb, rag, masked: str):
     """감정 라벨과 정서 등급이 서로 어긋나면 다시 고른다 (eng-2.6).
 
@@ -140,8 +151,10 @@ def reconcile_emotion(res_emo, feats_affect, kb, rag, masked: str):
       후보 = 기준 쾌가 이 기억의 쾌와 1칸 이내인 감정 항목
       고르기 = 문장 전체로 코퍼스 장면 문단을 검색한 점수가 가장 높은 항목 (같으면 정서 거리가 가까운 쪽)
     """
-    if not AFFECT_RECONCILE or feats_affect is None or res_emo.how in ("keyword", "fallback"):
+    if not AFFECT_RECONCILE or feats_affect is None or res_emo.how == "fallback":
         return res_emo
+    if res_emo.how == "keyword" and _keyword_in_sentence(res_emo, masked):
+        return res_emo                                   # 사용자 문장에 감정 낱말이 직접 있으면 그대로 믿는다
     a = feats_affect.model_dump() if hasattr(feats_affect, "model_dump") else dict(feats_affect)
     try:
         v, ar = int(a.get("valence") or 0), int(a.get("arousal") or 0)

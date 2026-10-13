@@ -101,8 +101,12 @@ def test_emotion_label_is_rechecked_against_affect():          # 쾌 4 인데 '�
     assert new.kb_id != "longing_melancholy" and new.how == "affect_check" and abs(kb.by_id[new.kb_id]["affect"][0] - 4) <= 1
     same = reconcile_emotion(r, {"valence": 2, "arousal": 2}, kb, get_rag(), SENTENCES[0])
     assert same is r                                             # 어긋나지 않으면 그대로
-    kw = Resolution("emotion", "쓸쓸", "longing_melancholy", "keyword", 1.0)
-    assert reconcile_emotion(kw, {"valence": 5, "arousal": 5}, kb, get_rag(), "") is kw   # 문장에 직접 쓴 감정 낱말은 믿는다
+    kw = Resolution("emotion", "쓸쓸한 저녁", "longing_melancholy", "keyword", 1.0, "kw:쓸쓸")
+    assert reconcile_emotion(kw, {"valence": 5, "arousal": 5}, kb, get_rag(), "혼자 걷던 쓸쓸한 저녁") is kw   # 문장에 직접 쓴 감정 낱말은 믿는다
+    # 모델이 쓴 구에만 있는 낱말(문장엔 없음)로 풀린 키워드는 믿지 않는다 (2026-10-13 운영: 수박 문장 → '그리움')
+    kw2 = Resolution("emotion", "유년의 그리움", "longing_melancholy", "keyword", 1.0, "kw:그리움")
+    new2 = reconcile_emotion(kw2, {"valence": 4, "arousal": 3}, kb, get_rag(), SENTENCES[0])
+    assert new2.kb_id != "longing_melancholy" and new2.how == "affect_check"
 
 
 def test_color_links_follow_each_chip():                       # 근거 링크가 늘 같던 문제: 칩 색에 따라 달라진다
@@ -130,3 +134,29 @@ def test_variant_gives_another_painting_but_stays_locked():   # 변형 번호: �
     assert a1["variant"] == 1 and {p["hex"] for p in a1["palette"]} <= {c["hex"] for c in a1["candidates"]}
     p0 = analyze(SENTENCES[3], engine="palette", variant=3)     # 팔레트 엔진에서는 변형 번호가 뜻이 없다 → 무시
     assert "variant" not in p0
+
+
+def test_shades_count_with_their_parent_and_one_chip_per_family():   # 2026-10-13 운영: 칩 3개가 '목표 1%' 곁색, 한 계열이 두 칸
+    kb = KB()
+    res = {"emotion": Resolution("emotion", "", "longing_melancholy", "label", 1.0),
+           "time": Resolution("time", "", "afternoon", "label", 1.0),
+           "space": Resolution("space", "", "sea", "label", 1.0),
+           "quality": Resolution("quality", "", "vivid", "label", 1.0)}
+    from core.synth import synthesize
+    aff = _aff(4, 3, (2, 2))
+    pal = synthesize(res, kb, [], aff)["palette"]
+    cands = cd.build(res, kb, [], aff, pal, "모스 그린 껍질과 붉은 과즙")
+    shades = [c for c in cands if c.origin == "shade"]
+    assert shades and all(c.family == c.parent.cid for c in shades)
+    # 그림을 곁색 세 개로만 칠한다 (부모 색은 거의 없음)
+    from core.color import lch2lab, lab2rgb
+    img = Image.new("RGB", (imf.W, imf.H))
+    px = img.load()
+    cols = [tuple(int(v * 255) for v in np.clip(lab2rgb(c.lab), 0, 1)) for c in shades]
+    for y in range(imf.H):
+        for x in range(imf.W):
+            px[x, y] = cols[(x * len(cols)) // imf.W]
+    m = imf.measure_snapped(img, cands)
+    fams = [cands[i].family for i in m["picked"]]
+    assert len(fams) == len(set(fams))                           # 한 묶음에서 칩 하나
+    assert {cands[i].hex for i in m["picked"]} <= {c.hex for c in cands}
