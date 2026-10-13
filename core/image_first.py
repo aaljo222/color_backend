@@ -649,10 +649,16 @@ def run(masked: str, summary: str, res: dict, kb, objects: list, affect, base_pa
         if cands:                                                # eng-2.6: 칩 = 후보 그대로 (HEX·LCh·이름이 후보에서 온다)
             cd = cands[m["picked"][j]]
             real = m["real"][j]
+            # 곁색이 뽑히면 그 묶음(부모+곁색)의 출처·면적 목표로 보인다 (2026-10-14 운영: '곁색 c7 · 목표 2%' 인데 그림에서 48% —
+            #   화가가 부모 색을 조금 짙게 칠한 것이지 목표를 어긴 게 아니다)
+            par = getattr(cd, "parent", None)
+            fam_target = sum(c.area for c in cands if getattr(c, "family", c.cid) == getattr(cd, "family", cd.cid))
             palette.append({"role": role, "hex": cd.hex, "area_ratio": round(float(r), 3),
                             "lch": [round(float(x), 2) for x in cd.lch], "color_name": cd.label, "basis": {
-                                "axis": cd.origin, "how": "snapped", "phrase": f"그림에서 {r*100:.0f}%",
-                                "candidate": cd.cid, "tier": cd.tier, "area_target": round(cd.area, 3),
+                                "axis": par.origin if par is not None else cd.origin, "how": "snapped",
+                                "phrase": f"그림에서 {r*100:.0f}%", "candidate": cd.cid, "tier": (par or cd).tier,
+                                "area_target": round(fam_target, 3),
+                                **({"shade_of": f"{par.cid} {par.label}"} if par is not None else {}),
                                 "painted_hex": lab2hex(real) if real is not None else None,
                                 "fidelity_de00": m["fidelity"][j], **({"merged": cd.merged} if cd.merged else {})}})
             continue

@@ -244,7 +244,8 @@ class CorpusRAG:
                              "citation": r["citation"], "url": r["url"]})
             refs.sort(key=lambda x: (-len(x["match"]), x["evidence"] != "strong", x["id"]))
             out.append({"role": p["role"], "family": fam, "refs": refs[:2],            # 근거에는 숫자 색을 넣지 않는다 (칩은 role 로 잇는다)
-                        "verdict": ("match" if refs and refs[0]["match"] else "other" if refs else "none")})
+                        # 연구가 있어도 감정 짝이 없으면(갈색·보라) '연합 없음' — '다른 감정과 연합'으로 쓰지 않는다 (2026-10-14 운영)
+                        "verdict": ("match" if refs and refs[0]["match"] else "other" if refs and refs[0]["emotions"] else "none")})
         return out
 
 

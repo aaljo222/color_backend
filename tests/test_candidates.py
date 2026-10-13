@@ -184,3 +184,22 @@ def test_candidate_labels_are_short_names():                     # 2026-10-14 10
         a = analyze(t, engine="image_first")
         for c in a["candidates"]:
             assert "(" not in c["label"] and "밝은 밝은" not in c["label"] and "짙은 짙은" not in c["label"], c["label"]
+
+
+def test_shade_chip_reports_its_family(monkeypatch):            # 2026-10-14 운영: '곁색 c7 · 목표 2%' 가 48% 주조색
+    for t in SENTENCES:
+        a = analyze(t, engine="image_first")
+        by = {c["id"]: c for c in a["candidates"]}
+        for p in a["palette"]:
+            b = p["basis"]
+            if b.get("shade_of"):
+                fam = by[b["candidate"]]["family"]
+                assert b["axis"] != "shade"
+                assert abs(b["area_target"] - sum(c["area_target"] for c in a["candidates"] if c["family"] == fam)) < 0.01
+
+
+def test_brown_verdict_is_none():
+    a = analyze(SENTENCES[4], engine="image_first")
+    for l in a["grounding"]["color_links"]:
+        if l["family"] == "갈색":
+            assert l["verdict"] == "none"
