@@ -160,3 +160,10 @@ def test_shades_count_with_their_parent_and_one_chip_per_family():   # 2026-10-1
     fams = [cands[i].family for i in m["picked"]]
     assert len(fams) == len(set(fams))                           # 한 묶음에서 칩 하나
     assert {cands[i].hex for i in m["picked"]} <= {c.hex for c in cands}
+
+
+def test_candidate_rule_version_is_in_the_lock_key(monkeypatch):   # 후보 규칙을 바꾸면 같은 문장도 새로 계산된다
+    a = analyze(SENTENCES[4], engine="image_first")
+    monkeypatch.setattr(cd, "CAND_VERSION", "cand-test")
+    b = analyze(SENTENCES[4], engine="image_first")
+    assert a["sentence_lock"] != b["sentence_lock"] and not b.get("lock_hit")

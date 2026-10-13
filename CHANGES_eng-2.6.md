@@ -53,3 +53,5 @@
 
 배포 설정 (Railway, 운영 로그에서 로컬과 다르게 잡혀 있었다)
   RETRIEVER=embedding · RETRIEVAL_TAU=0.7 · CORPUS_TAU=0.75  (로컬 eval_full 실측값)
+4. (2026-10-13 운영 확인) 문장 고정 키에 후보 규칙 버전이 빠져 있었다 → cand-2 를 배포해도 cand-1 고정값(MaC-3699bec55b6d)이 계속 나왔다.
+   그림 먼저 엔진의 고정 키 엔진 버전을 `eng-2.6+cand-2` 로 바꿨다. 후보 규칙을 바꾸면(CAND_VERSION) 같은 문장도 새 규칙으로 다시 계산된다

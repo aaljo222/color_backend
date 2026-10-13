@@ -67,6 +67,9 @@ def analyze(text: str, generator: Optional[ImageGenerator] = None, cache: Option
     legacy = []                                          # 화풍을 바꾸기 전(color_field)에 이미 고정된 표본을 찾는 키 (eng-2.4)
     if engine == "image_first":
         ev, painter = image_first.ENGINE_VERSION, image_first.painter_name()
+        if image_first.SNAP:                            # 후보 규칙이 바뀌면(cand-N) 고정 키도 바뀌어야 새 규칙으로 다시 계산된다 (2026-10-13:
+            from core.candidates import CAND_VERSION    #  cand-2 를 배포했는데 고정 키에 후보 버전이 없어 cand-1 결과가 계속 나왔다)
+            ev = f"{ev}+{CAND_VERSION}"
         painter = image_first.GEMINI_IMAGE_MODEL if painter == "gemini" else painter
         tag = image_first.painter_tag(painter)
         if tag != painter:
