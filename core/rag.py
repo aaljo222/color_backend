@@ -261,6 +261,10 @@ GEW_KO = {"love": "사랑", "anger": "분노", "joy": "기쁨", "pleasure": "즐
           "disappointment": "실망", "fear": "두려움", "hate": "미움", "relief": "안도", "contentment": "만족", "regret": "후회"}
 
 
+BROWN_L, BROWN_C, BROWN_H = 60.0, 40.0, (40.0, 95.0)   # CIE L·C·h. 마루나무색(L 55·C 18·h 61)·밤색은 갈색,
+#   노을산호(L 68·C 45)는 주황, 짙은 빨강·버건디(h 25~35)는 빨강으로 남는다 (설계값 — 팀 검토 대상)
+
+
 def hue_family(lch) -> str:
     """칩 색 → 연구에서 쓰는 색 이름 갈래. 무채는 밝기로 흰색·회색·검정. 나머지는 OKLCH 색상 계열(색 오라클 13계열)."""
     from core.color import lch_to_hex_clipped
@@ -269,6 +273,8 @@ def hue_family(lch) -> str:
     if C < 8:
         return "흰색" if L >= 85 else "검정" if L <= 22 else "회색"
     d = hex_to_descriptor(lch_to_hex_clipped((L, C, h))[0])
+    if BROWN_H[0] <= h <= BROWN_H[1] and L <= BROWN_L and C <= BROWN_C:
+        return "갈색"            # 어둡고 탁한 난색 = 갈색 (Jonauskaite 2020 의 12색 이름 중 하나 — 주황·노랑과 따로 잰다)
     return d["hue"] if d["hue"] != "무채" else ("흰색" if L >= 85 else "검정" if L <= 22 else "회색")
 
 

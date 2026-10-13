@@ -167,3 +167,13 @@ def test_candidate_rule_version_is_in_the_lock_key(monkeypatch):   # 후보 규�
     monkeypatch.setattr(cd, "CAND_VERSION", "cand-test")
     b = analyze(SENTENCES[4], engine="image_first")
     assert a["sentence_lock"] != b["sentence_lock"] and not b.get("lock_hit")
+
+
+def test_dark_muted_warm_colors_are_brown():                    # 2026-10-13 운영: 마루나무색 칩에 주황(기쁨·재미) 근거가 붙었다
+    from core.color import hex2lab, lab2lch
+    fam = lambda h: hue_family(lab2lch(hex2lab(h)))
+    assert fam("#A77C5E") == "갈색" and fam("#5C4033") == "갈색"     # 마루나무색 · 밤색
+    assert fam("#E8A15A") == "주황" and fam("#D4A28D") == "주황"     # 밝은 주황 · 살구
+    assert fam("#871118") == "빨강" and fam("#8B3A3A") == "빨강"     # 짙은 빨강·버건디는 갈색이 아니다
+    refs = [r for r in get_rag().corpus.research if "갈색" in (r.get("hues") or [])]
+    assert refs and refs[0]["emotions"] == []                      # 갈색은 강한 감정 짝이 없다 (없는 근거를 만들지 않는다)
