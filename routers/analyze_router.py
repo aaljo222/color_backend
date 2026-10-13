@@ -28,6 +28,7 @@ class AnalyzeRequest(BaseModel):
     keep_text: bool = Field(default=False, description="원문 보관 동의 (로그인 사용자만, 암호화 저장)")
     engine: Optional[Literal["palette", "image_first"]] = Field(default=None, description="없으면 서버 ENGINE_MODE (A/B 비교용)")
     include_image: bool = Field(default=True, description="응답에 base64 PNG 포함")
+    variant: int = Field(default=0, ge=0, le=9, description="변형 번호 0~9 (그림 먼저 엔진만). 같은 문장+같은 번호 = 같은 값 (eng-2.6)")
 
 
 @router.post("/analyze")
@@ -39,7 +40,7 @@ def analyze_memory(request: Request, req: AnalyzeRequest, payload: Optional[dict
     if uid and store.credit_status(uid)["credits"] <= 0:          # LLM 호출 전에 먼저 확인 (비용 절약)
         raise HTTPException(status_code=402, detail="크레딧이 부족해요. 추가 인증 후 무료 크레딧을 받을 수 있어요.")
     try:
-        result = analyze(req.memory, cache=store.CACHE, engine=req.engine)
+        result = analyze(req.memory, cache=store.CACHE, engine=req.engine, variant=req.variant)
     except RuntimeError as ex:
         logger.error(f"[analyze] {ex}")
         raise HTTPException(status_code=502, detail="색채 표본 추출에 실패했습니다. 문장을 조금 더 구체적으로 작성해 주세요.")
