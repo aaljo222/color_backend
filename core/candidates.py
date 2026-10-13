@@ -35,7 +35,7 @@ LARGE_N = int(os.getenv("CAND_LARGE_N", "4"))          # 넓게 칠할 색 수 =
 LARGE_SHARE = float(os.getenv("CAND_LARGE_SHARE", "0.80"))
 MERGE_DE = float(os.getenv("CAND_MERGE_DE", "7"))            # 이보다 가까운 두 후보는 하나로 (가중치는 큰 쪽)
 MAX_CANDS = int(os.getenv("CAND_MAX", "12"))
-CAND_VERSION = "cand-2"   # cand-2 (2026-10-13): 곁색은 부모 색과 한 묶음으로 순위 · 한 묶음에서 칩 하나
+CAND_VERSION = "cand-3"   # cand-2 (2026-10-13): 곁색은 부모 색과 한 묶음으로 순위 · 한 묶음에서 칩 하나
 
 # 문장 속 색 말 → 등급 (색상 계열·밝기 1~9·채도 0~5). 설계값 — 코퍼스 팀 검토 대상. 긴 말 먼저 찾는다.
 COLOR_TERMS = {
@@ -147,6 +147,18 @@ def build(res: dict, kb, objects: list, affect, base_palette: list, masked: str)
     if not any(c.origin == "emotion" and c.weight < w_emo for c in raw) and emo.get("accent_lch"):
         from core.synth import _display_name                # '밝은 노랑 (회전목마금빛)' → '회전목마금빛' (계산 팔레트와 같은 이름)
         add("emotion", emo["accent_lch"], f"{_display_name(emo)} · 강조", 0.5 * w_emo)
+    # 시간·장소 색은 계산 팔레트에 없어도 후보에 넣는다 (cand-3, 2026-10-14 운영: "비 오는 밤" — 사물 '비·창'이 계산 팔레트의
+    # 분위기·강조 칸을 차지해 밤색이 후보에서 통째로 빠졌다. 정서 보정(명도·채도)은 감정·장소 색과 같게 준다)
+    for ax in ("space", "time"):
+        r = res.get(ax)
+        if r is None or any(c.origin == ax for c in raw):
+            continue
+        e = kb.by_id[r.kb_id]
+        L, C, h = e["lch"]
+        if affect is not None:
+            C, L = C * affect.c_mult, max(15.0, min(95.0, L + affect.dL))
+        from core.synth import _display_name
+        add(ax, (L, C, h), _display_name(e), FALLBACK_W if r.how == "fallback" else AXIS_W)
     for i, o in enumerate(objects or []):
         add("object", o.lch, o.name, OBJECT_W * (1.1 if i == 0 else 1.0), tuple(o.descriptor))
     for w, d in find_color_terms(masked):

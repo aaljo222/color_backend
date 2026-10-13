@@ -203,3 +203,32 @@ def test_brown_verdict_is_none():
     for l in a["grounding"]["color_links"]:
         if l["family"] == "갈색":
             assert l["verdict"] == "none"
+
+
+def test_time_and_space_colors_survive_when_objects_take_slots():   # 2026-10-14 운영: 비 오는 밤 → 밤색 후보 없음, 칩 3개
+    from core.objects import resolve_objects
+    from core.affect import compute
+    from core.synth import synthesize
+    kb = KB()
+    res = {"emotion": Resolution("emotion", "쓸쓸", "longing_melancholy", "keyword", 1.0, "kw:쓸쓸"),
+           "time": Resolution("time", "밤", "night", "keyword", 1.0),
+           "space": Resolution("space", "창가", "rain_window", "keyword", 1.0),
+           "quality": Resolution("quality", "", "cherished", "fallback", 0.0)}
+    objs = resolve_objects([{"name": "비"}, {"name": "창"}], learn=False)
+    aff = compute({"valence": 2, "arousal": 1}, kb.by_id["longing_melancholy"])
+    pal = synthesize(res, kb, objs, aff)["palette"]
+    cands = cd.build(res, kb, objs, aff, pal, "비 오는 밤 창가")
+    assert any(c.origin == "time" for c in cands) and any(c.origin == "space" for c in cands)
+
+
+def test_always_four_chips_even_with_three_families():
+    a = analyze(SENTENCES[1], engine="image_first")
+    assert len(a["palette"]) == 4
+    cands = [cd.Cand(f"c{i+1}", lch, "#000000", "emotion", f"x{i}", ("파랑", 5, 2), 1.0) for i, lch in
+             enumerate([(60, 15, 260), (45, 25, 250), (70, 8, 230)])]
+    for c in cands:
+        from core.color import lch_to_hex_clipped
+        c.hex = lch_to_hex_clipped(c.lch)[0]
+    img = Image.new("RGB", (imf.W, imf.H), cands[0].hex)
+    m = imf.measure_snapped(img, cands)
+    assert len(m["picked"]) == 3                                   # 후보가 3개뿐이면 3개 (더 만들지 않는다)

@@ -523,6 +523,10 @@ def measure_snapped(img: Image.Image, cands: list, seed: int = 0) -> dict:
         def contrast(f):
             return delta_e_2000(C[rep(f)], dom) * (1 if fshare[f] >= 0.01 else 0.2)
         picked.append(rep(max(rest, key=contrast)))
+    if len(picked) < 4:                                          # 묶음이 3개뿐이면 남은 후보 아무거나에서 대비색 (칩은 언제나 4개, 2026-10-14 운영: 3칩)
+        others = [i for i in sorted(range(len(cands)), key=lambda i: -share[i]) if i not in picked]
+        if others:
+            picked.append(max(others, key=lambda i: delta_e_2000(C[i], dom) * (1 if share[i] >= 0.01 else 0.2)))
     cents = C[picked]
     lbl4 = ((lab[:, None, :] - cents[None, :, :]) ** 2).sum(-1).argmin(1)
     ratios = np.bincount(lbl4, minlength=len(picked)) / len(lab)
