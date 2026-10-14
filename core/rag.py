@@ -180,15 +180,24 @@ class CorpusRAG:
         return [n for _, n in sorted(found)[:limit]]
 
     # ── 근거 묶음 ──
-    def ground(self, res: dict, objects: list, affect) -> dict:
-        """이 표본에 실제로 쓰인 것만 묶는다. 숫자 색은 없다(장면 color_note 는 말로 된 묘사)."""
-        scenes = []
+    def ground(self, res: dict, objects: list, affect, query: str = "") -> dict:
+        """이 표본에 실제로 쓰인 것만 묶는다. 숫자 색은 없다(장면 color_note 는 말로 된 묘사).
+        eng-2.6: 장면 문단은 축 구(phrase)가 아니라 '문장 전체'로 고른다 — 문단 단위 검색이라 문장의 시공간·감정 어휘가 함께 걸린다.
+                 기본 톤으로 떨어진 시간·장소 축은 조용히 빼지 않고 missing 에 '문장 속 단서'와 함께 남긴다."""
+        scenes, missing = [], []
         for axis in PROMPT_AXES:
             r = res.get(axis)
-            if r is None or r.how == "fallback":
+            if r is None:
                 continue
-            for h in self.search(r.phrase or "", axis=axis, kb_id=r.kb_id, k=SCENES_PER_AXIS) or \
-                    [Hit(0.0, p) for p in self.corpus.scenes_of(axis) if p["kb_id"] == r.kb_id][:1]:
+            if r.how == "fallback":
+                missing.append({"axis": axis, "phrase": (r.phrase or "")[:40], "default_kb_id": r.kb_id,
+                                "reason": "KB 에 맞는 항목이 없어 기본 톤을 약하게만 씀 · 그림 지시문의 분위기 설명에서는 뺐음"})
+                continue
+            q = query or r.phrase or ""
+            hits = [h for h in self.search(q, axis=axis, kb_id=r.kb_id, k=SCENES_PER_AXIS) if h.score > 0]
+            if not hits and r.phrase and r.phrase != q:
+                hits = [h for h in self.search(r.phrase, axis=axis, kb_id=r.kb_id, k=SCENES_PER_AXIS) if h.score > 0]
+            for h in hits or [Hit(0.0, p) for p in self.corpus.scenes_of(axis) if p["kb_id"] == r.kb_id][:1]:
                 p = h.passage
                 scenes.append({"id": p["id"], "axis": axis, "kb_id": p["kb_id"], "text": p["text"],
                                "color_note": p.get("color_note", ""), "score": h.score, "status": p["status"]})
@@ -213,7 +222,61 @@ class CorpusRAG:
                      "citation": r["citation"], "url": r["url"]}
                     for r in self.corpus.research if set(r["applies_to"]) & rules and r["evidence"] in ("strong", "moderate")]
         return {"corpus_version": self.corpus.version, "method": self.method, "tau": self.tau,
-                "scenes": scenes, "objects": objs, "research": research}
+                "scenes": scenes, "objects": objs, "research": research, "missing": missing}
+
+    # ── 칩별 색-감정 근거 (eng-2.6) ──
+    def link_colors(self, palette: list, emotion_kb_id: str) -> list[dict]:
+        """칩마다: 그 색의 색상 갈래(빨강·분홍·회색…)와 연합이 확인된 연구 문단 + 이 기억의 감정과 맞는지.
+        규칙 이름이 아니라 '이 칩의 색'으로 고르기 때문에, 표본마다 링크가 달라진다."""
+        mine = set(EMOTION_GEW.get(emotion_kb_id, []))
+        pairs = [r for r in self.corpus.research if r.get("hues")]
+        out = []
+        for p in palette:
+            fam = hue_family(p.get("lch") or [50, 0, 0])
+            refs = []
+            for r in pairs:
+                if fam not in r["hues"]:
+                    continue
+                em = list(r.get("emotions") or [])
+                hit = sorted(mine & set(em))
+                refs.append({"id": r["id"], "emotions": [GEW_KO.get(e, e) for e in em],
+                             "match": [GEW_KO.get(e, e) for e in hit], "evidence": r["evidence"],
+                             "citation": r["citation"], "url": r["url"]})
+            refs.sort(key=lambda x: (-len(x["match"]), x["evidence"] != "strong", x["id"]))
+            out.append({"role": p["role"], "family": fam, "refs": refs[:2],            # 근거에는 숫자 색을 넣지 않는다 (칩은 role 로 잇는다)
+                        # 연구가 있어도 감정 짝이 없으면(갈색·보라) '연합 없음' — '다른 감정과 연합'으로 쓰지 않는다 (2026-10-14 운영)
+                        "verdict": ("match" if refs and refs[0]["match"] else "other" if refs and refs[0]["emotions"] else "none")})
+        return out
+
+
+# 감정 KB 항목 → 제네바 감정 바퀴(Jonauskaite 2020 이 쓴 20개 감정) 낱말. MaC 설계 가정 — 코퍼스 팀 검토 대상
+EMOTION_GEW = {
+    "warm_nostalgia": ["love", "pleasure", "contentment"],
+    "joy_excitement": ["joy", "amusement", "pleasure"],
+    "calm_peace": ["relief", "contentment"],
+    "stability_affection": ["love", "contentment"],
+    "longing_melancholy": ["sadness", "disappointment", "regret"],
+    "quiet_solitude": ["contentment", "relief"],
+}
+GEW_KO = {"love": "사랑", "anger": "분노", "joy": "기쁨", "pleasure": "즐거움", "amusement": "재미", "sadness": "슬픔",
+          "disappointment": "실망", "fear": "두려움", "hate": "미움", "relief": "안도", "contentment": "만족", "regret": "후회"}
+
+
+BROWN_L, BROWN_C, BROWN_H = 60.0, 40.0, (40.0, 95.0)   # CIE L·C·h. 마루나무색(L 55·C 18·h 61)·밤색은 갈색,
+#   노을산호(L 68·C 45)는 주황, 짙은 빨강·버건디(h 25~35)는 빨강으로 남는다 (설계값 — 팀 검토 대상)
+
+
+def hue_family(lch) -> str:
+    """칩 색 → 연구에서 쓰는 색 이름 갈래. 무채는 밝기로 흰색·회색·검정. 나머지는 OKLCH 색상 계열(색 오라클 13계열)."""
+    from core.color import lch_to_hex_clipped
+    from core.objects import hex_to_descriptor
+    L, C, h = (float(x) for x in lch)
+    if C < 8:
+        return "흰색" if L >= 85 else "검정" if L <= 22 else "회색"
+    d = hex_to_descriptor(lch_to_hex_clipped((L, C, h))[0])
+    if BROWN_H[0] <= h <= BROWN_H[1] and L <= BROWN_L and C <= BROWN_C:
+        return "갈색"            # 어둡고 탁한 난색 = 갈색 (Jonauskaite 2020 의 12색 이름 중 하나 — 주황·노랑과 따로 잰다)
+    return d["hue"] if d["hue"] != "무채" else ("흰색" if L >= 85 else "검정" if L <= 22 else "회색")
 
 
 def prompt_lines(grounding: Optional[dict]) -> list[str]:

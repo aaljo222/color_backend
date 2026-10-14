@@ -121,3 +121,8 @@ def palette_thumb(request: Request, prompt: str):
 # ── Astral Color (사주 컬러) — main.py 를 고치지 않으려고 이 라우터 밑에 붙인다 → /api/astral ──
 from routers.astral_router import router as _astral_router  # noqa: E402
 router.include_router(_astral_router)
+
+# ── 색채 챗봇 (김우혁님 코드) — astral 과 같은 방식으로 main.py 를 고치지 않고 붙인다 → /api/chat/ask · /api/chat/result/{id} ──
+# routers/chatbot_router.py(/ask)는 예전 시험본이라 붙이지 않는다 (프론트는 /api/chat/* 만 부른다)
+from routers.chat_router import router as _chat_router  # noqa: E402
+router.include_router(_chat_router, prefix="/chat")
