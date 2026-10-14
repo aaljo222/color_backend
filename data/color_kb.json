@@ -1,6 +1,6 @@
 {
   "version": "kb-0.2.1",
-  "note": "kb-0.2.1: 코퍼스 팀 MaC_color_keywords_v1(2026-10-12) 반영. 18 색 항목의 lch 는 표의 확정값(status=confirmed), 키워드는 기존 + 표 합집합. quality 3 항목은 kb-0.1 그대로. 사물 색은 data/object_colors.json.",
+  "note": "kb-0.2.1: 코퍼스 팀 MaC_color_keywords_v1(2026-10-12) 반영. 18 색 항목의 lch 는 표의 확정값(status=confirmed), 키워드는 기존 + 표 합집합. quality 3 항목은 kb-0.1 그대로. 사물 색은 data/object_colors.json. (2026-10-15) quality 3 항목의 보정값·키워드가 코퍼스 팀 v3 quality 행과 같음을 확인 → source=corpus_v3, status=confirmed. 21항목 숫자 전부 팀 코퍼스 출처.",
   "defaults": {
     "emotion": "warm_nostalgia",
     "time": "afternoon",
@@ -493,8 +493,8 @@
         "따뜻한"
       ],
       "description": "소중하고 따뜻하게 남은 기억",
-      "source": "mac_v1",
-      "status": "demo"
+      "source": "corpus_v3",
+      "status": "confirmed"
     },
     {
       "id": "faded",
@@ -511,8 +511,8 @@
         "어렴풋"
       ],
       "description": "희미하고 오래된 아련한 기억",
-      "source": "demo",
-      "status": "demo"
+      "source": "corpus_v3",
+      "status": "confirmed"
     },
     {
       "id": "vivid",
@@ -529,8 +529,8 @@
         "또렷"
       ],
       "description": "생생하고 선명한, 잊을 수 없는 기억",
-      "source": "demo",
-      "status": "demo"
+      "source": "corpus_v3",
+      "status": "confirmed"
     }
   ]
 }
