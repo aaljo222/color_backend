@@ -22,6 +22,7 @@ from routers.specimen_router import router as specimen_router
 from routers.concierge_router import router as concierge_router
 from routers.auth_router import router as auth_router
 from routers.oracle_router import router as oracle_router
+from routers.chat_router import router as chat_router
 from utils.limiter import limiter, client_ip
 from core import store
 from core.kb import get_resolver
@@ -105,7 +106,7 @@ app.include_router(analyze_router)
 app.include_router(specimen_router)
 app.include_router(concierge_router)
 app.include_router(oracle_router)
-
+app.include_router(chat_router, prefix="/api/chat")
 
 @app.on_event("startup")
 def _similar_backfill():
