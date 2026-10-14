@@ -1,0 +1,70 @@
+# 5-4. 종단 점검 및 정리
+
+## 로컬 API 시연
+
+- 기존 시연 질문 원문은 저장소와 checkpoint에서 찾지 못했다. 사용자 승인에 따라 기존 평가셋 A01–A10을 대체 시연 문항으로 사용했다.
+- 각 문항을 단일 worker 서버의 `POST /api/chat/ask` → `GET /api/chat/result/{job_id}`로 순차 전송했다. 테스트 환경은 `CHAT_RETRIEVAL=strict`, `TAU=0.12`, `LLM_MODE=stub`, `SIMILAR_METHOD=ngram`; 테스트용 `UA_BLOCK=0`. 배포 환경값을 확인한 것은 아니다.
+- 10/10 응답이 `mode=qa`였고 `source`, `mode`, `answer` 및 `citations` 필드가 있었다. 이 QA 응답에는 선택 필드 `svg`, `palette`, `ou_preference`가 포함되지 않았다. paper 인용에는 카드 ID와 `cite`가 있었고, web 결과에는 KB 카드 ID 대신 문서 제목이 `cite`로 반환됐다.
+
+| ID | 질문 | source | 근거 카드 ID | `citations[].cite` | 시간(초) |
+|---|---|---|---|---|---:|
+| A01 | 채도랑 밝기가 높아지면 각성감도 커져? | paper | `wilms2018_arousal` | Wilms & Oberfeld, 2018, pp.902-903 | 0.92 |
+| A02 | 빨강이 파랑보다 더 들뜨게 해? 채도가 낮을 때도 그래? | paper | `wilms2018_which`, `wilms2018_arousal` | Wilms & Oberfeld, 2018, p.910; pp.902-903 | 0.35 |
+| A03 | 파란색이 늘 제일 기분 좋게 느껴지는 건 아니야? | web | 없음 | 달리와 감자탕; 스트레이 키즈의 음반 외 활동 목록 | 1.34 |
+| A04 | 파랑이 빨강보다 각성 효과가 크다는 주장에는 조건이 있어? | paper | `wilms2018_which` | Wilms & Oberfeld, 2018, p.910 | 0.36 |
+| A05 | 피부전도 반응도 색의 채도나 밝기에 따라 달라졌어? | paper | `wilms2018_physio` | Wilms & Oberfeld, 2018, pp.905-906, 909 | 0.35 |
+| A06 | 사람들이 파랑을 좋아하는 이유가 파란 물건에 대한 좋은 감정 때문이라는 이론 이름은? | paper | `palmer2010_evt` | Palmer & Schloss, 2010, p.8877 | 0.35 |
+| A07 | 48명이 색 32개를 평가했을 때 제일 덜 선호된 색은 뭐였지? | paper | `palmer2010_pref` | Palmer & Schloss, 2010, p.8878 | 0.36 |
+| A08 | 사람들이 물건에 대해 느끼는 감정가가 색 선호를 얼마나 설명했어? | paper | `palmer2010_wave` | Palmer & Schloss, 2010, p.8879 | 0.36 |
+| A09 | 학교 색깔에 애착이 있으면 그 색을 더 좋아한다는 연구가 있어? | paper | `palmer2010_social` | Palmer & Schloss, 2010, pp.8880-8881 | 0.33 |
+| A10 | 단색 선호를 예측할 때 clean 감정이 중요하다는 건 Ou 연구 맞아? | paper | `ou2004_abs` | Ou et al., 2004, p.381 | 0.34 |
+
+### 시연 판정
+
+- `source`: paper 9/10, web 1/10; 모든 응답의 `mode`는 `qa`.
+- A01은 기대 카드 `wilms2018_abs` 대신 `wilms2018_arousal`을 반환했다.
+- A03은 기대 카드 `wilms2018_valence`를 반환하지 않고 무관한 Wikipedia 문서 두 개를 답변에 사용했다.
+- 이 10문항에서 응답 오류는 없었지만, 위 두 검색 결과는 근거 정밀도 실패다.
+
+## 백업 및 ignore 점검
+
+확인된 `.bak` 파일 16개. 삭제하지 않았다.
+
+- `README.md.stage4.bak`
+- `data/chat_kb.json.bak`, `data/chat_kb.json.stage3.bak`, `data/chat_kb.json.stage5-2-before.bak`
+- `data/kb_audit.md.bak`, `data/kb_audit.md.before-stage3-sync.bak`, `data/kb_audit.md.stage3.bak`
+- `data/eval/baseline_current_legacy.md.stage4.bak`
+- `data/eval/strict.md.before-report.bak`, `data/eval/strict.md.stage3.bak`, `data/eval/strict.md.stage4.bak`
+- `routers/chat_router.py.bak`, `routers/chat_router.py.stage4.bak`
+- `scripts/eval_chat.py.bak`, `scripts/eval_chat.py.stage3-before-report.bak`, `scripts/eval_chat.py.stage4.bak`
+
+현재 `.gitignore`에는 `*.bak`, `data/papers/`, `data/papers_text/`가 없다. Git에서 백업 16개와 저작권 원문 7개 및 추출물 7개가 ignore되지 않는 것을 확인했다. **요청에 따라 ignore 파일은 수정하지 않고**, 이 세 패턴을 추가할 것을 제안한다.
+
+## Git status 분류
+
+상위 저장소 `E:\color_backend-main` 기준 `git status --short`는 `?? color_backend-main.zip`, `?? color_backend-main/`을 표시한다. 내부 경로를 전부 펼친 상태는 167개이며, 모두 untracked다. 따라서 기존 변경과 이번 작업 변경을 Git 기준으로 분리할 수 없다. 이번 단계에서 추가한 문서는 이 파일과 `web_fallback.md`이며, 런타임 코드·KB 카드는 수정하지 않았다.
+
+| 분류 | untracked 수 |
+|---|---:|
+| 런타임 코드 | 49 |
+| 데이터 | 43 |
+| 평가 스크립트 및 테스트 | 30 |
+| 문서 | 12 |
+| 백업 | 16 |
+| 설정·patch·archive | 9 |
+| 기타 | 8 |
+| **합계** | **167** |
+
+상위 저장소의 `color_backend-main.zip`은 위 167개 내부 파일 수에는 포함되지 않는다.
+
+## 배포 전 체크리스트
+
+1. **Worker 수:** 채팅 job 상태와 큐(`JOBS`, `Q`)는 프로세스 메모리에 있다. 다중 Uvicorn worker나 여러 인스턴스로 분산하면 POST와 result 조회가 다른 프로세스에 도달해 job을 찾지 못할 수 있다. Railway의 현재 명령은 worker 수를 명시하지 않으므로, 배포에서는 유효 worker 수를 1로 고정하거나 공유 job 저장소를 먼저 도입한다.
+2. **CORS:** 코드 기본 허용 목록은 `https://mac.ai.kr`, `https://www.mac.ai.kr`이며 개발 모드에는 localhost origin이 추가된다. 배포의 `CORS_ORIGINS`와 필요한 preview origin을 실제 프런트 도메인으로 확정한다. 배포 환경 변수의 실제 값은 이 점검에서 읽지 않았다.
+3. **User-Agent:** `UA_BLOCK` 기본값은 `1`이며 일부 비브라우저 UA를 차단한다. 이는 인증이 아니다. 이 시연 서버는 `UA_BLOCK=0`으로 실행했으므로 배포 동작 검증과 구분한다.
+4. **인증 정책:** `/api/chat/ask`에 `TODO: 인증 정책 확정`이 남아 있고 optional payload를 사용하지만, 현재 endpoint에서는 이를 버린다. 공개 배포 전에 인증·비인증 호출 정책과 사용량 제한 책임자를 확정한다.
+
+## 확인 한계
+
+- `/api/chat/ask`와 result 경로는 로컬 단일 worker 서버에서만 확인했다. 실제 배포의 worker 수, 환경 변수, CORS, 외부 네트워크 정책은 검증하지 않았다.
+- 이번 단계는 문서 추가와 API 측정만 수행했다. `chat_kb.json`과 `data/chat_kb.json.stage5-2-before.bak`의 SHA-256이 같음을 확인했다. 런타임·KB 변경이 없어 pytest와 `verify_kb.py`는 다시 실행하지 않았다. 직전 단계 보고 기준은 pytest 163 passed, `verify_kb.py` 오류 0이었다.

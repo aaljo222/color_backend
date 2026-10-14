@@ -1,0 +1,135 @@
+[
+  {
+    "id": "wilms2018_abs",
+    "paper": "Wilms & Oberfeld (2018), Psychological Research 82:896–914",
+    "cite": "Wilms & Oberfeld, 2018, p.896",
+    "text": "채도가 높고 밝은 색일수록 각성(arousal)이 높게 보고됐다. 색상(hue)도 영향을 주어 파랑·초록에서 빨강으로 갈수록 각성이 올라갔다. 색의 감정 효과는 색상 하나가 아니라 색상·채도·명도와 그 상호작용으로 결정된다.",
+    "keywords": "각성 흥분 채도 명도 밝은 빨강 파랑 초록 색상 arousal saturation brightness hue 감정 색채심리"
+  },
+  {
+    "id": "wilms2018_arousal",
+    "paper": "Wilms & Oberfeld (2018), Psychological Research 82:896–914",
+    "cite": "Wilms & Oberfeld, 2018, pp.902-903",
+    "text": "빨강이 파랑보다 더 각성시킨다는 결과는 채도가 중간 이상일 때만 나타났다. 채도가 낮으면 색상 차이에 의한 각성 차이가 거의 없었다. 명도가 높을수록 각성 평정도 올라갔다.",
+    "keywords": "빨강 파랑 각성 채도 명도 흥분 차분 열정 red blue arousal saturation 강렬"
+  },
+  {
+    "id": "wilms2018_valence",
+    "paper": "Wilms & Oberfeld (2018), Psychological Research 82:896–914",
+    "cite": "Wilms & Oberfeld, 2018, pp.903-904",
+    "text": "유쾌함(valence)은 중간 채도의 색에서 가장 높았고, 명도가 높을수록 올라갔다. 파랑이 가장 유쾌한 색이라는 패턴은 채도가 높을 때만 나타났다. 무채색(회색)은 유채색보다 덜 유쾌하게 평가됐다.",
+    "keywords": "유쾌 기분 행복 기쁨 valence 명도 밝은 회색 무채색 파랑 채도 긍정 우울 슬픔 sad happy"
+  },
+  {
+    "id": "wilms2018_which",
+    "paper": "Wilms & Oberfeld (2018), Psychological Research 82:896–914",
+    "cite": "Wilms & Oberfeld, 2018, p.910",
+    "text": "'빨강이 파랑보다 각성시킨다'는 말은 채도와 명도가 같을 때만 맞다. 채도가 높고 밝은 파랑이 채도 낮고 어두운 빨강보다 더 각성시킬 수 있으므로, 색을 쓸 때는 '어떤 빨강, 어떤 파랑인가'를 물어야 한다.",
+    "keywords": "빨강 파랑 어떤 색 디자인 활용 색상 채도 명도 상호작용 design"
+  },
+  {
+    "id": "wilms2018_physio",
+    "paper": "Wilms & Oberfeld (2018), Psychological Research 82:896–914",
+    "cite": "Wilms & Oberfeld, 2018, pp.905-906, 909",
+    "text": "채도가 높고 밝은 색일수록 피부전도반응(SCR) 진폭이 컸다. 무채색은 심박이 잠깐 느려지고 유채색은 약간 빨라지는 경향이 있었다. 다만 색의 생리적 효과는 감정 평정보다 약했다.",
+    "keywords": "피부전도 심박 생리 반응 SCR 심박수 각성 측정 무채색"
+  },
+  {
+    "id": "palmer2010_evt",
+    "paper": "Palmer & Schloss (2010), PNAS 107(19):8877–8882",
+    "cite": "Palmer & Schloss, 2010, p.8877",
+    "text": "생태적 정서가 이론(EVT): 사람들의 색 선호는 그 색과 연관된 사물에 대한 평균적인 감정 반응에서 나온다. 맑은 하늘·깨끗한 물을 떠올리게 하는 파랑은 좋아하고, 오물·썩은 음식을 떠올리게 하는 갈색은 싫어한다.",
+    "keywords": "선호 좋아하는 색 파랑 갈색 하늘 물 사물 연상 ecological valence theory EVT 왜 인기 preference"
+  },
+  {
+    "id": "palmer2010_pref",
+    "paper": "Palmer & Schloss (2010), PNAS 107(19):8877–8882",
+    "cite": "Palmer & Schloss, 2010, p.8878",
+    "text": "48명이 32개 색의 선호를 평가한 결과, 파랑 계열에서 선호가 가장 높았고 연두(chartreuse)에서 가장 낮았다. 채도가 높은 색이 선호됐고, 어두운 주황(갈색)과 어두운 노랑(올리브)은 특히 덜 선호됐다.",
+    "keywords": "선호 파랑 연두 갈색 올리브 채도 어두운 주황 노랑 32색 preference blue chartreuse"
+  },
+  {
+    "id": "palmer2010_wave",
+    "paper": "Palmer & Schloss (2010), PNAS 107(19):8877–8882",
+    "cite": "Palmer & Schloss, 2010, p.8879",
+    "text": "연상 사물의 감정가 평균(WAVE)은 색 선호 분산의 약 80%를 설명했다. 원추세포 대비 모델(37%), 색 외관 모델(60%), 색-감정 모델(55%)보다 설명력이 높았다.",
+    "keywords": "WAVE 설명력 모델 비교 80% 원추세포 색외관 색감정 선호 예측 model comparison"
+  },
+  {
+    "id": "palmer2010_social",
+    "paper": "Palmer & Schloss (2010), PNAS 107(19):8877–8882",
+    "cite": "Palmer & Schloss, 2010, pp.8880-8881",
+    "text": "색 선호는 경험으로 바뀔 수 있다. 소속 학교의 색에 애착이 클수록 그 색을 더 좋아했고, 특정 사물(딸기, 풀밭 등) 사진을 보여주면 해당 색의 선호가 올랐다. 이는 사물에 대한 감정이 색 선호를 만든다는 근거다.",
+    "keywords": "경험 학습 학교 색 문화 소속 사진 선호 변화 딸기 풀밭 사회적 영향 culture"
+  },
+  {
+    "id": "ou2004_abs",
+    "paper": "Ou et al. (2004), Color Res Appl 29(5):381–389",
+    "cite": "Ou et al., 2004, p.381",
+    "text": "단일 색의 선호 예측 모델 3종을 제안했다. 색 감정 중에서는 '깨끗함(clean)'이 선호에 가장 크게 영향을 줬다. 색 조합의 선호는 색 감정만으로는 예측하기 어려웠다.",
+    "keywords": "선호 모델 깨끗한 clean 색 감정 색 조합 예측 preference model emotion"
+  },
+  {
+    "id": "ou2004_vivid",
+    "paper": "Ou et al. (2004), Color Res Appl 29(5):381–389",
+    "cite": "Ou et al., 2004, p.383",
+    "text": "20개 색 중 선명한 색이 탁한 색보다 선호가 높았다. 선명한 보라빛 파랑이 가장 선호됐고 탁한 노랑이 가장 낮았다. 파랑이 가장 선호되고 노랑이 가장 덜 선호된다는 기존 연구와 일치했다.",
+    "keywords": "선명한 탁한 파랑 노랑 선호 보라 vivid blue yellow muddy"
+  },
+  {
+    "id": "ou2004_model3",
+    "paper": "Ou et al. (2004), Color Res Appl 29(5):381–389",
+    "cite": "Ou et al., 2004, pp.385-386",
+    "text": "모델 3은 CIELAB 값만으로 선호를 예측한다. 기준색(L*,a*,b*)=(50,-8,30), 즉 중간 명도의 탁한 노란 계열과의 색차가 클수록 더 선호된다(R²=0.70). 파랑은 기준색과 멀어서 선호되고 노랑은 가까워서 덜 선호된다.",
+    "keywords": "CIELAB 색차 기준색 선호 예측 공식 모델3 파랑 노랑 L a b 수식 preference model equation"
+  },
+  {
+    "id": "ou2004_harmony",
+    "paper": "Ou et al. (2004), Color Res Appl 29(5):381–389",
+    "cite": "Ou et al., 2004, p.388",
+    "text": "색 선호와 색 조화는 강하게 상관되지만 일치하지는 않는다. 조화롭다고 본 색 쌍 중 약 18%는 선호되지 않았고, 선호한 색 쌍 중 약 4%는 조화롭지 않다고 판단됐다.",
+    "keywords": "조화 harmony 색 조합 배색 선호 불일치 조화로운 두 색 pair combination"
+  },
+  {
+    "id": "hansen2006_main",
+    "paper": "Hansen et al. (2006), Nature Neuroscience, advance online",
+    "cite": "Hansen et al., 2006, p.1",
+    "text": "사람들은 과일의 색을 조절해 회색으로 보이는 지점을 찾게 했을 때, 그 과일의 전형적인 색과 반대 방향(예: 바나나는 약간 푸른 쪽)으로 이동시켜야 회색으로 보았다. 사물에 대한 기억(기억색)이 색 지각 자체를 바꾼다는 뜻이다.",
+    "keywords": "기억색 memory color 바나나 과일 회색 지각 노랑 기억 사물 색 보이는 방식 perception"
+  },
+  {
+    "id": "hansen2006_index",
+    "paper": "Hansen et al. (2006), Nature Neuroscience, advance online",
+    "cite": "Hansen et al., 2006, p.2",
+    "text": "기억색 효과 지수는 과일에 따라 4~13%(평균 약 8%)였고, 14명 전원이 같은 방향의 효과를 보였다. 이 효과는 식별 역치의 3~5배로 신뢰할 만했다.",
+    "keywords": "기억색 지수 효과 크기 14명 과일 memory color index 8%"
+  },
+  {
+    "id": "zhu2015_memory",
+    "paper": "Zhu et al. (2015), 23rd Color and Imaging Conference, pp.133–137",
+    "cite": "Zhu et al., 2015, p.133",
+    "text": "기억색은 실제 색보다 채도가 높은 경향이 있다. 중국인 25명과 독일인 30명이 22개 사물(과일·채소·하늘·피부 등)의 색을 화면에서 직접 맞추는 실험을 했다.",
+    "keywords": "기억색 채도 중국 독일 22개 사물 하늘 피부 memory colour saturated 문화"
+  },
+  {
+    "id": "zhu2015_culture",
+    "paper": "Zhu et al. (2015), 23rd Color and Imaging Conference, pp.133–137",
+    "cite": "Zhu et al., 2015, pp.134, 136",
+    "text": "중국과 독일 관찰자 사이의 기억색 평균 차이(ΔE*ab 약 8.7)는 같은 집단 안 개인 간 변동보다 작았다. 가장 차이가 큰 대상은 하늘, 넥타린, 키위였고 가지·장미·딸기는 두 집단의 색이 거의 같았다.",
+    "keywords": "문화 차이 중국 독일 하늘 키위 피부 딸기 기억색 cross-cultural 색차 ΔE"
+  },
+  {
+    "id": "langlois_poster",
+    "paper": "Langlois, Schloss & Palmer, 포스터 (UC Berkeley)",
+    "cite": "Langlois et al., poster",
+    "text": "장조·높은 음역 멜로디는 더 채도 높고 밝고 노란 색과, 단조·낮은 음역 멜로디는 회색빛 어두운 푸른 색과 짝지어졌다. 일반인(비공감각자)은 음악의 감정과 고른 색의 감정이 강하게 일치했다.",
+    "keywords": "음악 색 장조 단조 멜로디 노랑 파랑 회색 감정 공감각 synesthesia music color emotion 소리"
+  },
+  {
+    "id": "news2013_music",
+    "paper": "Neuroscience News (2013-05-16), Palmer et al. PNAS 2013 소개 기사",
+    "cite": "Neuroscience News, 2013, UC Berkeley (Palmer et al., PNAS)",
+    "text": "빠르고 장조인 음악은 밝고 선명한 노랑·주황과, 느리고 단조인 음악은 어둡고 탁한 푸른 회색과 연결됐다. 미국과 멕시코 참가자가 같은 곡에 같은 색을 골랐고, 음악이 얼마나 행복한지로 고른 색의 행복도를 약 95% 정확도로 예측할 수 있었다.",
+    "keywords": "음악 색 감정 행복 슬픔 노랑 주황 회색 문화 보편 95% 모차르트 장조 단조 music emotion color"
+  }
+]

@@ -1,0 +1,282 @@
+[
+  {
+    "id": "A01",
+    "group": "A",
+    "question": "채도랑 밝기가 높아지면 각성감도 커져?",
+    "expected_cards": ["wilms2018_abs"],
+    "basis": "Wilms & Oberfeld, 2018, p.896"
+  },
+  {
+    "id": "A02",
+    "group": "A",
+    "question": "빨강이 파랑보다 더 들뜨게 해? 채도가 낮을 때도 그래?",
+    "expected_cards": ["wilms2018_arousal"],
+    "basis": "Wilms & Oberfeld, 2018, pp.902-903"
+  },
+  {
+    "id": "A03",
+    "group": "A",
+    "question": "파란색이 늘 제일 기분 좋게 느껴지는 건 아니야?",
+    "expected_cards": ["wilms2018_valence"],
+    "basis": "Wilms & Oberfeld, 2018, pp.903-904"
+  },
+  {
+    "id": "A04",
+    "group": "A",
+    "question": "파랑이 빨강보다 각성 효과가 크다는 주장에는 조건이 있어?",
+    "expected_cards": ["wilms2018_which"],
+    "basis": "Wilms & Oberfeld, 2018, p.910"
+  },
+  {
+    "id": "A05",
+    "group": "A",
+    "question": "피부전도 반응도 색의 채도나 밝기에 따라 달라졌어?",
+    "expected_cards": ["wilms2018_physio"],
+    "basis": "Wilms & Oberfeld, 2018, pp.905-906, 909"
+  },
+  {
+    "id": "A06",
+    "group": "A",
+    "question": "사람들이 파랑을 좋아하는 이유가 파란 물건에 대한 좋은 감정 때문이라는 이론 이름은?",
+    "expected_cards": ["palmer2010_evt"],
+    "basis": "Palmer & Schloss, 2010, p.8877"
+  },
+  {
+    "id": "A07",
+    "group": "A",
+    "question": "48명이 색 32개를 평가했을 때 제일 덜 선호된 색은 뭐였지?",
+    "expected_cards": ["palmer2010_pref"],
+    "basis": "Palmer & Schloss, 2010, p.8878"
+  },
+  {
+    "id": "A08",
+    "group": "A",
+    "question": "사람들이 물건에 대해 느끼는 감정가가 색 선호를 얼마나 설명했어?",
+    "expected_cards": ["palmer2010_wave"],
+    "basis": "Palmer & Schloss, 2010, p.8879"
+  },
+  {
+    "id": "A09",
+    "group": "A",
+    "question": "학교 색깔에 애착이 있으면 그 색을 더 좋아한다는 연구가 있어?",
+    "expected_cards": ["palmer2010_social"],
+    "basis": "Palmer & Schloss, 2010, p.8880"
+  },
+  {
+    "id": "A10",
+    "group": "A",
+    "question": "단색 선호를 예측할 때 clean 감정이 중요하다는 건 Ou 연구 맞아?",
+    "expected_cards": ["ou2004_abs"],
+    "basis": "Ou et al., 2004, p.381"
+  },
+  {
+    "id": "A11",
+    "group": "A",
+    "question": "탁한 노랑이랑 선명한 보라빛 파랑 중 어느 쪽을 더 좋아했어?",
+    "expected_cards": ["ou2004_vivid"],
+    "basis": "Ou et al., 2004, p.383"
+  },
+  {
+    "id": "A12",
+    "group": "A",
+    "question": "CIELAB 기준색에서 멀수록 선호가 커진다는 색 선호 모델은 뭐야?",
+    "expected_cards": ["ou2004_model3"],
+    "basis": "Ou et al., 2004, pp.385-386"
+  },
+  {
+    "id": "A13",
+    "group": "A",
+    "question": "색 조화가 좋으면 반드시 사람들이 좋아한다는 뜻이야?",
+    "expected_cards": ["ou2004_harmony"],
+    "basis": "Ou et al., 2004, p.388"
+  },
+  {
+    "id": "A14",
+    "group": "A",
+    "question": "바나나가 실제로 노란데도 회색으로 보이게 하려면 푸른 쪽으로 바꿔야 했어?",
+    "expected_cards": ["hansen2006_main"],
+    "basis": "Hansen et al., 2006, p.1"
+  },
+  {
+    "id": "A15",
+    "group": "A",
+    "question": "기억색 효과 크기는 과일마다 몇 퍼센트 정도였고 사람들은 모두 같은 방향이었어?",
+    "expected_cards": ["hansen2006_index"],
+    "basis": "Hansen et al., 2006, p.2"
+  },
+  {
+    "id": "A16",
+    "group": "A",
+    "question": "중국인 25명과 독일인 30명이 기억색을 맞춘 문화 비교 실험을 했어?",
+    "expected_cards": ["zhu2015_memory"],
+    "basis": "Zhu et al., 2015, p.133"
+  },
+  {
+    "id": "A17",
+    "group": "A",
+    "question": "중국과 독일 사람들의 기억색 평균 차이를 델타 E로 얼마라고 했어?",
+    "expected_cards": ["zhu2015_culture"],
+    "basis": "Zhu et al., 2015, p.136"
+  },
+  {
+    "id": "A18",
+    "group": "A",
+    "question": "공감각자가 아닌 사람들도 음악 느낌이랑 고른 색 느낌이 비슷했어?",
+    "expected_cards": ["langlois_poster"],
+    "basis": "Palmer-VSS2013.pdf, 포스터 요약"
+  },
+  {
+    "id": "A19",
+    "group": "A",
+    "question": "음악의 행복·슬픔으로 사람들이 고르는 색의 행복도를 95% 맞힐 수 있었다는 출처가 있어?",
+    "expected_cards": ["news2013_music"],
+    "basis": "a.txt, 본문 §2 (Neuroscience News 기사)"
+  },
+  {
+    "id": "A20",
+    "group": "A",
+    "question": "장조 음악은 밝은 노랑, 단조는 어두운 파랑 쪽과 연결된다는 자료가 있나?",
+    "expected_cards": ["langlois_poster", "news2013_music"],
+    "basis": "Palmer-VSS2013.pdf, 포스터 요약; a.txt, 본문 §2 (기사)"
+  },
+  {
+    "id": "B01",
+    "group": "B",
+    "question": "에펠탑 높이는 몇 미터야?",
+    "expected_source": "web",
+    "basis": "일반 지리 지식으로, 논문 카드 19개에는 에펠탑 정보가 없음"
+  },
+  {
+    "id": "B02",
+    "group": "B",
+    "question": "물은 해수면에서 섭씨 몇 도에 끓어?",
+    "expected_source": "web",
+    "basis": "일반 과학 상식으로, 색채심리 카드 주제가 아님"
+  },
+  {
+    "id": "B03",
+    "group": "B",
+    "question": "광합성에서 엽록소가 빛에너지를 쓰는 과정을 설명해 줘.",
+    "expected_source": "web",
+    "basis": "일반 생물학 질문으로, KB 논문 카드가 다루지 않음"
+  },
+  {
+    "id": "B04",
+    "group": "B",
+    "question": "한국의 수도는 어디야?",
+    "expected_source": "web",
+    "basis": "일반 지리 지식으로, 논문 카드에 없음"
+  },
+  {
+    "id": "B05",
+    "group": "B",
+    "question": "뉴턴의 운동 제2법칙을 수식으로 써 줘.",
+    "expected_source": "web",
+    "basis": "일반 물리 지식으로, 색채심리 KB 범위 밖"
+  },
+  {
+    "id": "B06",
+    "group": "B",
+    "question": "색맹은 어떤 유전자 변이로 유전되는 거야?",
+    "expected_source": "web",
+    "basis": "색각이상 유전학은 기존 7개 출처·카드에서 다루지 않음"
+  },
+  {
+    "id": "B07",
+    "group": "B",
+    "question": "포장 색을 바꾸면 매출이 몇 퍼센트 오르는지 실험으로 알려 줘.",
+    "expected_source": "none",
+    "basis": "마케팅·매출 인과효과는 기존 카드 19개에 근거가 없음"
+  },
+  {
+    "id": "B08",
+    "group": "B",
+    "question": "빨간색 조명이 식물의 광합성량을 몇 배 높여?",
+    "expected_source": "web",
+    "basis": "식물 생리 효과는 기존 출처가 다루지 않음"
+  },
+  {
+    "id": "B09",
+    "group": "B",
+    "question": "색채치료가 우울증을 치료한다는 임상시험 결과를 알려 줘.",
+    "expected_source": "web",
+    "basis": "색채치료의 임상 효능은 기존 7개 출처·카드에 없음"
+  },
+  {
+    "id": "B10",
+    "group": "B",
+    "question": "화면 색온도가 수면 호르몬 멜라토닌에 미치는 영향은?",
+    "expected_source": "web",
+    "basis": "화면 색온도·멜라토닌 연구는 기존 출처·카드가 다루지 않음"
+  },
+  {
+    "id": "C01",
+    "group": "C",
+    "question": "파랑 선호가 연상 사물 때문이라는 설명과 색을 깨끗하다고 느끼는 설명은 같은 이론이야?",
+    "expected_cards": ["palmer2010_evt", "ou2004_abs"],
+    "basis": "Palmer & Schloss, 2010, p.8877; Ou et al., 2004, p.381"
+  },
+  {
+    "id": "C02",
+    "group": "C",
+    "question": "WAVE가 색채 조화까지 80% 설명했다는 뜻이지?",
+    "expected_cards": ["palmer2010_wave"],
+    "basis": "Palmer & Schloss, 2010, p.8879; 해당 수치는 색 선호 분산 설명량"
+  },
+  {
+    "id": "C03",
+    "group": "C",
+    "question": "파랑이 유쾌하다는 결과는 항상 맞고, 채도나 밝기와는 무관해?",
+    "expected_cards": ["wilms2018_valence"],
+    "basis": "Wilms & Oberfeld, 2018, pp.903-904"
+  },
+  {
+    "id": "C04",
+    "group": "C",
+    "question": "바나나의 기억색 효과도 중국인과 독일인 사이에서 8.7 델타 E였어?",
+    "expected_cards": ["hansen2006_main", "zhu2015_culture"],
+    "basis": "Hansen et al., 2006, p.1; Zhu et al., 2015, p.136 (서로 다른 연구의 혼동을 판별)"
+  },
+  {
+    "id": "C05",
+    "group": "C",
+    "question": "빨강은 무조건 각성을 높이고 동시에 사람들한테 가장 인기 있는 색이야?",
+    "expected_cards": ["wilms2018_which", "palmer2010_pref"],
+    "basis": "Wilms & Oberfeld, 2018, p.910; Palmer & Schloss, 2010, p.8878"
+  },
+  {
+    "id": "C06",
+    "group": "C",
+    "question": "색 조합 선호를 감정만으로는 예측하기 어렵다는 것과 조화·선호가 다를 수 있다는 것은 같은 연구 결과야?",
+    "expected_cards": ["ou2004_abs", "ou2004_harmony"],
+    "basis": "Ou et al., 2004, pp.381, 388"
+  },
+  {
+    "id": "C07",
+    "group": "C",
+    "question": "색의 생리적 영향이 감정 평정보다 약하다면서, SCR은 채도가 높으면 커진다던데 모순이야?",
+    "expected_cards": ["wilms2018_physio"],
+    "basis": "Wilms & Oberfeld, 2018, pp.905-906, 909"
+  },
+  {
+    "id": "C08",
+    "group": "C",
+    "question": "음악과 색 포스터의 11명 결과가 미국·멕시코 95% 결과를 증명한 거야?",
+    "expected_cards": ["langlois_poster", "news2013_music"],
+    "basis": "Palmer-VSS2013.pdf, 포스터 요약; a.txt, 본문 §2 (서로 다른 자료와 표본 혼동)"
+  },
+  {
+    "id": "C09",
+    "group": "C",
+    "question": "가지 기억색이 중국·독일 집단 사이에서 차이가 가장 작다고 했어?",
+    "expected_cards": ["zhu2015_culture"],
+    "basis": "Zhu et al., 2015, pp.134, 136 (p.134 가지는 중국 집단 내부 변이 사례)"
+  },
+  {
+    "id": "C10",
+    "group": "C",
+    "question": "Ou의 기준색과 멀수록 선호된다는 건 사람들이 그 색의 사물을 좋아해서라는 증거야?",
+    "expected_cards": ["ou2004_model3", "palmer2010_evt"],
+    "basis": "Ou et al., 2004, pp.385-386; Palmer & Schloss, 2010, p.8877 (서로 다른 설명 모델 혼동)"
+  }
+]

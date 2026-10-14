@@ -42,13 +42,9 @@ def test_pipeline_image_first_stub(monkeypatch):
     monkeypatch.setenv("PAINTER", "stub")
     cache = {}
     a = analyze("한여름 할머니 댁 마루에서 수박 먹던 오후", cache=cache, engine="image_first")
-    assert a["engine_version"] == imf.ENGINE_VERSION and a["verification"]["renderer"] == "image:stub"
+    assert a["engine_version"] == "eng-2.0" and a["verification"]["renderer"] == "image:stub"
     assert [p["role"] for p in a["palette"]] == ["dominant", "supporting", "atmospheric", "accent"]
-    if imf.SNAP:                                                     # eng-2.6: 4색 = 그리기 전 후보 HEX
-        assert {p["hex"] for p in a["palette"]} <= {c["hex"] for c in a["candidates"]}
-        assert all(p["basis"]["how"] == "snapped" and p["basis"]["candidate"] for p in a["palette"])
-    else:
-        assert all(p["basis"]["axis"] == "image" and p["basis"]["nearest"]["name"] for p in a["palette"])
+    assert all(p["basis"]["axis"] == "image" and p["basis"]["nearest"]["name"] for p in a["palette"])
     assert set(a["_log"]) | {"specimen_id", "kb_version", "created_at"} <= LOG_COLUMNS
     b = analyze("한여름 할머니 댁 마루에서 수박 먹던 오후", cache=cache, engine="image_first")
     assert b["cache_hit"] and b["_image"] is a["_image"]           # 같은 기억 = 같은 그림

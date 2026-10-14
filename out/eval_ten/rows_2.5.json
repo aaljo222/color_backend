@@ -1,0 +1,512 @@
+[
+ {
+  "i": 0,
+  "text": "유년의 여름날, 베어 물면 붉은 과즙보다 먼저 혀끝을 적시던 얼룩덜룩한 모스 그린 수박 껍질",
+  "engine": "eng-2.0",
+  "summary": "유년의 여름날 수박 껍질과 과즙의 감각을 떠올린 기억",
+  "emotion": "longing_melancholy",
+  "emotion_how": "keyword",
+  "valence": 4,
+  "arousal": 3,
+  "affect_ok": false,
+  "chips": [
+   [
+    "dominant",
+    "#707D7D",
+    "빗창회색 근처",
+    0.324
+   ],
+   [
+    "supporting",
+    "#90AEAB",
+    "오월하늘색 근처",
+    0.296
+   ],
+   [
+    "atmospheric",
+    "#4B704B",
+    "수박껍질 근처",
+    0.24
+   ],
+   [
+    "accent",
+    "#93333B",
+    "떡볶이색 근처",
+    0.141
+   ]
+  ],
+  "families": 4,
+  "family_names": [
+   "회색",
+   "청록",
+   "초록",
+   "빨강"
+  ],
+  "coverage": 0.581,
+  "status": "PASS",
+  "attempts": 1,
+  "renderer": "image:gemini",
+  "fidelity": null,
+  "cands": [],
+  "image": "2.5_00.png"
+ },
+ {
+  "i": 1,
+  "text": "비 오는 밤 창가에서 떠나간 사람을 생각하던 쓸쓸한 기억",
+  "engine": "eng-2.0",
+  "summary": "비 오는 밤 창가에서 떠난 사람을 그리워한 쓸쓸한 기억",
+  "emotion": "longing_melancholy",
+  "emotion_how": "keyword",
+  "valence": 2,
+  "arousal": 1,
+  "affect_ok": true,
+  "chips": [
+   [
+    "dominant",
+    "#1E232B",
+    "기와 근처",
+    0.366
+   ],
+   [
+    "supporting",
+    "#44525C",
+    "가로등밤색 근처",
+    0.319
+   ],
+   [
+    "atmospheric",
+    "#303A45",
+    "기와 근처",
+    0.191
+   ],
+   [
+    "accent",
+    "#687A81",
+    "빗창회색 근처",
+    0.124
+   ]
+  ],
+  "families": 2,
+  "family_names": [
+   "검정",
+   "회색",
+   "회색",
+   "회색"
+  ],
+  "coverage": 0.998,
+  "status": "PASS",
+  "attempts": 1,
+  "renderer": "image:gemini",
+  "fidelity": null,
+  "cands": [],
+  "image": "2.5_01.png"
+ },
+ {
+  "i": 2,
+  "text": "초여름 오후, 아빠 손을 잡고 놀이공원 회전목마 앞에서 설레던 기억",
+  "engine": "eng-2.0",
+  "summary": "초여름 오후 아빠와 회전목마 앞에서 설렜던 기억",
+  "emotion": "joy_excitement",
+  "emotion_how": "keyword",
+  "valence": 4,
+  "arousal": 4,
+  "affect_ok": true,
+  "chips": [
+   [
+    "dominant",
+    "#F1D9B0",
+    "오후햇살색 근처",
+    0.522
+   ],
+   [
+    "supporting",
+    "#F4A67E",
+    "귤색 근처",
+    0.226
+   ],
+   [
+    "atmospheric",
+    "#F5D468",
+    "은행잎 근처",
+    0.182
+   ],
+   [
+    "accent",
+    "#EE6E61",
+    "수박 근처",
+    0.07
+   ]
+  ],
+  "families": 3,
+  "family_names": [
+   "노랑",
+   "주황",
+   "노랑",
+   "빨강"
+  ],
+  "coverage": 0.681,
+  "status": "PASS",
+  "attempts": 1,
+  "renderer": "image:gemini",
+  "fidelity": null,
+  "cands": [],
+  "image": "2.5_02.png"
+ },
+ {
+  "i": 3,
+  "text": "첫눈 오던 겨울 아침 골목에서 친구와 눈사람을 만들던 날",
+  "engine": "eng-2.0",
+  "summary": "첫눈 내린 겨울 아침 골목에서 친구와 눈사람을 만든 날",
+  "emotion": "warm_nostalgia",
+  "emotion_how": "label",
+  "valence": 4,
+  "arousal": 3,
+  "affect_ok": true,
+  "chips": [
+   [
+    "dominant",
+    "#DBC3AC",
+    "모래색 근처",
+    0.439
+   ],
+   [
+    "supporting",
+    "#E4D9CA",
+    "아침안개색 근처",
+    0.22
+   ],
+   [
+    "atmospheric",
+    "#C8C0B7",
+    "돌담 근처",
+    0.219
+   ],
+   [
+    "accent",
+    "#EAB886",
+    "모래색 근처",
+    0.123
+   ]
+  ],
+  "families": 3,
+  "family_names": [
+   "주황",
+   "흰색",
+   "회색",
+   "주황"
+  ],
+  "coverage": 0.977,
+  "status": "PASS",
+  "attempts": 1,
+  "renderer": "image:gemini",
+  "fidelity": null,
+  "cands": [],
+  "image": "2.5_03.png"
+ },
+ {
+  "i": 4,
+  "text": "할머니 댁 툇마루에서 노란 참외를 깎아 먹던 한낮",
+  "engine": "eng-2.0",
+  "summary": "할머니 댁 툇마루에서 참외를 깎아 먹던 한낮의 기억",
+  "emotion": "warm_nostalgia",
+  "emotion_how": "label",
+  "valence": 4,
+  "arousal": 2,
+  "affect_ok": true,
+  "chips": [
+   [
+    "dominant",
+    "#EEC391",
+    "모래색 근처",
+    0.47
+   ],
+   [
+    "supporting",
+    "#D5A67E",
+    "붕어빵색 근처",
+    0.235
+   ],
+   [
+    "atmospheric",
+    "#EED3B7",
+    "오후햇살색 근처",
+    0.222
+   ],
+   [
+    "accent",
+    "#B17B55",
+    "낙엽색 근처",
+    0.073
+   ]
+  ],
+  "families": 2,
+  "family_names": [
+   "주황",
+   "주황",
+   "주황",
+   "갈색"
+  ],
+  "coverage": 0.957,
+  "status": "PASS",
+  "attempts": 1,
+  "renderer": "image:gemini",
+  "fidelity": null,
+  "cands": [],
+  "image": "2.5_04.png"
+ },
+ {
+  "i": 5,
+  "text": "노을 지는 바닷가를 엄마와 말없이 걷던 저녁",
+  "engine": "eng-2.0",
+  "summary": "노을 진 바닷가를 엄마와 말없이 걷던 저녁",
+  "emotion": "calm_peace",
+  "emotion_how": "keyword",
+  "valence": 4,
+  "arousal": 1,
+  "affect_ok": true,
+  "chips": [
+   [
+    "dominant",
+    "#EAAA7C",
+    "귤색 근처",
+    0.473
+   ],
+   [
+    "supporting",
+    "#698F7D",
+    "분필초록 근처",
+    0.228
+   ],
+   [
+    "atmospheric",
+    "#EB8953",
+    "노을 근처",
+    0.199
+   ],
+   [
+    "accent",
+    "#196F74",
+    "새 색",
+    0.1
+   ]
+  ],
+  "families": 3,
+  "family_names": [
+   "주황",
+   "초록",
+   "주황",
+   "청록"
+  ],
+  "coverage": 0.802,
+  "status": "PASS",
+  "attempts": 1,
+  "renderer": "image:gemini",
+  "fidelity": null,
+  "cands": [],
+  "image": "2.5_05.png"
+ },
+ {
+  "i": 6,
+  "text": "새벽까지 독서실에서 혼자 조용히 공부하던 겨울",
+  "engine": "eng-2.0",
+  "summary": "겨울 새벽까지 독서실에서 홀로 공부하던 기억",
+  "emotion": "quiet_solitude",
+  "emotion_how": "label",
+  "valence": 3,
+  "arousal": 1,
+  "affect_ok": true,
+  "chips": [
+   [
+    "dominant",
+    "#293646",
+    "기와 근처",
+    0.454
+   ],
+   [
+    "supporting",
+    "#69725D",
+    "새 색",
+    0.273
+   ],
+   [
+    "atmospheric",
+    "#111A2E",
+    "밤하늘 근처",
+    0.209
+   ],
+   [
+    "accent",
+    "#B8A079",
+    "스탠드불빛 근처",
+    0.065
+   ]
+  ],
+  "families": 3,
+  "family_names": [
+   "파랑",
+   "연두",
+   "파랑",
+   "노랑"
+  ],
+  "coverage": 0.825,
+  "status": "PASS",
+  "attempts": 1,
+  "renderer": "image:gemini",
+  "fidelity": null,
+  "cands": [],
+  "image": "2.5_06.png"
+ },
+ {
+  "i": 7,
+  "text": "벚꽃 흩날리던 꽃길을 처음 손잡고 걷던 봄날",
+  "engine": "eng-2.0",
+  "summary": "벚꽃 흩날리는 꽃길을 처음 손잡고 걸은 봄날",
+  "emotion": "joy_excitement",
+  "emotion_how": "keyword",
+  "valence": 5,
+  "arousal": 3,
+  "affect_ok": true,
+  "chips": [
+   [
+    "dominant",
+    "#EFC7C3",
+    "솜사탕색 근처",
+    0.404
+   ],
+   [
+    "supporting",
+    "#EEC9A8",
+    "모래색 근처",
+    0.263
+   ],
+   [
+    "atmospheric",
+    "#EAB87A",
+    "회전목마금빛 근처",
+    0.201
+   ],
+   [
+    "accent",
+    "#DD9F36",
+    "새 색",
+    0.131
+   ]
+  ],
+  "families": 3,
+  "family_names": [
+   "빨강",
+   "주황",
+   "주황",
+   "노랑"
+  ],
+  "coverage": 0.752,
+  "status": "PASS",
+  "attempts": 1,
+  "renderer": "image:gemini",
+  "fidelity": null,
+  "cands": [],
+  "image": "2.5_07.png"
+ },
+ {
+  "i": 8,
+  "text": "외갓집 마당에서 사촌들과 수박씨 뱉기 하던 한여름 오후",
+  "engine": "eng-2.0",
+  "summary": "한여름 오후 외갓집 마당에서 사촌들과 수박씨 뱉기를 하며 놀던 기억",
+  "emotion": "joy_excitement",
+  "emotion_how": "label",
+  "valence": 4,
+  "arousal": 4,
+  "affect_ok": true,
+  "chips": [
+   [
+    "dominant",
+    "#CCCA87",
+    "회전목마금빛 근처",
+    0.353
+   ],
+   [
+    "supporting",
+    "#C68E3B",
+    "새 색",
+    0.329
+   ],
+   [
+    "atmospheric",
+    "#EDD355",
+    "참외색 근처",
+    0.218
+   ],
+   [
+    "accent",
+    "#675639",
+    "장독대색 근처",
+    0.101
+   ]
+  ],
+  "families": 3,
+  "family_names": [
+   "노랑",
+   "주황",
+   "노랑",
+   "갈색"
+  ],
+  "coverage": 0.623,
+  "status": "PASS",
+  "attempts": 2,
+  "renderer": "image:gemini",
+  "fidelity": null,
+  "cands": [],
+  "image": "2.5_08.png"
+ },
+ {
+  "i": 9,
+  "text": "교실 창가 자리에서 분필 냄새 맡으며 졸던 오후",
+  "engine": "eng-2.0",
+  "summary": "교실 창가에서 분필 냄새 맡으며 졸던 나른한 오후",
+  "emotion": "calm_peace",
+  "emotion_how": "label",
+  "valence": 4,
+  "arousal": 1,
+  "affect_ok": true,
+  "chips": [
+   [
+    "dominant",
+    "#DFD7BD",
+    "오후햇살색 근처",
+    0.361
+   ],
+   [
+    "supporting",
+    "#CBD7CD",
+    "별색 근처",
+    0.263
+   ],
+   [
+    "atmospheric",
+    "#DFCAA3",
+    "오후햇살색 근처",
+    0.252
+   ],
+   [
+    "accent",
+    "#BADCE2",
+    "하늘 근처",
+    0.124
+   ]
+  ],
+  "families": 3,
+  "family_names": [
+   "노랑",
+   "회색",
+   "노랑",
+   "청록"
+  ],
+  "coverage": 0.883,
+  "status": "PASS",
+  "attempts": 1,
+  "renderer": "image:gemini",
+  "fidelity": null,
+  "cands": [],
+  "image": "2.5_09.png"
+ }
+]

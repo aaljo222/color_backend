@@ -25,11 +25,7 @@ from PIL import Image, ImageDraw, ImageFilter
 from core.color import rgb2lab, lab2hex, lab2lch, lch2lab, hex2lab, delta_e_2000, lch_to_hex_clipped
 
 logger = logging.getLogger("uvicorn")
-# eng-2.6 스냅: 그림 뒤 4색 = 그리기 전 후보 HEX 중에서 (core/candidates.py). PALETTE_SNAP=0 이면 eng-2.0~2.5 측정 방식 그대로
-SNAP = os.getenv("PALETTE_SNAP", "1") == "1"
-SNAP_DE = float(os.getenv("IMAGE_SNAP_DE", "15"))     # 고른 후보 색과 그림 속 그 색 무리의 실제 색 차이 허용 (넓은 3색)
-PAINT_HEX = os.getenv("PAINT_HEX", "1") == "1"         # 화가 지시문에 후보 HEX 도 같이 준다 (색 말은 늘 준다)
-ENGINE_VERSION = "eng-2.6" if SNAP else "eng-2.0"
+ENGINE_VERSION = "eng-2.0"
 W, H = 720, 900
 K_CLUSTERS = int(os.getenv("IMAGE_K", "6"))
 COVER_DE = float(os.getenv("IMAGE_COVER_DE", "10"))
@@ -83,8 +79,7 @@ def _has_genai() -> bool:
         return False
 
 
-def paint_with_fallback(prompt: str, painter: str, seed: int, base_palette: list, style: str = "color_field",
-                        cands: list | None = None) -> tuple:
+def paint_with_fallback(prompt: str, painter: str, seed: int, base_palette: list, style: str = "color_field") -> tuple:
     """화가 호출이 실패하면(키·패키지·네트워크) 다음 화가로: gemini → claude_scene → stub. 실제로 그린 화가를 돌려준다."""
     order = ["gemini", "claude_scene", "stub"]
     chain = order[order.index(painter):]
@@ -92,24 +87,17 @@ def paint_with_fallback(prompt: str, painter: str, seed: int, base_palette: list
         if name == "claude_scene" and not os.getenv("ANTHROPIC_API_KEY") and i > 0:
             continue
         try:
-            return paint(prompt, name, seed, base_palette, style, cands), name
+            return paint(prompt, name, seed, base_palette, style), name
         except Exception as ex:
             logger.warning(f"[image_first] 화가 {name} 실패 → 다음 화가: {type(ex).__name__}: {str(ex)[:120]}")
     raise RuntimeError("모든 화가가 실패했습니다")
 
 
-def cache_key(masked_text: str, painter: str, style: str | None = None, variant: int = 0) -> str:
-    """원문이 아니라 해시만 남는다. 그림이 문장 자체에 달려 있으므로 마스킹된 문장을 키에 쓴다.
-    variant(0~9, eng-2.6): 같은 문장으로 다른 그림을 보고 싶을 때의 '변형 번호'. 0 이면 예전 키 그대로."""
+def cache_key(masked_text: str, painter: str, style: str | None = None) -> str:
+    """원문이 아니라 해시만 남는다. 그림이 문장 자체에 달려 있으므로 마스킹된 문장을 키에 쓴다."""
     norm = " ".join(masked_text.split())
     model = painter_tag(GEMINI_IMAGE_MODEL if painter == "gemini" else painter, style)
-    items = [norm, painter, model, ENGINE_VERSION, K_CLUSTERS]
-    if SNAP:
-        from core.candidates import CAND_VERSION
-        items.append(CAND_VERSION)
-    if variant:
-        items.append(f"v{int(variant)}")
-    blob = json.dumps(items, ensure_ascii=False)
+    blob = json.dumps([norm, painter, model, ENGINE_VERSION, K_CLUSTERS], ensure_ascii=False)
     return hashlib.sha256(blob.encode()).hexdigest()[:16]
 
 
@@ -159,7 +147,7 @@ def color_words(descriptor) -> str:
 
 
 def build_prompt(summary: str, res: dict, kb, objects: list, affect, feedback: str = "", grounding: dict | None = None,
-                 style: str | None = None, cands: list | None = None) -> str:
+                 style: str | None = None) -> str:
     style = style or style_name()
     hints = []
     for axis in ("emotion", "time", "space"):
@@ -174,19 +162,13 @@ def build_prompt(summary: str, res: dict, kb, objects: list, affect, feedback: s
         f"기억 (분위기만 참고한다 — 그 안의 사람·사물을 그리지 않는다): {summary}",
         "기억의 분위기 (색 지식 KB 에서 검색):", *hints,
         *(["비슷한 장면과 그 색 (코퍼스 검색, eng-2.2):", *rag_lines] if (rag_lines := _rag_lines(grounding)) else []),
-        f"기억 속 사물의 색 (이름·모양 없이 색 얼룩으로만): {', '.join(obj_colors)}" if (obj_colors and not cands) else "",
-        *(_cand_lines(cands) if cands else []),
+        f"기억 속 사물의 색 (이름·모양 없이 색 얼룩으로만): {', '.join(obj_colors)}" if obj_colors else "",
         _words(affect),
         f"붓질의 에너지: {ENERGY[affect.arousal]}" if (style == "gestural" and affect is not None) else "",
     ]
     if feedback:
         lines.append(f"수정 지시: {feedback}")
     return "\n".join(x for x in lines if x)
-
-
-def _cand_lines(cands):
-    from core.candidates import prompt_lines
-    return prompt_lines(cands, with_hex=PAINT_HEX)
 
 
 def _rag_lines(grounding):
@@ -375,13 +357,10 @@ _SYSTEM = {
 }
 
 
-def _paint_claude(prompt: str, seed: int, style: str = "color_field", cands: list | None = None) -> Image.Image:
+def _paint_claude(prompt: str, seed: int, style: str = "color_field") -> Image.Image:
     from core.llm import structured
-    system = _SYSTEM.get(style, _SYSTEM["color_field"])
-    if cands:                                                   # eng-2.6: 색은 후보 HEX 에서만 (넓게 표시된 색이 넓은 면)
-        system += (" 색은 지시문의 '쓸 색' 목록에 있는 #RRGGBB 만 그대로 쓰십시오. '넓게' 색은 그 면적만큼 넓은 면으로, "
-                   "'작게' 색은 짧은 붓질과 튐으로만 쓰십시오.")
-    scene = structured(system, prompt, _SCENE_SCHEMA, max_tokens=2600 if style == "gestural" else 900)
+    scene = structured(_SYSTEM.get(style, _SYSTEM["color_field"]), prompt, _SCENE_SCHEMA,
+                       max_tokens=2600 if style == "gestural" else 900)
     return render_scene(scene, seed)
 
 
@@ -408,41 +387,12 @@ def _paint_stub(prompt: str, seed: int, base_palette: list, style: str = "color_
     return render_scene(scene, seed)
 
 
-def paint(prompt: str, painter: str, seed: int, base_palette: list, style: str = "color_field", cands: list | None = None) -> Image.Image:
+def paint(prompt: str, painter: str, seed: int, base_palette: list, style: str = "color_field") -> Image.Image:
     if painter == "gemini":
         return _paint_gemini(prompt)
     if painter == "claude_scene":
-        return _paint_claude(prompt, seed, style, cands)
-    if cands:
-        return _paint_stub_cands(seed, cands, style)
+        return _paint_claude(prompt, seed, style)
     return _paint_stub(prompt, seed, base_palette, style)
-
-
-def _paint_stub_cands(seed: int, cands: list, style: str = "color_field") -> Image.Image:
-    """키 없이 도는 테스트 대역 (eng-2.6): 후보 색을 면적 목표대로 색면·붓질로 배치하고, 색을 조금씩 흔든다
-    (실제 화가도 HEX 를 정확히 따르지 않는다 — 스냅이 흔들린 그림에서도 후보를 되찾는지 시험하려는 것). 결정론."""
-    rng = np.random.default_rng(seed)
-    def jitter(c, dl=6, dc=0.25, dh=10):
-        L, C, h = c.lch
-        return lch_to_hex_clipped((L + rng.uniform(-dl, dl), C * rng.uniform(1 - dc, 1 + dc), h + rng.uniform(-dh, dh)))[0]
-    large = [c for c in cands if c.tier == "large"] or cands[:1]
-    small = [c for c in cands if c.tier != "large"]
-    shapes, y = [], 0.0
-    for c in large:                                             # 넓은 색: 면적 목표만큼 세로로 쌓은 색면
-        h = c.area / max(1e-6, sum(x.area for x in large))
-        shapes.append({"kind": "rect", "x": rng.uniform(-.05, .05), "y": y - .03, "w": 1.1, "h": h + .06,
-                       "color": jitter(c), "softness": rng.uniform(.3, .6)})
-        y += h
-    scene = {"background": large[0].hex, "shapes": shapes}
-    if style == "gestural" or small:
-        pool = small or large
-        scene["strokes"] = [{"points": [{"x": x, "y": y} for x, y in zip(np.cumsum(rng.uniform(-.1, .1, 4)) + rng.uniform(.1, .9),
-                                                                      np.cumsum(rng.uniform(-.06, .06, 4)) + rng.uniform(.1, .9))],
-                             "width": rng.uniform(.01, .03), "color": jitter(pool[int(rng.integers(len(pool)))]),
-                             "softness": rng.uniform(.1, .4)} for _ in range(14)]
-        scene["flecks"] = [{"x": rng.uniform(0, 1), "y": rng.uniform(0, 1), "r": rng.uniform(.003, .01),
-                            "color": jitter(pool[int(rng.integers(len(pool)))])} for _ in range(10)]
-    return render_scene(scene, seed)
 
 
 # ── ③ 측정 ───────────────────────────────────────────────────────────────
@@ -489,75 +439,8 @@ def measure(img: Image.Image, seed: int = 0) -> dict:
             "de_p90": float(np.percentile(des, 90))}
 
 
-def measure_snapped(img: Image.Image, cands: list, seed: int = 0) -> dict:
-    """그림 → 후보 중 4색 (eng-2.6). 4색의 HEX 는 언제나 후보 HEX 그대로다 — 그리기 전 문장 분석이 정한 색 밖으로 나가지 않는다.
-
-      ① 모든 픽셀을 가장 가까운 후보에 배정 (Lab 거리) → 후보마다 그림 속 면적
-      ② 곁색은 부모 색과 한 묶음(family)으로 면적을 합친다 (cand-2, 2026-10-13 운영: 화가가 중간 톤으로 칠하면
-         픽셀이 곁색으로 몰려 칩 3개가 '목표 1%' 곁색이 되고, 한 계열이 두 칸을 차지했다)
-         면적 큰 묶음 3개 + 남은 묶음 중 주조색과 가장 대비되는 1개(면적 1% 이상) = 4색.
-         묶음마다 칩은 그 묶음에서 그림에 가장 넓게 나온 후보 하나 (부모든 곁색이든 — 그림에 실제로 있는 색)
-      ③ 전체 픽셀을 이 4색에 다시 배정 → 면적비
-      ④ 충실도: 4색마다 '배정된 픽셀의 실제 색'(핵심 40% 평균)과 후보 색의 ΔE00 — 화가가 그 색을 얼마나 그대로 칠했나
-      ⑤ 대표도: 픽셀 1,500개 중, 배정된 4색 무리의 실제 색과 ΔE00 ≤ COVER_DE 인 비율 (eng-2.0 과 같은 뜻)
-                + snap_coverage: 같은 비율을 후보 색 값으로 잰 것 (칩 색 그대로 칠했다면 얼마나 비슷한가)
-    """
-    lab = _pixels(img)
-    C = np.array([c.lab for c in cands])
-    d2 = ((lab[:, None, :] - C[None, :, :]) ** 2).sum(-1)
-    lbl = d2.argmin(1)
-    share = np.bincount(lbl, minlength=len(cands)) / len(lab)
-    fam = [getattr(c, "family", c.cid) for c in cands]
-    fams = list(dict.fromkeys(fam))                              # 후보 순서(가중치 순) 그대로
-    fshare = {f: float(sum(share[i] for i in range(len(cands)) if fam[i] == f)) for f in fams}
-    def rep(f):                                                  # 묶음의 대표 = 그림에 가장 넓게 나온 구성원 (같으면 가중치 순 = 부모)
-        return max((i for i in range(len(cands)) if fam[i] == f), key=lambda i: (share[i], -i))
-    forder = sorted(fams, key=lambda f: (-fshare[f], fams.index(f)))
-    top = [f for f in forder if fshare[f] > 0][:3]
-    if len(top) < 3:                                             # 그림에 거의 안 나온 묶음밖에 없으면 가중치 순으로 채운다
-        top += [f for f in fams if f not in top][:3 - len(top)]
-    picked = [rep(f) for f in top]
-    dom = C[picked[0]]
-    rest = [f for f in forder if f not in top]
-    if rest:
-        def contrast(f):
-            return delta_e_2000(C[rep(f)], dom) * (1 if fshare[f] >= 0.01 else 0.2)
-        picked.append(rep(max(rest, key=contrast)))
-    if len(picked) < 4:                                          # 묶음이 3개뿐이면 남은 후보 아무거나에서 대비색 (칩은 언제나 4개, 2026-10-14 운영: 3칩)
-        others = [i for i in sorted(range(len(cands)), key=lambda i: -share[i]) if i not in picked]
-        if others:
-            picked.append(max(others, key=lambda i: delta_e_2000(C[i], dom) * (1 if share[i] >= 0.01 else 0.2)))
-    cents = C[picked]
-    lbl4 = ((lab[:, None, :] - cents[None, :, :]) ** 2).sum(-1).argmin(1)
-    ratios = np.bincount(lbl4, minlength=len(picked)) / len(lab)
-    n_big = min(3, len(picked))
-    order3 = sorted(range(n_big), key=lambda j: -ratios[j])
-    perm = order3 + list(range(n_big, len(picked)))
-    picked = [picked[j] for j in perm]
-    cents, ratios = cents[perm], ratios[perm]
-    lbl4 = np.array(perm).argsort()[lbl4]
-    real = []
-    for j in range(len(picked)):
-        pts = lab[lbl4 == j]
-        if len(pts) < 5:
-            real.append(None); continue
-        m = pts.mean(0)
-        dist = ((pts - m) ** 2).sum(1)
-        real.append(pts[dist <= np.quantile(dist, CORE_FRAC)].mean(0) if CORE_FRAC < 1 else m)
-    fidelity = [None if r is None else round(float(delta_e_2000(r, cents[j])), 1) for j, r in enumerate(real)]
-    rng = np.random.default_rng(seed)
-    idx = rng.choice(len(lab), size=min(1500, len(lab)), replace=False)
-    real_c = np.array([r if r is not None else cents[j] for j, r in enumerate(real)])
-    des = np.array([delta_e_2000(lab[i], real_c[lbl4[i]]) for i in idx])
-    des_snap = np.array([delta_e_2000(lab[i], cents[lbl4[i]]) for i in idx])
-    return {"centers": cents, "ratios": ratios, "coverage": float((des <= COVER_DE).mean()),
-            "snap_coverage": float((des_snap <= COVER_DE).mean()), "de_p90": float(np.percentile(des, 90)),
-            "picked": picked, "fidelity": fidelity, "real": real,
-            "cand_share": {cands[i].cid: round(float(share[i]), 3) for i in range(len(cands))}}
-
-
 # ── ④ 심사 ───────────────────────────────────────────────────────────────
-def review(m: dict, affect, style: str = "color_field", cands: list | None = None) -> dict:
+def review(m: dict, affect, style: str = "color_field") -> dict:
     cover_min = COVER_MIN_BY_STYLE.get(style, COVER_MIN)
     lch = [lab2lch(c) for c in m["centers"]]
     Cw = float(sum(r * c[1] for r, c in zip(m["ratios"], lch)))
@@ -565,12 +448,6 @@ def review(m: dict, affect, style: str = "color_field", cands: list | None = Non
     fails, notes = [], []
     if m["coverage"] < cover_min:
         fails.append(f"색면을 더 단순하게(4색이 그림의 {m['coverage']*100:.1f}%만 대표, 목표 {cover_min*100:.0f}%)")   # .0f 면 79.9% 가 '80%만 대표, 목표 80%' 로 보였다
-    if m.get("fidelity") is not None and cands:                # eng-2.6: 넓은 3색은 그림에 '그 색'으로 칠해져 있어야 한다
-        for j, (i, f) in enumerate(zip(m["picked"][:3], m["fidelity"][:3])):
-            if f is None or f > SNAP_DE:
-                c = cands[i]
-                fails.append(f"'{color_words(c.descriptor)}'을 더 분명하고 넓게(후보 색과 그림 속 그 색의 차이 ΔE00 "
-                             f"{'—' if f is None else f'{f:.0f}'}, 기준 {SNAP_DE:.0f})")
     if affect is not None:
         out = fails if AFFECT_GATE == "hard" else notes
         lo, hi = AROUSAL_C[affect.arousal]
@@ -620,26 +497,20 @@ def nearest(lab, refs) -> dict:
 
 
 # ── 전체 ─────────────────────────────────────────────────────────────────
-def run(masked: str, summary: str, res: dict, kb, objects: list, affect, base_palette: list, grounding: dict | None = None,
-        variant: int = 0) -> dict:
+def run(masked: str, summary: str, res: dict, kb, objects: list, affect, base_palette: list, grounding: dict | None = None) -> dict:
     painter, style = painter_name(), style_name()
-    key = cache_key(masked, painter, style, variant)
+    key = cache_key(masked, painter, style)
     seed = int(key[:8], 16)
-    cands = None
-    if SNAP:
-        from core.candidates import build as build_cands
-        cands = build_cands(res, kb, objects, affect, base_palette, masked)
     fb, tries, best = "", [], None
     for n in range(1, MAX_ATTEMPTS + 1):
-        prompt = build_prompt(summary or masked[:40], res, kb, objects, affect, fb, grounding, style, cands)
-        img, used = paint_with_fallback(prompt, painter, seed + n - 1, base_palette, style, cands)
-        m = measure_snapped(img, cands) if cands else measure(img)
-        rv = review(m, affect, style, cands)
+        prompt = build_prompt(summary or masked[:40], res, kb, objects, affect, fb, grounding, style)
+        img, used = paint_with_fallback(prompt, painter, seed + n - 1, base_palette, style)
+        m = measure(img)
+        rv = review(m, affect, style)
         # 지시문도 로그에 남긴다 (코퍼스 보강·화풍이 실제로 들어갔는지 확인용, 마스킹된 요약만 포함)
         tries.append({"attempt": n, "painter": used, "style": style, "prompt": prompt,
                       **{k: rv[k] for k in ("ok", "fails", "notes", "chroma_w", "light_w")},
-                      "coverage": round(m["coverage"], 3),
-                      **({"snap_coverage": round(m["snap_coverage"], 3), "fidelity": m["fidelity"]} if cands else {})})
+                      "coverage": round(m["coverage"], 3)})
         if best is None or (rv["ok"], m["coverage"]) > (best[2]["ok"], best[1]["coverage"]):
             best = (img, m, rv)
         if rv["ok"]:
@@ -649,23 +520,7 @@ def run(masked: str, summary: str, res: dict, kb, objects: list, affect, base_pa
     img, m, rv = best
     refs = _references(kb)
     palette = []
-    for j, (role, c, r) in enumerate(zip(ROLES, m["centers"], m["ratios"])):
-        if cands:                                                # eng-2.6: 칩 = 후보 그대로 (HEX·LCh·이름이 후보에서 온다)
-            cd = cands[m["picked"][j]]
-            real = m["real"][j]
-            # 곁색이 뽑히면 그 묶음(부모+곁색)의 출처·면적 목표로 보인다 (2026-10-14 운영: '곁색 c7 · 목표 2%' 인데 그림에서 48% —
-            #   화가가 부모 색을 조금 짙게 칠한 것이지 목표를 어긴 게 아니다)
-            par = getattr(cd, "parent", None)
-            fam_target = sum(c.area for c in cands if getattr(c, "family", c.cid) == getattr(cd, "family", cd.cid))
-            palette.append({"role": role, "hex": cd.hex, "area_ratio": round(float(r), 3),
-                            "lch": [round(float(x), 2) for x in cd.lch], "color_name": cd.label, "basis": {
-                                "axis": par.origin if par is not None else cd.origin, "how": "snapped",
-                                "phrase": f"그림에서 {r*100:.0f}%", "candidate": cd.cid, "tier": (par or cd).tier,
-                                "area_target": round(fam_target, 3),
-                                **({"shade_of": f"{par.cid} {par.label}"} if par is not None else {}),
-                                "painted_hex": lab2hex(real) if real is not None else None,
-                                "fidelity_de00": m["fidelity"][j], **({"merged": cd.merged} if cd.merged else {})}})
-            continue
+    for role, c, r in zip(ROLES, m["centers"], m["ratios"]):
         near = nearest(c, refs)
         L, C, h = lab2lch(c)
         palette.append({"role": role, "hex": lab2hex(c), "area_ratio": round(float(r), 3),
@@ -677,15 +532,8 @@ def run(masked: str, summary: str, res: dict, kb, objects: list, affect, base_pa
     verification = {"status": "PASS" if rv["ok"] else "FAIL", "max_de00": round(m["de_p90"], 2),
                     "max_ratio_err": 0.0, "attempts": len(tries), "renderer": f"image:{tries[-1]['painter']}",
                     "coverage": round(m["coverage"], 3), "review": rv,
-                    **({"snap_coverage": round(m["snap_coverage"], 3), "candidates_in": True} if cands else {}),
                     "criteria": {"cover_de00": COVER_DE, "cover_min": COVER_MIN_BY_STYLE[style], "style": style,
-                                 **({"snap_de00": SNAP_DE} if cands else {}),
                                  "arousal_c": AROUSAL_C.get(affect.arousal) if affect else None,
                                  "valence_l": VALENCE_L.get(affect.valence) if affect else None}}
-    out = {"palette": palette, "cache_key": key, "image": img, "verification": verification,
-           "tries": tries, "painter": painter, "style": style}
-    if cands:
-        out["candidates"] = [{**c.public(), "painted_share": m["cand_share"][c.cid],
-                              "chosen": c.cid in {cands[i].cid for i in m["picked"]}} for c in cands]
-        assert {p["hex"] for p in palette} <= {c.hex for c in cands}   # 9번 요구: 그림 뒤 4색 ⊂ 그리기 전 후보 (코드로 보장)
-    return out
+    return {"palette": palette, "cache_key": key, "image": img, "verification": verification,
+            "tries": tries, "painter": painter, "style": style}

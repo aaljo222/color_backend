@@ -1,0 +1,481 @@
+"""Run the offline chatbot retrieval evaluation set against current search modes."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from collections import Counter
+from pathlib import Path
+from typing import Any
+
+from dotenv import load_dotenv
+
+ROOT = Path(__file__).resolve().parents[1]
+load_dotenv(ROOT / ".env")
+EVAL_PATH = ROOT / "data" / "eval" / "chat_eval.json"
+DEFAULT_OUTPUT = ROOT / "data" / "eval" / "baseline.md"
+
+# The route uses top-three search results, accepts scores >= TAU, and returns at
+# most two paper citations. Call search directly so evaluation never calls web.
+sys.path.insert(0, str(ROOT))
+from routers.chat_retrieval import (
+    AMBIGUITY_GAP,
+    CROSS_PAPER_RATIO,
+    CROSS_PAPER_SCORE,
+    MIN_RELATIVE_SCORE,
+    MIN_SOURCE_TERMS,
+    Stage,
+    strict_search,
+)
+from routers.chat_router import (
+    CHAT_EMBEDDING_TAU,
+    CHAT_OCR_TAU,
+    TAU,
+    hybrid_retrieve,
+    search,
+    strict_retrieve,
+)
+
+
+def evaluate(
+    items: list[dict[str, Any]],
+    cards: list[dict[str, Any]],
+    mode: str = "legacy",
+    stage: Stage = "secondary",
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    results: list[dict[str, Any]] = []
+    counts: Counter[str] = Counter()
+    relevant_returned = 0
+    total_returned = 0
+    contaminated_rows = 0
+    precision_rows = 0
+    for item in items:
+        group = item["group"]
+        if mode == "legacy":
+            hits = search(item["question"], k=3)
+        elif mode == "strict":
+            hits = strict_retrieve(item["question"], stage)
+        elif mode == "hybrid":
+            hits = hybrid_retrieve(item["question"])
+        else:
+            raise ValueError(f"unknown evaluation mode: {mode}")
+        paper_hits = [hit for hit in hits if hit["score"] >= TAU][:2]
+        expected = set(item.get("expected_cards", []))
+        returned_ids = [hit["id"] for hit in paper_hits]
+        returned = [
+            {"id": hit["id"], "score": hit["score"], "paper": hit["paper"]}
+            for hit in hits
+        ]
+        first_hit = bool(hits and hits[0]["id"] in expected) if expected else False
+        top2_hit = any(hit["id"] in expected for hit in hits[:2]) if expected else False
+        wrong_evidence = bool(paper_hits) and any(
+            card_id not in expected for card_id in returned_ids
+        )
+        expected_source = item.get("expected_source")
+
+        counts[f"{group}_n"] += 1
+        if group == "A":
+            counts["A_top1_hit"] += int(first_hit)
+            counts["A_top2_hit"] += int(top2_hit)
+        elif group == "B":
+            rejected = not paper_hits
+            counts["B_rejected"] += int(rejected)
+            if not rejected:
+                counts["B_leaks"] += 1
+        elif group == "C":
+            counts["C_wrong"] += int(wrong_evidence)
+        if group in {"A", "C"}:
+            precision_rows += 1
+            total_returned += len(paper_hits)
+            relevant_returned += sum(card_id in expected for card_id in returned_ids)
+            contaminated_rows += int(wrong_evidence)
+
+        results.append({
+            "id": item["id"],
+            "group": group,
+            "question": item["question"],
+            "expected": sorted(expected) if expected else expected_source,
+            "ranked": returned,
+            "accepted": returned_ids,
+            "top1_hit": first_hit if group == "A" else None,
+            "top2_hit": top2_hit if group == "A" else None,
+            "rejected": not paper_hits if group == "B" else None,
+            "wrong_evidence": wrong_evidence if group == "C" else None,
+        })
+
+    a_n = counts["A_n"]
+    b_n = counts["B_n"]
+    c_n = counts["C_n"]
+    accepted_top1 = sum(
+        bool(row["accepted"] and row["accepted"][0] in row["expected"])
+        for row in results if row["group"] == "A"
+    )
+    accepted_any = sum(
+        any(card_id in row["expected"] for card_id in row["accepted"])
+        for row in results if row["group"] == "A"
+    )
+    expected_scores: list[float] = []
+    out_of_scope_scores: list[float] = []
+    for item in items:
+        raw_hits = search(item["question"], k=len(cards))
+        if item["group"] == "A":
+            expected = set(item["expected_cards"])
+            expected_scores.append(max(
+                (hit["score"] for hit in raw_hits if hit["id"] in expected),
+                default=0.0,
+            ))
+        elif item["group"] == "B":
+            out_of_scope_scores.append(max(
+                (hit["score"] for hit in raw_hits),
+                default=0.0,
+            ))
+    metrics = {
+        "tau": TAU,
+        "mode": mode,
+        "stage": stage,
+        "counts": dict(counts),
+        "A_top1": counts["A_top1_hit"] / a_n if a_n else 0.0,
+        "A_top2": counts["A_top2_hit"] / a_n if a_n else 0.0,
+        "A_accepted_top1": accepted_top1 / a_n if a_n else 0.0,
+        "A_accepted_any": accepted_any / a_n if a_n else 0.0,
+        "A_expected_min_score": min(expected_scores, default=0.0),
+        "B_max_score": max(out_of_scope_scores, default=0.0),
+        "B_rejection": counts["B_rejected"] / b_n if b_n else 0.0,
+        "B_false_paper": counts["B_leaks"] / b_n if b_n else 0.0,
+        "C_wrong_adoption": counts["C_wrong"] / c_n if c_n else 0.0,
+        "precision": relevant_returned / total_returned if total_returned else 0.0,
+        "contaminated_rows": contaminated_rows,
+        "precision_rows": precision_rows,
+        "accepted_cards": total_returned,
+        "relevant_cards": relevant_returned,
+        "B_leaks": [
+            row for row in results
+            if row["group"] == "B" and row["accepted"]
+        ],
+        "A_misses": [
+            row for row in results
+            if row["group"] == "A" and not row["top1_hit"]
+        ],
+        "A_unanswered": [
+            row for row in results
+            if row["group"] == "A"
+            and not any(card_id in row["expected"] for card_id in row["accepted"])
+        ],
+        "C_wrong_rows": [
+            row for row in results
+            if row["group"] == "C" and row["wrong_evidence"]
+        ],
+    }
+    return results, metrics
+
+
+def render_markdown(
+    results: list[dict[str, Any]],
+    metrics: dict[str, Any],
+    stage_metrics: list[tuple[str, dict[str, Any]]] | None = None,
+    comparison_metrics: dict[str, Any] | None = None,
+    index_metrics: dict[str, Any] | None = None,
+) -> str:
+    def percent(value: float) -> str:
+        return f"{value * 100:.1f}%"
+
+    lines = [
+        "# 챗봇 검색 " + {
+            "legacy": "베이스라인",
+            "strict": "strict 측정",
+            "hybrid": "hybrid 측정",
+        }[metrics["mode"]],
+        "",
+        "평가셋의 정답 카드는 papers_text 원문과 카드 감사 결과로 사전 지정했습니다. "
+        "현재 검색 결과를 보고 라벨을 정하지 않았습니다.",
+        "",
+        f"- 실행 방식: "
+        + (
+            "`routers.chat_router.search(question, k=3)` 직접 호출"
+            if metrics["mode"] == "legacy"
+            else (
+                "`hybrid_retrieve`: strict 우선, strict가 비었을 때 임베딩 보완"
+                if metrics["mode"] == "hybrid"
+                else f"`strict_search` ({metrics['stage']} 단계)"
+            )
+        )
+        + "; 웹 요청 없음",
+        f"- 현재 임계값: `TAU={metrics['tau']:.3f}`; 인용은 임계값 이상 중 상위 2개",
+        f"- 문항: A {metrics['counts'].get('A_n', 0)}, "
+        f"B {metrics['counts'].get('B_n', 0)}, "
+        f"C {metrics['counts'].get('C_n', 0)}; 총 {len(results)}",
+        "",
+    ]
+    if metrics["mode"] == "hybrid":
+        lines.extend([
+            f"- 임베딩 보완 기준: `CHAT_EMBEDDING_TAU={CHAT_EMBEDDING_TAU:.3f}`, "
+            f"원문 청크 기준: `CHAT_OCR_TAU={CHAT_OCR_TAU:.3f}`",
+            "",
+        ])
+        if index_metrics:
+            lines.extend([
+                f"- 인덱스: `{index_metrics['model']}`, {index_metrics['dimension']}차원; "
+                f"KB 카드 {index_metrics['cards']}개, 논문 청크 "
+                f"{index_metrics['paper_chunks']}개 (OCR 추출 청크 "
+                f"{index_metrics['ocr_chunks']}개)",
+                "",
+            ])
+    lines.extend([
+        "## 지표",
+        "",
+        "| 지표 | 결과 | 분자/분모 |",
+        "|---|---:|---:|",
+        f"| A 1순위 적중률 | {percent(metrics['A_top1'])} | "
+        f"{metrics['counts'].get('A_top1_hit', 0)}/{metrics['counts'].get('A_n', 0)} |",
+        f"| A 상위 2개 적중률 | {percent(metrics['A_top2'])} | "
+        f"{metrics['counts'].get('A_top2_hit', 0)}/{metrics['counts'].get('A_n', 0)} |",
+        f"| A 채택 카드 중 1순위 적중 | {percent(metrics['A_accepted_top1'])} | "
+        f"{round(metrics['A_accepted_top1'] * metrics['counts'].get('A_n', 0))}/"
+        f"{metrics['counts'].get('A_n', 0)} |",
+        f"| A 정답 카드 채택률 (1개 이상) | {percent(metrics['A_accepted_any'])} | "
+        f"{round(metrics['A_accepted_any'] * metrics['counts'].get('A_n', 0))}/"
+        f"{metrics['counts'].get('A_n', 0)} |",
+        f"| B 거절률 | {percent(metrics['B_rejection'])} | "
+        f"{metrics['counts'].get('B_rejected', 0)}/{metrics['counts'].get('B_n', 0)} |",
+        f"| B 잘못된 paper 채택률 | {percent(metrics['B_false_paper'])} | "
+        f"{metrics['counts'].get('B_leaks', 0)}/{metrics['counts'].get('B_n', 0)} |",
+        f"| C 오답 근거 채택률 | {percent(metrics['C_wrong_adoption'])} | "
+        f"{metrics['counts'].get('C_wrong', 0)}/{metrics['counts'].get('C_n', 0)} |",
+        f"| 기대 카드 정밀도 (A+C, 카드 단위) | {percent(metrics['precision'])} | "
+        f"{metrics['relevant_cards']}/{metrics['accepted_cards']} |",
+        f"| 기대 밖 카드가 섞인 문항 (A+C) | "
+        f"{metrics['contaminated_rows']}/{metrics['precision_rows']} |",
+        "",
+        f"- A 정답 카드 최고점 중 최저값: `{metrics['A_expected_min_score']:.3f}`",
+        f"- B 최고점: `{metrics['B_max_score']:.3f}`",
+        "",
+    ])
+    if comparison_metrics:
+        lines.extend([
+            "## Strict vs Hybrid",
+            "",
+            "| 모드 | A@1 | A@2 | B 거절 | C 오답 근거 | 정밀도 (A+C) |",
+            "|---|---:|---:|---:|---:|---:|",
+        ])
+        for label, values in (("Strict", comparison_metrics), ("Hybrid", metrics)):
+            lines.append(
+                f"| {label} | {percent(values['A_top1'])} | {percent(values['A_top2'])} | "
+                f"{percent(values['B_rejection'])} | {percent(values['C_wrong_adoption'])} | "
+                f"{percent(values['precision'])} |"
+            )
+        lines.append("")
+    if metrics["mode"] == "strict":
+        lines.extend([
+            "## Strict 문턱값 근거",
+            "",
+            f"- 평가셋 B 최고점은 `{metrics['B_max_score']:.3f}`, "
+            f"A 정답 카드 최고점 중 최저는 `{metrics['A_expected_min_score']:.3f}`입니다. "
+            "둘 사이에 분리 가능한 TAU가 없으므로, B 최고점을 넘고 기존 동작을 유지하는 "
+            f"`TAU={metrics['tau']:.3f}`를 유지했습니다.",
+            f"- 같은 논문 후보는 1순위 점수의 `{MIN_RELATIVE_SCORE:.0%}` 이상만 남깁니다. "
+            "C01의 오답 2순위는 58.8%였고, A02의 정답 2순위는 67.8%였습니다.",
+            f"- 다른 논문은 점수 `{CROSS_PAPER_SCORE:.2f}` 이상이면서 1순위의 "
+            f"`{CROSS_PAPER_RATIO:.0%}` 이상일 때만 허용합니다. A20의 관련 포스터는 "
+            "0.289점(1순위 대비 73.4%)이었고, A12의 무관한 다른 논문 후보는 "
+            "0.291점(65.1%)이라 제외됩니다.",
+            f"- 1·2순위 차이가 `{AMBIGUITY_GAP:.2f}` 이하이면 1순위만 남깁니다. "
+            "A04의 거의 같은 두 점수(0.207, 0.204)에서 2순위를 버립니다.",
+            f"- 원문 대조는 인용된 페이지/절에서 카드 keywords의 영어 용어·수치가 "
+            f"최소 {MIN_SOURCE_TERMS}개 일치하는지 확인합니다. TXT도 `§절` 범위만 읽습니다.",
+            "- 기사에는 `tier: secondary`를 붙이고, 같은 주제의 primary 카드가 함께 선택되면 "
+            "기사를 제외합니다. 해당 필드는 레거시 색인에 사용하지 않습니다.",
+            "- 응답의 인용 객체는 검색 결과의 기존 필드만 사용하며, `citations[].cite`에는 "
+            "기존 `cite` 문자열만 전달합니다.",
+            "",
+        ])
+    if stage_metrics:
+        lines.extend([
+            "## 단계별 strict 장치 비교",
+            "",
+            "| 적용 장치 | A 1순위 | A 상위 2 | A 채택률 | B 거절 | C 오답 채택 | 정밀도 |",
+            "|---|---:|---:|---:|---:|---:|---:|",
+        ])
+        for label, values in stage_metrics:
+            lines.append(
+                f"| {label} | {percent(values['A_top1'])} | {percent(values['A_top2'])} | "
+                f"{percent(values['A_accepted_any'])} | {percent(values['B_rejection'])} | "
+                f"{percent(values['C_wrong_adoption'])} | {percent(values['precision'])} |"
+            )
+        lines.extend(["",])
+    lines.extend([
+        "## 문항별 결과",
+        "",
+        "| ID | 유형 | 질문 | 기대값 | 검색 결과 (점수) | 채택 카드 | 판정 |",
+        "|---|---|---|---|---|---|---|",
+    ])
+    for row in results:
+        expected = row["expected"]
+        expected_text = ", ".join(expected) if isinstance(expected, list) else expected
+        ranked = ", ".join(
+            f"{hit['id']} ({hit['score']:.3f})" for hit in row["ranked"]
+        ) or "—"
+        accepted = ", ".join(row["accepted"]) or "—"
+        if row["group"] == "A":
+            status = "top1 적중" if row["top1_hit"] else (
+                "top2 적중" if row["top2_hit"] else "미적중"
+            )
+        elif row["group"] == "B":
+            status = "거절" if row["rejected"] else "누출"
+        else:
+            status = "오답 근거" if row["wrong_evidence"] else "오답 근거 없음"
+        question = row["question"].replace("|", "\\|")
+        lines.append(
+            f"| {row['id']} | {row['group']} | {question} | {expected_text} | "
+            f"{ranked} | {accepted} | {status} |"
+        )
+
+    if metrics["B_leaks"]:
+        lines.extend(["", "## B에서 paper로 새는 문항", ""])
+        for row in metrics["B_leaks"]:
+            ranks = ", ".join(
+                f"{hit['id']}={hit['score']:.3f}" for hit in row["ranked"]
+            )
+            lines.append(f"- `{row['id']}` {row['question']} → {ranks}")
+    if metrics["A_misses"]:
+        lines.extend(["", "## A 1순위 미적중 문항", ""])
+        for row in metrics["A_misses"]:
+            ranks = ", ".join(
+                f"{hit['id']}={hit['score']:.3f}" for hit in row["ranked"]
+            ) or "없음"
+            lines.append(
+                f"- `{row['id']}` 기대 `{', '.join(row['expected'])}`; "
+                f"검색: {ranks}"
+            )
+    if metrics["mode"] in {"strict", "hybrid"} and metrics["A_unanswered"]:
+        lines.extend(["", "## Strict에서 정답 카드를 채택하지 못한 A 문항", ""])
+        for row in metrics["A_unanswered"]:
+            ranked = ", ".join(
+                f"{hit['id']}={hit['score']:.3f}" for hit in row["ranked"]
+            ) or "없음"
+            lines.append(
+                f"- `{row['id']}` 기대 `{', '.join(row['expected'])}`; "
+                f"채택 `{', '.join(row['accepted']) or '없음'}`; "
+                f"질문: {row['question']}; 점수: {ranked}"
+            )
+    if metrics["C_wrong_rows"]:
+        lines.extend(["", "## C 오답 근거 채택 문항", ""])
+        for row in metrics["C_wrong_rows"]:
+            lines.append(
+                f"- `{row['id']}` 기대 `{', '.join(row['expected'])}`; "
+                f"채택 `{', '.join(row['accepted'])}`"
+            )
+    if metrics["mode"] == "strict":
+        unanswered_count = len(metrics["A_unanswered"])
+        a_count = metrics["counts"].get("A_n", 0)
+        lines.extend([
+            "",
+            "## 임베딩 도입 검토 (제안만; 적용하지 않음)",
+            "",
+            f"- Strict에서 A 정답 카드를 못 채택한 문항은 {unanswered_count}/{a_count} "
+            f"({percent(unanswered_count / a_count if a_count else 0)})입니다. "
+            "A03의 구어체 '기분 좋게 느껴지는'은 카드의 valence/유쾌 표현과 어휘가 달라 "
+            "최고점 0.058로 TAU 아래였으며, 한국어 동의어 매칭 실패 가능성은 1/20 (5%)입니다. "
+            "A01은 예상 카드가 0.105로 TAU 아래이고 arousal 카드 0.133이 앞서, "
+            "검색어휘보다 점수 문턱/같은 논문 카드 혼동이 직접 원인입니다.",
+            "- 두 후보 모두 한국어를 지원하고 384차원·12층입니다. Hugging Face 모델 파일 "
+            "헤더 기준 각각 470,641,600 bytes (약 471 MB, float32 weights); CPU 지연은 "
+            "이 환경에서 측정하지 않아 속도 순위를 주장하지 않습니다.",
+            "- [multilingual-e5-small](https://huggingface.co/intfloat/multilingual-e5-small): "
+            "모델 카드가 100개 언어(한국어 포함)를 지원한다고 명시합니다.",
+            "- [paraphrase-multilingual-MiniLM-L12-v2]"
+            "(https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2): "
+            "모델 카드는 한국어를 지원 언어로 나열하고 384차원 문장 임베딩을 설명합니다.",
+            "- 의미 매칭 실패 표본은 1/20으로 작고, 실패 원인의 일부는 TAU/같은 논문 카드 혼동입니다. "
+            "따라서 지금은 도입 필요성이 입증되지 않았습니다. 별도 승인 뒤 두 모델을 실제 CPU에서 "
+            "동일 질의 40개로 지연시간과 정확도를 비교할 것을 제안하며, 현재 새 의존성은 없습니다.",
+        ])
+    lines.extend([
+        "",
+        "## 지표 해석",
+        "",
+        "- A 적중률은 정답 카드가 해당 순위에 있는 비율입니다.",
+        "- B 거절은 TAU 이상 점수를 받은 상위 2개 인용이 없다는 뜻입니다; "
+        "실제 웹 fallback 호출 자체는 하지 않았습니다.",
+        "- C 오답 근거 채택은 TAU 이상 상위 2개 중 하나라도 `expected_cards` 밖인 비율입니다.",
+        "- 정밀도는 A+C에서 반환된 TAU 이상 카드 전체 중 `expected_cards`에 포함된 카드 비율입니다.",
+        "",
+    ])
+    return "\n".join(lines)
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--input", type=Path, default=EVAL_PATH)
+    parser.add_argument("--output", type=Path)
+    parser.add_argument("--mode", choices=("legacy", "strict", "hybrid"), default="legacy")
+    parser.add_argument(
+        "--stage",
+        choices=("relative", "evidence", "secondary"),
+        default="secondary",
+        help="Strict pipeline cutoff to evaluate; ignored in legacy mode.",
+    )
+    args = parser.parse_args()
+    try:
+        items = json.loads(args.input.read_text(encoding="utf-8"))
+        cards = json.loads((ROOT / "data" / "chat_kb.json").read_text(encoding="utf-8"))
+        if not isinstance(items, list):
+            raise ValueError("evaluation input must be a JSON array")
+        if any(item.get("group") not in {"A", "B", "C"} for item in items):
+            raise ValueError("each item must have group A, B or C")
+        if any(
+            ("expected_cards" in item) == ("expected_source" in item)
+            for item in items
+        ):
+            raise ValueError("each item needs exactly one of expected_cards/expected_source")
+        counts = Counter(item["group"] for item in items)
+        if len(items) < 40 or any(counts[group] < 10 for group in "ABC"):
+            raise ValueError("evaluation set requires >=40 items and >=10 per group")
+        results, metrics = evaluate(items, cards, args.mode, args.stage)
+        comparison_metrics = (
+            evaluate(items, cards, "strict", args.stage)[1]
+            if args.mode == "hybrid"
+            else None
+        )
+        index_metrics = None
+        if args.mode == "hybrid":
+            index_data = json.loads(
+                (ROOT / "data" / "chat_kb_embeddings.json").read_text(encoding="utf-8")
+            )
+            index_metrics = {
+                "model": index_data["model"],
+                "dimension": index_data["dim"],
+                "cards": len(index_data["ids"]),
+                "paper_chunks": len(index_data["paper_records"]),
+                "ocr_chunks": sum(
+                    bool(record.get("ocr")) for record in index_data["paper_records"]
+                ),
+            }
+        stage_metrics = None
+        if args.mode == "strict":
+            stage_metrics = [
+                ("Legacy", evaluate(items, cards, "legacy")[1]),
+                ("1. 상대점수·같은 논문", evaluate(items, cards, "strict", "relative")[1]),
+                ("2. TAU=0.12 유지", evaluate(items, cards, "strict", "relative")[1]),
+                ("3. 원문 대조 (N=1)", evaluate(items, cards, "strict", "evidence")[1]),
+                ("5. 기사 후순위", evaluate(items, cards, "strict", "secondary")[1]),
+            ]
+        output = args.output or (
+            DEFAULT_OUTPUT if args.mode == "legacy" else ROOT / "data" / "eval" / f"{args.mode}.md"
+        )
+        report = render_markdown(
+            results, metrics, stage_metrics, comparison_metrics, index_metrics
+        )
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(report, encoding="utf-8")
+    except (OSError, json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 1
+
+    print(report, end="")
+    print(f"Saved {args.mode} report to {output.resolve()}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

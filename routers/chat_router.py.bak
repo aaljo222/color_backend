@@ -1,0 +1,427 @@
+"""색채심리 검색 에이전트 라우터.
+
+흐름: POST /api/chat/ask → 큐 → worker 스레드 → GET /api/chat/result/{jid}
+  - 질문이면: 논문 지식베이스(kb.json) 검색 → 점수 낮으면 웹 검색(fallback)
+  - 감정/사물 발화면: 논문 근거로 팔레트를 만들고 SVG 이미지 + 문장 생성
+"""
+import colorsys
+import json
+import logging
+import math
+import os
+import queue
+import re
+import threading
+import time
+import urllib.parse
+import urllib.request
+import uuid
+from collections import Counter
+from pathlib import Path
+
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel, Field, field_validator
+from utils.auth import get_optional_payload
+
+logger = logging.getLogger(__name__)
+KB_PATH = Path(__file__).resolve().parents[1] / "data" / "chat_kb.json"
+TAU = float(os.getenv("TAU") or "0.12")  # 이 점수 미만이면 지식베이스에 없다고 보고 웹 검색
+
+
+# --------------------------------------------------------------------------
+# 1) 검색: 한글 2-gram + 단어 토큰 기반 TF-IDF 코사인 (외부 API/키 불필요)
+#    나중에 Gemini 임베딩 등으로 교체할 때는 search() 한 함수만 바꾸면 된다.
+# --------------------------------------------------------------------------
+_PARTICLE = re.compile(r"(이랑|으로|에서|에게|이야|은|는|이|가|을|를|의|에|도|과|와|랑|로|만)$")
+_STOP = {"왜", "뭐야", "뭐", "무엇", "어떻게", "어떤", "알려줘", "알려", "설명해줘", "설명", "있어", "해줘",
+         "관계야", "관계", "이야", "인가", "일까", "오늘", "너무"}
+KB: list[dict] = []
+_docs: list[Counter] = []
+_df: Counter = Counter()
+_N = 0
+_idf: dict[str, float] = {}
+_dvecs: list[dict[str, float]] = []
+_KB_LOCK = threading.Lock()
+_KB_LOADED = False
+
+
+def tokens(s: str):
+    """한글은 조사를 떼어낸 어간 + 2-gram, 영문/숫자는 단어 단위."""
+    out = []
+    for w in re.findall(r"[a-z0-9]+|[가-힣]+", s.lower()):
+        if re.match(r"[가-힣]", w):
+            if len(w) >= 3:
+                w = _PARTICLE.sub("", w) or w
+            if w in _STOP:
+                continue
+            out.append(w)
+            out += [w[i:i + 2] for i in range(len(w) - 1)]
+        else:
+            out.append(w)
+    return out
+
+
+def _load_kb():
+    global KB, _docs, _df, _N, _idf, _dvecs, _KB_LOADED
+    if _KB_LOADED:
+        return
+    with _KB_LOCK:
+        if _KB_LOADED:
+            return
+        kb = json.loads(KB_PATH.read_text(encoding="utf-8"))
+        docs = [Counter(tokens(f"{c['text']} {c['keywords']} {c['paper']}")) for c in kb]
+        df = Counter(t for d in docs for t in d)
+        n_docs = len(docs)
+        idf = {t: math.log((n_docs + 1) / (n + 1)) + 1 for t, n in df.items()}
+        KB, _docs, _df, _N, _idf = kb, docs, df, n_docs, idf
+        _dvecs = [_vec(d) for d in docs]
+        _KB_LOADED = True
+
+
+def _vec(counter):
+    return {t: n * _idf.get(t, math.log(_N + 1) + 1) for t, n in counter.items()}
+
+
+def _cos(a, b):
+    dot = sum(v * b.get(t, 0) for t, v in a.items())
+    na = math.sqrt(sum(v * v for v in a.values()))
+    nb = math.sqrt(sum(v * v for v in b.values()))
+    return dot / (na * nb) if na and nb else 0.0
+
+
+def search(query: str, k: int = 3):
+    _load_kb()
+    q = _vec(Counter(tokens(query)))
+    scored = [(_cos(q, dv), c) for dv, c in zip(_dvecs, KB)]
+    scored.sort(key=lambda x: -x[0])
+    return [{"score": round(s, 3), "id": c["id"], "cite": c["cite"],
+             "paper": c["paper"], "text": c["text"]} for s, c in scored[:k]]
+
+
+def web_search(query: str):
+    """지식베이스에 없을 때의 fallback. 데모에서는 키가 필요 없는 위키백과 검색을 사용."""
+    url = "https://ko.wikipedia.org/w/api.php?" + urllib.parse.urlencode({
+        "action": "query", "list": "search", "srsearch": query,
+        "format": "json", "utf8": 1, "srlimit": 2})
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "color-agent-demo/0.1"})
+        with urllib.request.urlopen(req, timeout=6) as r:
+            items = json.loads(r.read().decode("utf-8"))["query"]["search"]
+        return [{"title": it["title"],
+                 "url": "https://ko.wikipedia.org/wiki/" + urllib.parse.quote(it["title"].replace(" ", "_")),
+                 "snippet": re.sub(r"<[^>]+>", "", it["snippet"])} for it in items]
+    except Exception:
+        return []
+
+
+# --------------------------------------------------------------------------
+# 2) 색 변환 (CIELAB <-> sRGB, D65)
+# --------------------------------------------------------------------------
+_WHITE = (0.95047, 1.0, 1.08883)
+
+
+def _finv(t):
+    return t ** 3 if t > 6 / 29 else 3 * (6 / 29) ** 2 * (t - 4 / 29)
+
+
+def lab_to_rgb(L, a, b):
+    fy = (L + 16) / 116
+    x, y, z = (_WHITE[0] * _finv(fy + a / 500), _WHITE[1] * _finv(fy), _WHITE[2] * _finv(fy - b / 200))
+    lin = (3.2406 * x - 1.5372 * y - 0.4986 * z,
+           -0.9689 * x + 1.8758 * y + 0.0415 * z,
+           0.0557 * x - 0.2040 * y + 1.0570 * z)
+    return tuple(12.92 * v if v <= 0.0031308 else 1.055 * max(v, 0) ** (1 / 2.4) - 0.055 for v in lin)
+
+
+def lch_to_hex(L, C, h):
+    """sRGB 범위를 벗어나면 채도를 줄여 가장 가까운 표현 가능한 색을 쓴다."""
+    for i in range(40, -1, -1):
+        c = C * i / 40
+        rgb = lab_to_rgb(L, c * math.cos(math.radians(h)), c * math.sin(math.radians(h)))
+        if all(-0.002 <= v <= 1.002 for v in rgb):
+            break
+    return "#%02x%02x%02x" % tuple(round(min(max(v, 0), 1) * 255) for v in rgb)
+
+
+def hex_to_lab(hx: str):
+    rgb = [int(hx[i:i + 2], 16) / 255 for i in (1, 3, 5)]
+    lin = [v / 12.92 if v <= 0.04045 else ((v + 0.055) / 1.055) ** 2.4 for v in rgb]
+    x = 0.4124 * lin[0] + 0.3576 * lin[1] + 0.1805 * lin[2]
+    y = 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2]
+    z = 0.0193 * lin[0] + 0.1192 * lin[1] + 0.9505 * lin[2]
+    f = lambda t: t ** (1 / 3) if t > (6 / 29) ** 3 else t / (3 * (6 / 29) ** 2) + 4 / 29
+    fx, fy, fz = f(x / _WHITE[0]), f(y / _WHITE[1]), f(z / _WHITE[2])
+    return 116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)
+
+
+def ou_preference(hx: str) -> float:
+    """Ou et al. (2004) 모델 3 (식 6): 기준색 (L,a,b)=(50,-8,30)과의 색차가 클수록 선호가 높다.
+    단일 색용 모델이며 20개 샘플로 만든 것이므로 '참고 점수'로만 쓴다."""
+    L, a, b = hex_to_lab(hx)
+    return -0.65 + 0.03 * math.sqrt((L - 50) ** 2 + ((a + 8) / 2) ** 2 + ((b - 30) / 1.7) ** 2)
+
+
+# --------------------------------------------------------------------------
+# 3) 발화 해석: 감정(valence, arousal) / 사물(기억색)
+# --------------------------------------------------------------------------
+EMOTIONS = [
+    dict(label="행복·기쁨", words=["행복", "기쁘", "기뻐", "기쁨", "즐거", "신나", "웃음", "유쾌"],
+         v=0.8, a=0.5, q="행복 기쁨 유쾌 밝은 노랑 채도 음악 장조"),
+    dict(label="설렘·흥분", words=["설레", "설렘", "흥분", "두근", "짜릿", "열정"],
+         v=0.5, a=0.9, q="각성 흥분 빨강 채도 높은 arousal"),
+    dict(label="평온", words=["평온", "차분", "편안", "고요", "잔잔", "평화", "여유", "힐링"],
+         v=0.4, a=-0.7, q="차분 평온 파랑 낮은 각성 낮은 채도 유쾌"),
+    dict(label="슬픔·우울", words=["슬프", "슬퍼", "우울", "쓸쓸", "눈물", "외로", "허전", "그리워"],
+         v=-0.7, a=-0.5, q="슬픔 우울 어두운 회색 파랑 단조 낮은 명도"),
+    dict(label="분노", words=["화나", "화가 나", "분노", "짜증", "열받"],
+         v=-0.6, a=0.8, q="분노 빨강 각성 어두운 채도"),
+    dict(label="불안·긴장", words=["불안", "무서", "두려", "긴장", "초조"],
+         v=-0.5, a=0.6, q="각성 빨강 불안 채도 긴장"),
+]
+
+# Zhu et al. (2015) Table 1 (p.135): 중국 관찰자 평균 기억색 (L*, C*ab, h)
+OBJECTS = [
+    (["바나나"], "바나나", 81.70, 81.35, 90.08),
+    (["레몬"], "레몬", 87.77, 85.21, 97.64),
+    (["오렌지"], "오렌지", 68.90, 81.13, 63.07),
+    (["딸기"], "딸기", 45.63, 82.98, 35.24),
+    (["잔디", "풀밭", "풀잎"], "잔디", 66.10, 75.88, 125.06),
+    (["하늘"], "하늘", 49.64, 73.68, 286.59),
+    (["브로콜리"], "브로콜리", 42.63, 53.47, 144.67),
+    (["키위"], "키위", 72.13, 75.21, 117.04),
+    (["라벤더"], "라벤더", 41.24, 59.15, 301.35),
+    (["가지"], "가지", 15.65, 27.93, 326.28),
+    (["청바지"], "청바지", 30.76, 29.49, 272.53),
+    (["장미"], "장미", 37.31, 72.49, 34.75),
+    (["연꽃"], "연꽃", 72.91, 40.91, 338.04),
+    (["청사과", "초록 사과"], "청사과", 72.48, 71.39, 123.84),
+]
+
+
+def detect_emotions(text):
+    return [e for e in EMOTIONS if any(w in text for w in e["words"])]
+
+
+def detect_objects(text):
+    out = []
+    for names, label, L, C, h in OBJECTS:
+        if any(n in text for n in names):
+            out.append(dict(label=label, hex=lch_to_hex(L, C, h), q=f"기억색 memory color 사물 {label} 과일 하늘"))
+    return out
+
+
+# --------------------------------------------------------------------------
+# 4) 팔레트 + SVG 이미지 + 문장
+#    규칙(논문 근거): 각성↑ → 채도↑·빨강 쪽 (Wilms 2018), 유쾌↑ → 명도↑·노랑 쪽
+#    (Wilms 2018, Palmer 2013), 슬픔 → 어둡고 푸른 회색 (Palmer 2013), 중립 → 선호 높은 파랑 (Palmer 2010)
+# --------------------------------------------------------------------------
+def make_palette(v: float, a: float, neutral: bool):
+    if neutral:
+        h, s, l = 210, 0.5, 0.55
+    else:
+        warmth = (a + 1) / 2
+        h = 215 - 185 * warmth
+        if a > 0 and v > 0.3:
+            h = 0.5 * h + 0.5 * 48
+        if a > 0 and v < -0.3:
+            h = 5      # 분노·불안: 어두운 빨강 (Palmer 2013 기사: 화난 얼굴 ↔ 어두운 빨강)
+        if a <= 0 and v < -0.3:
+            h = 220    # 슬픔: 어둡고 푸른 회색 쪽 (Palmer 2013, Langlois 포스터)
+        s = 0.12 + 0.75 * warmth
+        if v < 0:
+            s *= 0.85
+        l = min(0.85, max(0.22, 0.5 + 0.3 * v))
+    spec = [(h, s, l), (h + 25, s * 0.9, l + 0.1), (h - 25, s * 0.9, l - 0.1),
+            (h + 10, s * 0.5, min(0.92, l + 0.3)), (h - 10, s * 0.6, max(0.12, l - 0.3))]
+    pal = []
+    for hh, ss, ll in spec:
+        r, g, b = colorsys.hls_to_rgb((hh % 360) / 360, min(max(ll, 0.05), 0.95), min(max(ss, 0), 1))
+        pal.append("#%02x%02x%02x" % (round(r * 255), round(g * 255), round(b * 255)))
+    return pal, h, s, l
+
+
+def hue_name(h):
+    h %= 360
+    for lim, name in [(20, "빨강"), (45, "주황"), (70, "노랑"), (170, "초록"), (260, "파랑"), (340, "보라")]:
+        if h < lim:
+            return name
+    return "빨강"
+
+
+def make_svg(pal, focal):
+    f = focal or pal[1]
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="100%">
+<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{pal[3]}"/><stop offset="1" stop-color="{pal[0]}"/></linearGradient></defs>
+<rect width="640" height="360" fill="url(#g)"/>
+<circle cx="470" cy="120" r="58" fill="{f}"/>
+<path d="M0 260 Q160 180 320 250 T640 230 V360 H0Z" fill="{pal[2]}"/>
+<path d="M0 300 Q200 240 400 295 T640 280 V360 H0Z" fill="{pal[4]}"/>
+<path d="M0 335 Q220 300 640 330 V360 H0Z" fill="{pal[1]}"/>
+</svg>"""
+
+
+def first_sentence(t):
+    return t.split(". ")[0].rstrip(".") + "."
+
+
+def scene_agent(text, emos, objs, hits):
+    if emos:
+        v = sum(e["v"] for e in emos) / len(emos)
+        a = sum(e["a"] for e in emos) / len(emos)
+    else:
+        v = a = 0.0
+    pal, h, s, l = make_palette(v, a, neutral=not emos)
+    focal = objs[0]["hex"] if objs else None
+    sat_l = "선명한" if s > 0.6 else "적당한 채도의" if s > 0.35 else "차분하고 탁한"
+    light_l = "밝은" if l > 0.62 else "중간 명도의" if l > 0.4 else "어두운"
+    parts = []
+    if emos:
+        parts.append(f"'{text}'에서 {'·'.join(e['label'] for e in emos)}의 느낌을 읽었어요.")
+    if objs:
+        parts.append(f"{objs[0]['label']}는 사람들이 기억하는 전형적인 색({focal})을 장면의 중심에 뒀어요.")
+    parts.append(f"그래서 {hue_name(h)} 계열의 {sat_l} {light_l} 팔레트로 장면을 그렸어요.")
+    cites = [x for x in hits if x["score"] >= TAU][:2]
+    if objs:
+        cites.append({"cite": "Zhu et al., 2015, p.135 (Table 1)", "paper": "기억색 값 출처",
+                      "text": "기억색은 CIELAB 평균값을 sRGB로 변환했다.", "score": None})
+    if cites and cites[0].get("score") is not None:
+        parts.append(f"근거: {first_sentence(cites[0]['text'])} ({cites[0]['cite']})")
+    pref = sum(ou_preference(c) for c in pal) / len(pal)
+    return {"mode": "scene", "source": "paper" if cites else "none", "answer": " ".join(parts),
+            "svg": make_svg(pal, focal), "palette": pal, "citations": cites,
+            "ou_preference": round(pref, 2),
+            "note": "ou_preference는 Ou et al.(2004) 단일 색 모델의 참고 점수입니다."}
+
+
+# --------------------------------------------------------------------------
+# 5) 에이전트 본체: 라우팅 + 웹 fallback
+# --------------------------------------------------------------------------
+QUESTION = re.compile(r"왜|뭐|무엇|어떻게|알려|설명|논문|연구|\?|인가|일까|있어")
+
+
+def run_agent(text: str):
+    emos, objs = detect_emotions(text), detect_objects(text)
+    is_q = bool(QUESTION.search(text))
+    extra = " ".join([e["q"] for e in emos] + [o["q"] for o in objs])
+    hits = search(f"{text} {extra}", k=3)
+
+    if (emos or objs) and not is_q:
+        return scene_agent(text, emos, objs, hits)
+
+    if hits and hits[0]["score"] >= TAU:
+        good = [h for h in hits if h["score"] >= TAU][:2]
+        ans = " ".join(f"{h['text']} ({h['cite']})" for h in good)
+        return {"mode": "qa", "source": "paper", "answer": ans, "citations": good}
+
+    web = web_search(text)
+    if web:
+        ans = "논문 지식베이스에서는 근거를 찾지 못해 웹에서 찾았어요. " + " / ".join(
+            f"{w['title']}: {w['snippet']}" for w in web)
+        return {"mode": "qa", "source": "web", "answer": ans,
+                "citations": [{"cite": w["title"], "paper": w["url"], "text": w["snippet"], "score": None} for w in web]}
+    return {"mode": "qa", "source": "none", "citations": [],
+            "answer": "논문 지식베이스에도, 웹 검색에서도 근거를 찾지 못했어요. 질문을 조금 바꿔 주세요."}
+
+
+# --------------------------------------------------------------------------
+# 6) 큐 + worker 스레드, FastAPI
+# --------------------------------------------------------------------------
+JOBS: dict = {}
+Q: "queue.Queue" = queue.Queue()
+JOB_TTL_SECONDS = 30 * 60
+MAX_JOBS = 500
+JOB_LOCK = threading.RLock()
+_JOB_CREATED: dict[str, float] = {}
+_WORKER_LOCK = threading.Lock()
+_WORKER_THREAD: threading.Thread | None = None
+
+
+def _prune_jobs(now: float | None = None):
+    current = time.monotonic() if now is None else now
+    with JOB_LOCK:
+        expired = [jid for jid, created in _JOB_CREATED.items()
+                   if current - created >= JOB_TTL_SECONDS]
+        for jid in expired:
+            JOBS.pop(jid, None)
+            _JOB_CREATED.pop(jid, None)
+        overflow = len(JOBS) - MAX_JOBS
+        if overflow > 0:
+            oldest = sorted(_JOB_CREATED, key=_JOB_CREATED.__getitem__)[:overflow]
+            for jid in oldest:
+                JOBS.pop(jid, None)
+                _JOB_CREATED.pop(jid, None)
+
+
+def worker():
+    while True:
+        try:
+            jid, text = Q.get(timeout=60)
+        except queue.Empty:
+            _prune_jobs()
+            continue
+        try:
+            with JOB_LOCK:
+                job = JOBS.get(jid)
+                if job is not None:
+                    job["status"] = "running"
+            if job is not None:
+                try:
+                    data = run_agent(text)
+                except Exception:
+                    logger.exception("Color chatbot job failed: %s", jid)
+                    with JOB_LOCK:
+                        if jid in JOBS:
+                            JOBS[jid].update(status="error", error="에이전트 처리 중 오류가 발생했습니다.")
+                else:
+                    with JOB_LOCK:
+                        if jid in JOBS:
+                            JOBS[jid].update(status="done", data=data)
+            _prune_jobs()
+        finally:
+            Q.task_done()
+
+
+def _start_worker():
+    global _WORKER_THREAD
+    with _WORKER_LOCK:
+        if _WORKER_THREAD is None or not _WORKER_THREAD.is_alive():
+            _WORKER_THREAD = threading.Thread(target=worker, daemon=True, name="agent-worker")
+            _WORKER_THREAD.start()
+
+
+router = APIRouter(tags=["Color Chat"])
+
+
+class Ask(BaseModel):
+    text: str = Field(min_length=1, max_length=300)
+
+    @field_validator("text", mode="before")
+    @classmethod
+    def strip_text(cls, value):
+        return value.strip() if isinstance(value, str) else value
+
+
+@router.post("/ask")
+def chat_ask(req: Ask, payload: dict | None = Depends(get_optional_payload)):
+    # TODO: 인증 정책 확정
+    del payload
+    text = req.text
+    _start_worker()
+    jid = uuid.uuid4().hex[:8]
+    _prune_jobs()
+    with JOB_LOCK:
+        JOBS[jid] = {"status": "queued", "text": text}
+        _JOB_CREATED[jid] = time.monotonic()
+        _prune_jobs()
+        Q.put((jid, text))
+    return {"job_id": jid}
+
+
+@router.get("/result/{jid}")
+def chat_result(jid: str):
+    _prune_jobs()
+    with JOB_LOCK:
+        job = JOBS.get(jid)
+        if job is None:
+            raise HTTPException(404, "없는 job_id")
+        return dict(job)
