@@ -1,0 +1,729 @@
+From 3e6d6c03f58b30e49da5aaf6d7fa91c5bd40d5d4 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Thu, 15 Oct 2026 02:40:45 +0000
+Subject: [PATCH] =?UTF-8?q?=EC=9E=85=EB=A0=A5=20=EA=B0=80=EC=A4=91?=
+ =?UTF-8?q?=EC=B9=98=EB=A5=BC=20data/mapping=5Fpriority.json=20=EC=9C=BC?=
+ =?UTF-8?q?=EB=A1=9C=20=EB=B6=84=EB=A6=AC(10/15=20=EC=88=98=EC=A0=95?=
+ =?UTF-8?q?=EB=B3=B8),=20=EA=B8=B0=EC=96=B5=20=EC=A7=88=EA=B0=90=3D?=
+ =?UTF-8?q?=EA=B8=B0=EC=96=B5=EC=83=89=C2=B7=EB=AC=BC=EC=B2=B4=EC=83=89=20?=
+ =?UTF-8?q?=EB=B9=84=EC=A4=91,=20=EC=BD=94=EB=93=9C=C2=B7=EB=AC=B8?=
+ =?UTF-8?q?=EC=84=9C=EC=9D=98=20=EC=82=AC=EB=9E=8C=20=EC=9D=B4=EB=A6=84?=
+ =?UTF-8?q?=C2=B7=EC=A0=9C=EC=95=88/=EC=9A=94=EA=B5=AC=20=ED=91=9C?=
+ =?UTF-8?q?=EA=B8=B0=20=EC=A0=9C=EA=B1=B0,=20=EC=9E=98=EB=AA=BB=20?=
+ =?UTF-8?q?=EC=BB=A4=EB=B0=8B=EB=90=9C=20patch=20=ED=8C=8C=EC=9D=BC=20?=
+ =?UTF-8?q?=EC=A0=9C=EA=B1=B0?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_014hSLqNKwfPkSe9x2ZNxeEK
+---
+ .env.example                                  |   3 +-
+ ...PING_PRIORITY-.30-.15-.15-.05-.05-HE.patch | 301 ------------------
+ CHANGES_cues-0.1.md                           |   4 +-
+ CHANGES_eng-2.0.md                            |   2 +-
+ CHANGES_eng-2.1.md                            |   2 +-
+ CHANGES_eng-2.3.md                            |   2 +-
+ CHANGES_eng-2.6.md                            |  15 +-
+ core/astral_palette.py                        |   2 +-
+ core/candidates.py                            |  38 ++-
+ core/cues.py                                  |   2 +-
+ core/image_first.py                           |   6 +-
+ core/sentence_class.py                        |   2 +-
+ core/sentence_lock.py                         |   4 +-
+ data/cues.json                                |   2 +-
+ data/mapping_priority.json                    |  23 ++
+ scripts/eval_ten.py                           |   2 +-
+ tests/test_candidates.py                      |  18 +-
+ tests/test_cues.py                            |   2 +-
+ tests/test_sentence_class.py                  |   2 +-
+ tests/test_sentence_lock.py                   |   2 +-
+ 20 files changed, 80 insertions(+), 354 deletions(-)
+ delete mode 100644 0001-cand-4-COLOR_MAPPING_PRIORITY-.30-.15-.15-.05-.05-HE.patch
+ create mode 100644 data/mapping_priority.json
+
+diff --git a/.env.example b/.env.example
+index 2c99c50..9d90491 100644
+--- a/.env.example
++++ b/.env.example
+@@ -35,7 +35,8 @@ PAINT_HEX=1
+ # 넓은 3색: 고른 후보와 그림 속 그 색의 실제 차이 허용 ΔE00
+ IMAGE_SNAP_DE=15
+ # 감정 가중치: 감정 색 가중치 = 1 + GAIN × (0.5 + 감정 강도) · 문장 속 색 말 가중치 · 넓게 칠할 색 수 · 그 면적 합
+-# 후보 HEX 비중: team = 팀 color_association.py COLOR_MAPPING_PRIORITY(감정 .30·시간 .15·공간 .15·빛 .05·감각 .05) / legacy = eng-2.6 감정 가중치
++# 후보 HEX 비중: team = 팀 입력 가중치 COLOR_MAPPING_PRIORITY (값은 data/mapping_priority.json — 실험할 때 이 파일만 고친다) / legacy = eng-2.6 감정 가중치
++# MAPPING_PRIORITY_PATH=data/mapping_priority.json
+ CAND_WEIGHTS=team
+ CAND_EMO_GAIN=1.5
+ CAND_WORD_W=1.6
+diff --git a/0001-cand-4-COLOR_MAPPING_PRIORITY-.30-.15-.15-.05-.05-HE.patch b/0001-cand-4-COLOR_MAPPING_PRIORITY-.30-.15-.15-.05-.05-HE.patch
+deleted file mode 100644
+index 5056f78..0000000
+--- a/0001-cand-4-COLOR_MAPPING_PRIORITY-.30-.15-.15-.05-.05-HE.patch
++++ /dev/null
+@@ -1,301 +0,0 @@
+-From 7d75323bbf6e0ecad69a3ebacf400fb782d51b8c Mon Sep 17 00:00:00 2001
+-From: Claude <noreply@anthropic.com>
+-Date: Thu, 15 Oct 2026 00:01:05 +0000
+-Subject: [PATCH] =?UTF-8?q?cand-4:=20=ED=8C=80=20COLOR=5FMAPPING=5FPRIORIT?=
+- =?UTF-8?q?Y(=EA=B0=90=EC=A0=95.30=C2=B7=EC=8B=9C=EA=B0=84.15=C2=B7?=
+- =?UTF-8?q?=EA=B3=B5=EA=B0=84.15=C2=B7=EB=B9=9B.05=C2=B7=EA=B0=90=EA=B0=81?=
+- =?UTF-8?q?.05)=EB=A1=9C=20=ED=9B=84=EB=B3=B4=20HEX=20=EB=B9=84=EC=A4=91,?=
+- =?UTF-8?q?=20=EA=B7=B8=EB=A6=BC=20=EB=92=A4=204=EC=83=89=EA=B3=BC=20?=
+- =?UTF-8?q?=EB=B9=84=EC=A4=91=20=EB=B9=84=EA=B5=90(weight=5Ffit)?=
+-MIME-Version: 1.0
+-Content-Type: text/plain; charset=UTF-8
+-Content-Transfer-Encoding: 8bit
+-
+-Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+-Claude-Session: https://claude.ai/code/session_014hSLqNKwfPkSe9x2ZNxeEK
+----
+- .env.example             |  2 ++
+- CHANGES_eng-2.6.md       | 13 ++++++++
+- core/candidates.py       | 72 ++++++++++++++++++++++++++++++++--------
+- core/image_first.py      | 13 +++++++-
+- core/pipeline.py         |  2 +-
+- tests/test_candidates.py | 37 ++++++++++++++++++++-
+- 6 files changed, 122 insertions(+), 17 deletions(-)
+-
+-diff --git a/.env.example b/.env.example
+-index 8484f2e..2c99c50 100644
+---- a/.env.example
+-+++ b/.env.example
+-@@ -35,6 +35,8 @@ PAINT_HEX=1
+- # 넓은 3색: 고른 후보와 그림 속 그 색의 실제 차이 허용 ΔE00
+- IMAGE_SNAP_DE=15
+- # 감정 가중치: 감정 색 가중치 = 1 + GAIN × (0.5 + 감정 강도) · 문장 속 색 말 가중치 · 넓게 칠할 색 수 · 그 면적 합
+-+# 후보 HEX 비중: team = 팀 color_association.py COLOR_MAPPING_PRIORITY(감정 .30·시간 .15·공간 .15·빛 .05·감각 .05) / legacy = eng-2.6 감정 가중치
+-+CAND_WEIGHTS=team
+- CAND_EMO_GAIN=1.5
+- CAND_WORD_W=1.6
+- CAND_LARGE_N=4
+-diff --git a/CHANGES_eng-2.6.md b/CHANGES_eng-2.6.md
+-index 9d1e171..2c87368 100644
+---- a/CHANGES_eng-2.6.md
+-+++ b/CHANGES_eng-2.6.md
+-@@ -86,3 +86,16 @@
+- - 묶음이 3개뿐이면 칩이 3개였다 → 남은 후보에서 대비색을 골라 언제나 4칩
+- - "노을 진 바닷가" → 노을(사물)의 곁색이 목표 17% 대로 16% 칠해졌다. 장면 색이 사라지지는 않았다
+- - CAND_VERSION cand-3 → 같은 문장도 새로 계산된다
+-+
+-+## cand-4 — 팀 입력 가중치(COLOR_MAPPING_PRIORITY)로 후보 HEX 비중 (2026-10-15)
+-+왜: 팀 기준표 MaC color_association.py v1.0 의 7개 입력 가중치(감정 .30 · 기억 질감 .20 · 시간 .15 · 공간 .15 · 체감 온도 .10 · 빛 .05 · 감각 .05)가
+-+코드에 없었다. 후보 비중은 eng-2.6 설계 가정(감정 1+1.5×…, 축 1.0, 색 말 1.6)으로 계산됐다.
+-+무엇
+-+- core/candidates.py: CAND_WEIGHTS=team(기본) → 감정 .30 · 시간 .15 · 공간 .15 · 빛 사물 .05 · 감각 사물 .05.
+-+  표에 없는 사물·문장 속 색 말·감정 강조색 = 팀 PALETTE_HIERARCHY accent .10. 기본 톤으로 떨어진 축 ×0.35. 곁색 .0225
+-+  기억 질감 .20 = 색 후보가 아니라 채도·대비 보정(quality KB). 체감 온도 .10 = 미구현 (응답 applied 에 그대로 표시)
+-+- 이 비중이 그리기 전 HEX 의 면적 목표 → verification.weight_fit 에서 그림 뒤 4색 칩의 실제 비중과 비교 (목표·그림·차이, 최대 차이)
+-+- 감정 강도는 이제 면적을 바꾸지 않는다 (팀 표가 고정 비중). 노을 바닷가 문장에서 감정 색이 시간·장소 색을 누르던 문제도 같이 풀림
+-+- CAND_VERSION cand-4 → 고정 키가 새로 생긴다. 예전처럼 쓰려면 CAND_WEIGHTS=legacy (cand-3)
+-+- 프론트: "팀 입력 가중치 ↔ 4색 비중" 접이식 표
+-+확인: pytest 203 통과 (팀 가중치 값·2:1 비율·강도 무관·weight_fit 4칩 비교 테스트 추가)
+-diff --git a/core/candidates.py b/core/candidates.py
+-index 88e9fdd..e0bea5b 100644
+---- a/core/candidates.py
+-+++ b/core/candidates.py
+-@@ -13,7 +13,16 @@
+-   word     문장에 직접 쓴 색 말 ("모스 그린", "붉은", "노란") — 사람이 색을 말했으면 가장 강한 단서
+-   shade    위 색들의 밝은·짙은 형제색 — 작은 붓질용. 그림이 다채로워져도 4색은 여전히 후보 안에 있게 하려는 자리
+- 
+--감정 가중치 (2026-10-13 이재오 제안)
+-+팀 입력 가중치 (cand-4, 2026-10-15 김외진 요구 — 기본값)
+-+  MaC color_association.py v1.0 의 COLOR_MAPPING_PRIORITY 를 그대로 후보 HEX 의 비중으로 쓴다.
+-+    감정 .30 · 기억 질감 .20 · 시간 .15 · 공간 .15 · 체감 온도 .10 · 빛 .05 · 감각 .05  (합 1.00)
+-+  색을 직접 내는 축(감정·시간·공간·빛·감각)은 그 가중치로 후보 비중을 받는다.
+-+  기억 질감(.20)은 색이 아니라 채도·대비 보정(quality KB modifiers)으로 이미 들어간다. 체감 온도(.10)는 아직 미구현.
+-+  사물·문장 속 색 말은 이 표에 없다 → PALETTE_HIERARCHY 의 accent(.10, "기억 속 가장 강렬한 대상·오브젝트") 비중.
+-+  이 비중이 그리기 전 HEX 의 면적 목표가 되고, 그림 뒤 4색 칩의 실제 비중과 비교된다 (image_first weight_fit).
+-+  CAND_WEIGHTS=legacy 면 아래 eng-2.6 감정 가중치(cand-3)로 돌아간다.
+-+
+-+감정 가중치 (legacy, 2026-10-13 이재오 제안)
+-   감정 강도 = (|쾌−3| + |각성−3|) / 4   (0 = 담담, 1 = 아주 강함)
+-   감정 색 가중치 = 1 + EMO_GAIN × (0.5 + 강도)        → 감정이 강할수록 넓은 면을 받는다
+-   가중치 상위 LARGE_N 색 = '넓게'(면적 목표 합 LARGE_SHARE), 나머지 = '작게'(붓질·튐)
+-@@ -35,7 +44,14 @@ LARGE_N = int(os.getenv("CAND_LARGE_N", "4"))          # 넓게 칠할 색 수 =
+- LARGE_SHARE = float(os.getenv("CAND_LARGE_SHARE", "0.80"))
+- MERGE_DE = float(os.getenv("CAND_MERGE_DE", "7"))            # 이보다 가까운 두 후보는 하나로 (가중치는 큰 쪽)
+- MAX_CANDS = int(os.getenv("CAND_MAX", "12"))
+--CAND_VERSION = "cand-3"   # cand-2 (2026-10-13): 곁색은 부모 색과 한 묶음으로 순위 · 한 묶음에서 칩 하나
+-+WEIGHT_MODE = os.getenv("CAND_WEIGHTS", "team")   # team (팀 COLOR_MAPPING_PRIORITY) | legacy (eng-2.6 감정 가중치)
+-+# 팀 기준표 MaC color_association.py v1.0 (2026-10-06 메일) — 값을 바꾸지 않는다
+-+COLOR_MAPPING_PRIORITY = {"emotion": 0.30, "memory_quality": 0.20, "time": 0.15, "space": 0.15,
+-+                          "temperature": 0.10, "light": 0.05, "sensory": 0.05}
+-+PALETTE_ACCENT_W = 0.10   # 팀 PALETTE_HIERARCHY accent: 기억 속 가장 강렬한 대상·오브젝트 → 사물·문장 속 색 말·감정 강조색
+-+APPLIED = {"emotion": "후보 비중", "time": "후보 비중", "space": "후보 비중", "light": "후보 비중(빛 사물)",
+-+           "sensory": "후보 비중(감각 사물)", "memory_quality": "채도·대비 보정 (색 후보 아님)", "temperature": "미구현"}
+-+CAND_VERSION = "cand-4" if WEIGHT_MODE == "team" else "cand-3"   # cand-4: 팀 입력 가중치 · cand-3: 시간·장소 색 늘 후보
+- 
+- # 문장 속 색 말 → 등급 (색상 계열·밝기 1~9·채도 0~5). 설계값 — 코퍼스 팀 검토 대상. 긴 말 먼저 찾는다.
+- COLOR_TERMS = {
+-@@ -67,6 +83,7 @@ class Cand:
+-     area: float = 0.0
+-     merged: list = field(default_factory=list)
+-     parent: "Cand | None" = None   # 곁색이면 부모 후보 (같은 색 묶음)
+-+    category: str = ""             # 팀 COLOR_MAPPING_PRIORITY 의 어느 칸으로 비중을 받았나 (team 모드)
+- 
+-     @property
+-     def family(self) -> str:
+-@@ -79,7 +96,7 @@ class Cand:
+-     def public(self) -> dict:
+-         return {"id": self.cid, "hex": self.hex, "lch": [round(float(x), 2) for x in self.lch], "origin": self.origin,
+-                 "label": self.label, "weight": round(self.weight, 3), "tier": self.tier, "area_target": round(self.area, 3),
+--                "family": self.family,
+-+                "family": self.family, **({"category": self.category} if self.category else {}),
+-                 **({"merged": self.merged} if self.merged else {})}
+- 
+- 
+-@@ -112,6 +129,24 @@ def find_color_terms(text: str, limit: int = 3) -> list[tuple[str, tuple]]:
+-     return [(w, d) for _, w, d in sorted(found)[:limit]]
+- 
+- 
+-+def _object_category(name: str) -> str:
+-+    """코퍼스 팀 사물 색표의 분류 (light · sensory · memory_color). 표에 없으면 memory_color."""
+-+    from core.objects import object_table, _key
+-+    return (object_table().get(_key(name)) or {}).get("category", "memory_color")
+-+
+-+
+-+def _weights(affect) -> dict:
+-+    """origin → 비중. team = 팀 COLOR_MAPPING_PRIORITY / legacy = eng-2.6 감정 가중치."""
+-+    if WEIGHT_MODE == "team":
+-+        P = COLOR_MAPPING_PRIORITY
+-+        return {"emotion": P["emotion"], "emotion_accent": PALETTE_ACCENT_W, "space": P["space"], "time": P["time"],
+-+                "fallback_mult": FALLBACK_W, "object": {"light": P["light"], "sensory": P["sensory"]},
+-+                "object_default": PALETTE_ACCENT_W, "word": PALETTE_ACCENT_W, "shade": SHADE_W * min(P["space"], P["time"])}
+-+    w_emo = 1 + EMO_GAIN * (0.5 + intensity(affect))
+-+    return {"emotion": w_emo, "emotion_accent": 0.5 * w_emo, "space": AXIS_W, "time": AXIS_W, "fallback_mult": FALLBACK_W / AXIS_W,
+-+            "object": {}, "object_default": OBJECT_W, "word": WORD_W, "shade": SHADE_W}
+-+
+-+
+- def _from_descriptor(d: tuple) -> tuple:
+-     from core.objects import descriptor_to_lch
+-     return descriptor_to_lch({"hue": d[0], "lightness": d[1], "chroma": d[2]})
+-@@ -126,27 +161,33 @@ def _descriptor_of(lch) -> tuple:
+- 
+- def build(res: dict, kb, objects: list, affect, base_palette: list, masked: str) -> list[Cand]:
+-     """후보 색 목록 (가중치 내림차순, tier·area 채움). base_palette = eng-1.2 계산 팔레트 (정서 보정이 들어간 축 색)."""
+--    by_role = {p["role"]: p for p in base_palette}
+--    w_emo = 1 + EMO_GAIN * (0.5 + intensity(affect))
+-+    W = _weights(affect)
+-+    w_emo = W["emotion"]
+-     raw: list[Cand] = []
+- 
+--    def add(origin, lch, label, w, desc=None):
+-+    def add(origin, lch, label, w, desc=None, category=""):
+-         hx, Cc = lch_to_hex_clipped(tuple(lch))
+-         lch = (float(lch[0]), float(Cc), float(lch[2]))
+--        raw.append(Cand(f"{origin}:{len(raw)}", lch, hx, origin, label, desc or _descriptor_of(lch), w))
+-+        raw.append(Cand(f"{origin}:{len(raw)}", lch, hx, origin, label, desc or _descriptor_of(lch), w,
+-+                        category=category if WEIGHT_MODE == "team" else ""))
+-+
+-+    def axis_w(ax, how):
+-+        return W[ax] * (W["fallback_mult"] if how == "fallback" else 1.0)
+- 
+-     # 축 색 — 계산 팔레트에서 축 기준인 칸만 (정서 보정·조화 보정이 이미 들어 있다)
+-     for p in base_palette:
+-         b = p.get("basis") or {}
+-         ax = b.get("axis")
+-         if ax == "emotion":
+--            add("emotion", p["lch"], p.get("color_name", "감정"), w_emo if p["role"] == "dominant" else 0.5 * w_emo)
+-+            dom = p["role"] == "dominant"
+-+            add("emotion", p["lch"], p.get("color_name", "감정"), w_emo if dom else W["emotion_accent"],
+-+                category="emotion" if dom else "accent")
+-         elif ax in ("space", "time"):
+--            add(ax, p["lch"], p.get("color_name", ax), FALLBACK_W if b.get("how") == "fallback" else AXIS_W)
+-+            add(ax, p["lch"], p.get("color_name", ax), axis_w(ax, b.get("how")), category=ax)
+-     emo = kb.by_id[res["emotion"].kb_id]
+-     if not any(c.origin == "emotion" and c.weight < w_emo for c in raw) and emo.get("accent_lch"):
+-         from core.synth import _display_name                # '밝은 노랑 (회전목마금빛)' → '회전목마금빛' (계산 팔레트와 같은 이름)
+--        add("emotion", emo["accent_lch"], f"{_display_name(emo)} · 강조", 0.5 * w_emo)
+-+        add("emotion", emo["accent_lch"], f"{_display_name(emo)} · 강조", W["emotion_accent"], category="accent")
+-     # 시간·장소 색은 계산 팔레트에 없어도 후보에 넣는다 (cand-3, 2026-10-14 운영: "비 오는 밤" — 사물 '비·창'이 계산 팔레트의
+-     # 분위기·강조 칸을 차지해 밤색이 후보에서 통째로 빠졌다. 정서 보정(명도·채도)은 감정·장소 색과 같게 준다)
+-     for ax in ("space", "time"):
+-@@ -158,11 +199,14 @@ def build(res: dict, kb, objects: list, affect, base_palette: list, masked: str)
+-         if affect is not None:
+-             C, L = C * affect.c_mult, max(15.0, min(95.0, L + affect.dL))
+-         from core.synth import _display_name
+--        add(ax, (L, C, h), _display_name(e), FALLBACK_W if r.how == "fallback" else AXIS_W)
+-+        add(ax, (L, C, h), _display_name(e), axis_w(ax, r.how), category=ax)
+-     for i, o in enumerate(objects or []):
+--        add("object", o.lch, o.name, OBJECT_W * (1.1 if i == 0 else 1.0), tuple(o.descriptor))
+-+        cat = _object_category(o.name) if WEIGHT_MODE == "team" else ""
+-+        ow = W["object"].get(cat, W["object_default"])
+-+        add("object", o.lch, o.name, ow * (1.1 if i == 0 else 1.0), tuple(o.descriptor),
+-+            category=cat if cat in ("light", "sensory") else "accent")
+-     for w, d in find_color_terms(masked):
+--        add("word", _from_descriptor(d), w, WORD_W, d)
+-+        add("word", _from_descriptor(d), w, W["word"], d, category="accent")
+-     # 같은 색 합치기 — 가중치 큰 쪽이 남고, 합쳐진 출처를 기록
+-     raw.sort(key=lambda c: -c.weight)
+-     cands: list[Cand] = []
+-@@ -181,7 +225,7 @@ def build(res: dict, kb, objects: list, affect, base_palette: list, masked: str)
+-             lch = (max(12.0, min(96.0, L + dL)), C * k, h)
+-             lab = lch2lab(lch)
+-             if all(delta_e_2000(lab, x.lab) >= MERGE_DE for x in cands):
+--                add("shade", lch, f"{tag} {c.label}", SHADE_W)
+-+                add("shade", lch, f"{tag} {c.label}", W["shade"], category="shade")
+-                 raw[-1].parent = c
+-                 cands.append(raw[-1])
+-     cands = sorted(cands, key=lambda c: -c.weight)[:MAX_CANDS]
+-diff --git a/core/image_first.py b/core/image_first.py
+-index 378aada..04c1cc3 100644
+---- a/core/image_first.py
+-+++ b/core/image_first.py
+-@@ -674,10 +674,21 @@ def run(masked: str, summary: str, res: dict, kb, objects: list, affect, base_pa
+-                             "axis": "image", "how": "measured", "phrase": f"그림에서 {r*100:.0f}%",
+-                             "nearest": near}})
+-     IMAGE_CACHE[key] = img
+-+    weight_fit = None
+-+    if cands:                                                    # cand-4: 가중치로 정한 HEX 비중 ↔ 그림 뒤 4색 칩의 실제 비중
+-+        tg = [p["basis"]["area_target"] for p in palette]
+-+        pt = [p["area_ratio"] for p in palette]
+-+        st, sp = sum(tg) or 1, sum(pt) or 1
+-+        rows = [{"hex": p["hex"], "target": round(a / st, 3), "painted": round(b / sp, 3), "diff": round(b / sp - a / st, 3)}
+-+                for p, a, b in zip(palette, tg, pt)]
+-+        from core.candidates import WEIGHT_MODE, COLOR_MAPPING_PRIORITY, APPLIED
+-+        weight_fit = {"source": "COLOR_MAPPING_PRIORITY (MaC color_association.py v1.0)" if WEIGHT_MODE == "team" else "eng-2.6 감정 가중치",
+-+                      "chips": rows, "max_abs_diff": round(max(abs(r["diff"]) for r in rows), 3),
+-+                      **({"priority": COLOR_MAPPING_PRIORITY, "applied": APPLIED} if WEIGHT_MODE == "team" else {})}
+-     verification = {"status": "PASS" if rv["ok"] else "FAIL", "max_de00": round(m["de_p90"], 2),
+-                     "max_ratio_err": 0.0, "attempts": len(tries), "renderer": f"image:{tries[-1]['painter']}",
+-                     "coverage": round(m["coverage"], 3), "review": rv,
+--                    **({"snap_coverage": round(m["snap_coverage"], 3), "candidates_in": True} if cands else {}),
+-+                    **({"snap_coverage": round(m["snap_coverage"], 3), "candidates_in": True, "weight_fit": weight_fit} if cands else {}),
+-                     "criteria": {"cover_de00": COVER_DE, "cover_min": COVER_MIN_BY_STYLE[style], "style": style,
+-                                  **({"snap_de00": SNAP_DE} if cands else {}),
+-                                  "arousal_c": AROUSAL_C.get(affect.arousal) if affect else None,
+-diff --git a/core/pipeline.py b/core/pipeline.py
+-index daae171..6c01462 100644
+---- a/core/pipeline.py
+-+++ b/core/pipeline.py
+-@@ -230,7 +230,7 @@ def _compute(masked, mask_stats, resolver, kb, engine, generator, cache, variant
+-         "palette": syn["palette"],
+-         "affect": syn["affect"],
+-         "verification": {k: ver[k] for k in ("status", "max_de00", "max_ratio_err", "attempts", "renderer", "criteria",
+--                                             "coverage", "review", "snap_coverage", "candidates_in") if k in ver},
+-+                                             "coverage", "review", "snap_coverage", "candidates_in", "weight_fit") if k in ver},
+-         "grounding": _link_colors(grounding, syn["palette"], res, rag),
+-         **extra_out,
+-         **({"variant": variant} if variant else {}),
+-diff --git a/tests/test_candidates.py b/tests/test_candidates.py
+-index 6d67a02..b1c6774 100644
+---- a/tests/test_candidates.py
+-+++ b/tests/test_candidates.py
+-@@ -60,7 +60,8 @@ def test_snap_holds_even_when_painter_ignores_hex():           # 화가가 엉
+-     assert not rv["ok"] and any("더 분명하고 넓게" in f for f in rv["fails"])
+- 
+- 
+--def test_emotion_weight_grows_with_intensity():                # 감정이 강할수록 감정 색이 넓은 면을 받는다
+-+def test_emotion_weight_grows_with_intensity(monkeypatch):     # legacy(eng-2.6): 감정이 강할수록 감정 색이 넓은 면을 받는다
+-+    monkeypatch.setattr(cd, "WEIGHT_MODE", "legacy")
+-     kb = KB()
+-     res = {"emotion": Resolution("emotion", "", "longing_melancholy", "label", 1.0),
+-            "time": Resolution("time", "", "night", "label", 1.0),
+-@@ -232,3 +233,37 @@ def test_always_four_chips_even_with_three_families():
+-     img = Image.new("RGB", (imf.W, imf.H), cands[0].hex)
+-     m = imf.measure_snapped(img, cands)
+-     assert len(m["picked"]) == 3                                   # 후보가 3개뿐이면 3개 (더 만들지 않는다)
+-+
+-+
+-+def _res4():
+-+    return {"emotion": Resolution("emotion", "", "joy_excitement", "label", 1.0),
+-+            "time": Resolution("time", "", "afternoon", "label", 1.0),
+-+            "space": Resolution("space", "", "amusement_park", "label", 1.0),
+-+            "quality": Resolution("quality", "", "cherished", "label", 1.0)}
+-+
+-+
+-+def test_team_weights_are_color_mapping_priority():            # cand-4: 팀 color_association.py v1.0 값 그대로
+-+    assert cd.WEIGHT_MODE == "team" and cd.CAND_VERSION == "cand-4"
+-+    assert cd.COLOR_MAPPING_PRIORITY == {"emotion": 0.30, "memory_quality": 0.20, "time": 0.15, "space": 0.15,
+-+                                         "temperature": 0.10, "light": 0.05, "sensory": 0.05}
+-+    assert abs(sum(cd.COLOR_MAPPING_PRIORITY.values()) - 1.0) < 1e-9
+-+    from core.synth import synthesize
+-+    kb, res = KB(), _res4()
+-+    cs = cd.build(res, kb, [], None, synthesize(res, kb, [], None)["palette"], "")
+-+    w = {c.category: c.weight for c in cs if c.origin != "shade"}
+-+    assert w["emotion"] == 0.30 and w["time"] == 0.15 and w["space"] == 0.15 and w["accent"] == 0.10
+-+    # 감정 강도와 상관없이 같은 비중 (가중치는 팀 표가 정한다)
+-+    a1 = cd.build(res, kb, [], _aff(5, 5, (3, 3)), synthesize(res, kb, [], _aff(5, 5, (3, 3)))["palette"], "")
+-+    assert [c.weight for c in a1 if c.origin == "emotion"] == [c.weight for c in cs if c.origin == "emotion"]
+-+    # 넓게 칠할 4색의 면적 목표 비 = 가중치 비 (감정 : 시간 = 2 : 1)
+-+    t = {c.category: c.area for c in cs if c.tier == "large"}
+-+    assert abs(t["emotion"] / t["time"] - 2.0) < 1e-6
+-+
+-+
+-+def test_weight_fit_compares_targets_with_chips():             # 가중치로 정한 HEX 비중 ↔ 그림 뒤 4색 칩 비중
+-+    r = analyze("초여름 오후, 아빠 손을 잡고 놀이공원 회전목마 앞에서 설레던 기억", cache=CACHE, engine="image_first")
+-+    wf = r["verification"]["weight_fit"]
+-+    assert wf["source"].startswith("COLOR_MAPPING_PRIORITY") and len(wf["chips"]) == 4
+-+    assert {c["hex"] for c in wf["chips"]} == {p["hex"] for p in r["palette"]}
+-+    assert abs(sum(c["target"] for c in wf["chips"]) - 1) < 0.01 and abs(sum(c["painted"] for c in wf["chips"]) - 1) < 0.01
+-+    assert wf["applied"]["temperature"] == "미구현"
+--- 
+-2.43.0
+-
+diff --git a/CHANGES_cues-0.1.md b/CHANGES_cues-0.1.md
+index 4a16d83..4969630 100644
+--- a/CHANGES_cues-0.1.md
++++ b/CHANGES_cues-0.1.md
+@@ -21,7 +21,7 @@
+ 
+ ## 바뀐 것
+ 
+-**판정 (core/cues.py, data/cues.json, core/kb.py)** — 팀장 요청 "같은 낱말인데 상황에 따라 정서가 다른 경우 거르기"
++**판정 (core/cues.py, data/cues.json, core/kb.py)** — 요구사항 "같은 낱말인데 상황에 따라 정서가 다른 경우 거르기"
+ - 낱말 경계: `비 ⊄ 비행기`, `눈 ⊄ 눈물`. 같은 뜻 합성어(한밤중·꽃잎·외할머니…)는 extra_keywords
+ - 원형 맞춤: `신나다 = 신나서`, 띄어 쓴 키워드는 사이 부사 허용(`눈이 펑펑 오던` = 눈 오다)
+ - 부정: `선명하지 않은`, `안 그리웠다` 는 걸리지 않음
+@@ -69,7 +69,7 @@
+ - `data/.embed_cache.json` 은 로컬 캐시 — 커밋하지 않는다(.gitignore 에 추가됨)
+ - 서버 시작 로그에서 `코퍼스 embedding corpus-0.1+e78b29b1` 처럼 embedding 으로 떴는지 확인
+ - 새 라이브러리 없음 (kiwipiepy 0.24.0 은 main 에 이미 있음)
+-- **문장 고정(SENTENCE_LOCK)**: 고정 키에 KB·엔진 버전은 들어가지만 코퍼스·단서 버전은 안 들어간다. 이미 고정된 문장은 이 패치 뒤에도 예전 결과를 돌려준다. 새 판정을 적용하려면 고정 테이블을 비우거나 `LOCK_VERSION` 을 올려야 한다 — 팀장 요구(같은 문장 = 같은 결과)와 부딪치므로 팀이 정할 것
++- **문장 고정(SENTENCE_LOCK)**: 고정 키에 KB·엔진 버전은 들어가지만 코퍼스·단서 버전은 안 들어간다. 이미 고정된 문장은 이 패치 뒤에도 예전 결과를 돌려준다. 새 판정을 적용하려면 고정 테이블을 비우거나 `LOCK_VERSION` 을 올려야 한다 — 요구사항(같은 문장 = 같은 결과)와 부딪치므로 팀이 정할 것
+ 
+ ## 팀이 정할 것
+ 
+diff --git a/CHANGES_eng-2.0.md b/CHANGES_eng-2.0.md
+index 4eeb13f..2a2af10 100644
+--- a/CHANGES_eng-2.0.md
++++ b/CHANGES_eng-2.0.md
+@@ -2,7 +2,7 @@
+ 
+ ## 왜
+ eng-1.x 는 팔레트를 KB 21항목에서 계산한 뒤 그 4색으로 그림을 그려, 그림이 늘 정확히 4색이었다.
+-팀장 피드백: "색면추상화를 바로 만들고, 만들어진 그림에서 HEX 를 뽑아야 한다."
++요구사항: "색면추상화를 바로 만들고, 만들어진 그림에서 HEX 를 뽑아야 한다."
+ 
+ ## 켜는 법
+ - 서버 기본: `ENGINE_MODE=image_first` (기본은 palette = eng-1.2, 바뀐 것 없음)
+diff --git a/CHANGES_eng-2.1.md b/CHANGES_eng-2.1.md
+index 3d2813d..cbe6bfd 100644
+--- a/CHANGES_eng-2.1.md
++++ b/CHANGES_eng-2.1.md
+@@ -1,6 +1,6 @@
+ # eng-2.1 — 문장 고정: 같은 문장이면 해시·HEX·색상·색 이름이 같다
+ 
+-## 왜 (2026-10-10 팀장 피드백)
++## 왜 (2026-10-10 요구사항)
+ 같은 문장을 3분 간격으로 넣었는데 해시와 HEX 가 달랐다. 기준: "고객이 동시에 두 번 뽑아도
+ (화풍·형태가 조금 달라도) 해시값·HEX·색상·색 이름이 일치해야 한다."
+ 
+diff --git a/CHANGES_eng-2.3.md b/CHANGES_eng-2.3.md
+index 9033ee7..7973798 100644
+--- a/CHANGES_eng-2.3.md
++++ b/CHANGES_eng-2.3.md
+@@ -1,6 +1,6 @@
+ # eng-2.3 — 같은 문장급 고정 + 해시는 '문장 + 4색'에서 태어난다
+ 
+-## 왜 (2026-10-10 팀장 피드백)
++## 왜 (2026-10-10 요구사항)
+ > 같은 문장이나 같은 문장급이면 해시·헥스·색상·색상명이 흔들리지 않으면 좋겠습니다.
+ > 문장·헥스·색상·색상명이 하나의 hash 를 탄생시킵니다.
+ 
+diff --git a/CHANGES_eng-2.6.md b/CHANGES_eng-2.6.md
+index 2c87368..03979eb 100644
+--- a/CHANGES_eng-2.6.md
++++ b/CHANGES_eng-2.6.md
+@@ -88,14 +88,13 @@
+ - CAND_VERSION cand-3 → 같은 문장도 새로 계산된다
+ 
+ ## cand-4 — 팀 입력 가중치(COLOR_MAPPING_PRIORITY)로 후보 HEX 비중 (2026-10-15)
+-왜: 팀 기준표 MaC color_association.py v1.0 의 7개 입력 가중치(감정 .30 · 기억 질감 .20 · 시간 .15 · 공간 .15 · 체감 온도 .10 · 빛 .05 · 감각 .05)가
+-코드에 없었다. 후보 비중은 eng-2.6 설계 가정(감정 1+1.5×…, 축 1.0, 색 말 1.6)으로 계산됐다.
++왜: 팀 기준표의 7개 입력 가중치가 코드에 없었고, 후보 비중은 eng-2.6 설계 가정(감정 1+1.5×…, 축 1.0, 색 말 1.6)으로 계산됐다.
+ 무엇
+-- core/candidates.py: CAND_WEIGHTS=team(기본) → 감정 .30 · 시간 .15 · 공간 .15 · 빛 사물 .05 · 감각 사물 .05.
+-  표에 없는 사물·문장 속 색 말·감정 강조색 = 팀 PALETTE_HIERARCHY accent .10. 기본 톤으로 떨어진 축 ×0.35. 곁색 .0225
+-  기억 질감 .20 = 색 후보가 아니라 채도·대비 보정(quality KB). 체감 온도 .10 = 미구현 (응답 applied 에 그대로 표시)
++- 가중치는 코드가 아니라 data/mapping_priority.json 에 둔다. 고정값이 아니라 실험으로 계속 조정하는 값이라, 팀은 이 파일만 고친다.
++  파일 내용 해시가 후보 규칙 버전(cand-4+mp-…+해시)에 들어가 → 가중치를 바꾸면 같은 문장도 새 가중치로 다시 계산된다.
++- 쓰는 곳: 감정·시간·공간 = 그 축의 KB 색 / 기억 질감 = 기억색·물체색(사물 색) + 채도·대비 보정 / 빛 = 빛 사물 / 감각 = 감각 사물 / 체감 온도 = 미구현.
++  표에 없는 문장 속 색 말·감정 강조색 = 팀 PALETTE_HIERARCHY accent .10 (팀 결정 대상). 기본 톤으로 떨어진 축 ×0.35.
+ - 이 비중이 그리기 전 HEX 의 면적 목표 → verification.weight_fit 에서 그림 뒤 4색 칩의 실제 비중과 비교 (목표·그림·차이, 최대 차이)
+-- 감정 강도는 이제 면적을 바꾸지 않는다 (팀 표가 고정 비중). 노을 바닷가 문장에서 감정 색이 시간·장소 색을 누르던 문제도 같이 풀림
+-- CAND_VERSION cand-4 → 고정 키가 새로 생긴다. 예전처럼 쓰려면 CAND_WEIGHTS=legacy (cand-3)
++- CAND_WEIGHTS=legacy 면 eng-2.6 감정 가중치(cand-3)
+ - 프론트: "팀 입력 가중치 ↔ 4색 비중" 접이식 표
+-확인: pytest 203 통과 (팀 가중치 값·2:1 비율·강도 무관·weight_fit 4칩 비교 테스트 추가)
++확인: pytest 203 통과 (가중치가 파일에서 오는지 · 합 1.00 · 넓게 칠할 면적 비 = 가중치 비 · weight_fit 4칩 비교)
+diff --git a/core/astral_palette.py b/core/astral_palette.py
+index a4a3bf7..4657f2e 100644
+--- a/core/astral_palette.py
++++ b/core/astral_palette.py
+@@ -1,6 +1,6 @@
+ """core/astral_palette.py — Astral 사주 4색에 보완색 4개와 무채색 4단을 붙여 8색(+무채) 팔레트를 만든다.
+ 
+-왜 (2026-10-10 팀 피드백, 김외진)
++왜 (2026-10-10 요구사항)
+   · 조각보는 채도·명도 차이가 없는 색들이 뽑혔을 때 뭉쳐 놓으면 세련돼 보이지 않는다
+   · 고유색 4개 + 보완색 4개 = 8색으로 그리면 풍성해진다. 칩도 고유색 4 / 보완색 4 로 따로
+   · 조각 사이 선과 중간중간 조각을 무채색(흰·회·검)으로 명도를 바꿔 섞으면 색 차이가 작은 것을 상쇄한다
+diff --git a/core/candidates.py b/core/candidates.py
+index e0bea5b..9e52a4e 100644
+--- a/core/candidates.py
++++ b/core/candidates.py
+@@ -1,6 +1,6 @@
+ """core/candidates.py — 그리기 전 후보 색 (eng-2.6): 그림 뒤 4색은 반드시 이 후보 HEX 중에서 나온다.
+ 
+-왜 (2026-10-13 팀장 요구 9번)
++왜 (2026-10-13 요구사항 9번)
+   eng-2.0~2.5 는 그림을 그린 뒤 픽셀에서 4색을 '쟀다'. 그래서 4색이 문장 분석에서 나온 색과 아무 관계가 없을 수 있었다
+   (예: 수박 껍질 문장 → 탁한 보라 #847… 가 주조색). 문장 → 색의 근거 사슬이 그림에서 끊긴 것이다.
+   eng-2.6 은 문장 분석이 '후보 색'을 먼저 정하고, 화가는 그 후보로 그리고, 그림 뒤에는 후보 중에서 4색을 고른다(core/image_first 스냅).
+@@ -13,16 +13,14 @@
+   word     문장에 직접 쓴 색 말 ("모스 그린", "붉은", "노란") — 사람이 색을 말했으면 가장 강한 단서
+   shade    위 색들의 밝은·짙은 형제색 — 작은 붓질용. 그림이 다채로워져도 4색은 여전히 후보 안에 있게 하려는 자리
+ 
+-팀 입력 가중치 (cand-4, 2026-10-15 김외진 요구 — 기본값)
+-  MaC color_association.py v1.0 의 COLOR_MAPPING_PRIORITY 를 그대로 후보 HEX 의 비중으로 쓴다.
+-    감정 .30 · 기억 질감 .20 · 시간 .15 · 공간 .15 · 체감 온도 .10 · 빛 .05 · 감각 .05  (합 1.00)
+-  색을 직접 내는 축(감정·시간·공간·빛·감각)은 그 가중치로 후보 비중을 받는다.
+-  기억 질감(.20)은 색이 아니라 채도·대비 보정(quality KB modifiers)으로 이미 들어간다. 체감 온도(.10)는 아직 미구현.
+-  사물·문장 속 색 말은 이 표에 없다 → PALETTE_HIERARCHY 의 accent(.10, "기억 속 가장 강렬한 대상·오브젝트") 비중.
++팀 입력 가중치 (cand-4, 기본값)
++  팀 기준표의 COLOR_MAPPING_PRIORITY(7개 입력 가중치)를 후보 HEX 의 비중으로 쓴다. 값은 data/mapping_priority.json 에 있다.
++  감정·시간·공간 = 그 축의 KB 색 · 기억 질감 = 기억색·물체색(사물 색) · 빛 = 빛 사물 · 감각 = 감각 사물 · 체감 온도 = 미구현.
++  표에 없는 문장 속 색 말·감정 강조색은 팀 PALETTE_HIERARCHY accent(.10).
+   이 비중이 그리기 전 HEX 의 면적 목표가 되고, 그림 뒤 4색 칩의 실제 비중과 비교된다 (image_first weight_fit).
+   CAND_WEIGHTS=legacy 면 아래 eng-2.6 감정 가중치(cand-3)로 돌아간다.
+ 
+-감정 가중치 (legacy, 2026-10-13 이재오 제안)
++감정 가중치 (legacy, eng-2.6)
+   감정 강도 = (|쾌−3| + |각성−3|) / 4   (0 = 담담, 1 = 아주 강함)
+   감정 색 가중치 = 1 + EMO_GAIN × (0.5 + 강도)        → 감정이 강할수록 넓은 면을 받는다
+   가중치 상위 LARGE_N 색 = '넓게'(면적 목표 합 LARGE_SHARE), 나머지 = '작게'(붓질·튐)
+@@ -45,13 +43,19 @@ LARGE_SHARE = float(os.getenv("CAND_LARGE_SHARE", "0.80"))
+ MERGE_DE = float(os.getenv("CAND_MERGE_DE", "7"))            # 이보다 가까운 두 후보는 하나로 (가중치는 큰 쪽)
+ MAX_CANDS = int(os.getenv("CAND_MAX", "12"))
+ WEIGHT_MODE = os.getenv("CAND_WEIGHTS", "team")   # team (팀 COLOR_MAPPING_PRIORITY) | legacy (eng-2.6 감정 가중치)
+-# 팀 기준표 MaC color_association.py v1.0 (2026-10-06 메일) — 값을 바꾸지 않는다
+-COLOR_MAPPING_PRIORITY = {"emotion": 0.30, "memory_quality": 0.20, "time": 0.15, "space": 0.15,
+-                          "temperature": 0.10, "light": 0.05, "sensory": 0.05}
+-PALETTE_ACCENT_W = 0.10   # 팀 PALETTE_HIERARCHY accent: 기억 속 가장 강렬한 대상·오브젝트 → 사물·문장 속 색 말·감정 강조색
+-APPLIED = {"emotion": "후보 비중", "time": "후보 비중", "space": "후보 비중", "light": "후보 비중(빛 사물)",
+-           "sensory": "후보 비중(감각 사물)", "memory_quality": "채도·대비 보정 (색 후보 아님)", "temperature": "미구현"}
+-CAND_VERSION = "cand-4" if WEIGHT_MODE == "team" else "cand-3"   # cand-4: 팀 입력 가중치 · cand-3: 시간·장소 색 늘 후보
++# 팀 입력 가중치 — data/mapping_priority.json 에서 읽는다 (코드에 숫자를 두지 않는다. 팀이 실험하며 이 파일만 고친다)
++import hashlib as _hl, json as _json
++from pathlib import Path as _Path
++PRIORITY_PATH = _Path(os.getenv("MAPPING_PRIORITY_PATH", _Path(__file__).resolve().parent.parent / "data" / "mapping_priority.json"))
++_PRIORITY_RAW = PRIORITY_PATH.read_text(encoding="utf-8")
++_PRIORITY = _json.loads(_PRIORITY_RAW)
++COLOR_MAPPING_PRIORITY = dict(_PRIORITY["weights"])
++PRIORITY_VERSION = f"{_PRIORITY.get('version', 'mp')}+{_hl.sha256(_PRIORITY_RAW.encode()).hexdigest()[:8]}"
++PALETTE_ACCENT_W = 0.10   # 표에 없는 문장 속 색 말·감정 강조색 → 팀 PALETTE_HIERARCHY accent 비중 (팀 결정 대상)
++APPLIED = {"emotion": "후보 비중 (감정 색)", "time": "후보 비중 (시간 색)", "space": "후보 비중 (장소 색)",
++           "memory_quality": "후보 비중 (기억색·물체색) + 채도·대비 보정", "light": "후보 비중 (빛 사물)",
++           "sensory": "후보 비중 (감각 사물)", "temperature": "미구현"}
++CAND_VERSION = f"cand-4+{PRIORITY_VERSION}" if WEIGHT_MODE == "team" else "cand-3"   # cand-4: 팀 입력 가중치 · cand-3: 시간·장소 색 늘 후보
+ 
+ # 문장 속 색 말 → 등급 (색상 계열·밝기 1~9·채도 0~5). 설계값 — 코퍼스 팀 검토 대상. 긴 말 먼저 찾는다.
+ COLOR_TERMS = {
+@@ -141,7 +145,7 @@ def _weights(affect) -> dict:
+         P = COLOR_MAPPING_PRIORITY
+         return {"emotion": P["emotion"], "emotion_accent": PALETTE_ACCENT_W, "space": P["space"], "time": P["time"],
+                 "fallback_mult": FALLBACK_W, "object": {"light": P["light"], "sensory": P["sensory"]},
+-                "object_default": PALETTE_ACCENT_W, "word": PALETTE_ACCENT_W, "shade": SHADE_W * min(P["space"], P["time"])}
++                "object_default": P["memory_quality"], "word": PALETTE_ACCENT_W, "shade": SHADE_W * min(P["space"], P["time"])}
+     w_emo = 1 + EMO_GAIN * (0.5 + intensity(affect))
+     return {"emotion": w_emo, "emotion_accent": 0.5 * w_emo, "space": AXIS_W, "time": AXIS_W, "fallback_mult": FALLBACK_W / AXIS_W,
+             "object": {}, "object_default": OBJECT_W, "word": WORD_W, "shade": SHADE_W}
+@@ -204,7 +208,7 @@ def build(res: dict, kb, objects: list, affect, base_palette: list, masked: str)
+         cat = _object_category(o.name) if WEIGHT_MODE == "team" else ""
+         ow = W["object"].get(cat, W["object_default"])
+         add("object", o.lch, o.name, ow * (1.1 if i == 0 else 1.0), tuple(o.descriptor),
+-            category=cat if cat in ("light", "sensory") else "accent")
++            category=cat if cat in ("light", "sensory") else "memory_quality")
+     for w, d in find_color_terms(masked):
+         add("word", _from_descriptor(d), w, W["word"], d, category="accent")
+     # 같은 색 합치기 — 가중치 큰 쪽이 남고, 합쳐진 출처를 기록
+diff --git a/core/cues.py b/core/cues.py
+index 33aee49..668d5a9 100644
+--- a/core/cues.py
++++ b/core/cues.py
+@@ -3,7 +3,7 @@
+ kb-0.2.1 의 키워드 판정은 '글자가 들어 있으면' 걸렸다(부분 문자열). 그래서 생긴 문제:
+   ① 다른 낱말 속에서 걸림   '비' ⊂ '비행기' → 비 오는 창가 (공항 면세점 문장, 오연결)
+   ② 원형 키워드가 안 걸림   '신나다' 는 '신나서'에, '포근하다' 는 '포근한'에 안 걸렸다
+-  ③ 문맥이 정서를 바꿈      '아빠', '혼자', '가족', '하늘' … 같은 낱말이 상황에 따라 3~4가지 정서 (팀장 요청)
++  ③ 문맥이 정서를 바꿈      '아빠', '혼자', '가족', '하늘' … 같은 낱말이 상황에 따라 3~4가지 정서 (요구사항)
+   ④ KB 에 없는 정서         '설렘인지 불안인지' → '설렘'만 보고 기쁨 (오연결). 불안·공포·갈등을 받을 항목이 없다
+   ⑤ 한 축에 두 항목         '아침 햇살' → '햇살'(오후)이 먼저 걸림 (오연결)
+ 여기서 하는 일
+diff --git a/core/image_first.py b/core/image_first.py
+index 04c1cc3..49d548a 100644
+--- a/core/image_first.py
++++ b/core/image_first.py
+@@ -681,10 +681,10 @@ def run(masked: str, summary: str, res: dict, kb, objects: list, affect, base_pa
+         st, sp = sum(tg) or 1, sum(pt) or 1
+         rows = [{"hex": p["hex"], "target": round(a / st, 3), "painted": round(b / sp, 3), "diff": round(b / sp - a / st, 3)}
+                 for p, a, b in zip(palette, tg, pt)]
+-        from core.candidates import WEIGHT_MODE, COLOR_MAPPING_PRIORITY, APPLIED
+-        weight_fit = {"source": "COLOR_MAPPING_PRIORITY (MaC color_association.py v1.0)" if WEIGHT_MODE == "team" else "eng-2.6 감정 가중치",
++        from core.candidates import WEIGHT_MODE, COLOR_MAPPING_PRIORITY, APPLIED, PRIORITY_VERSION
++        weight_fit = {"source": "COLOR_MAPPING_PRIORITY (data/mapping_priority.json)" if WEIGHT_MODE == "team" else "eng-2.6 감정 가중치",
+                       "chips": rows, "max_abs_diff": round(max(abs(r["diff"]) for r in rows), 3),
+-                      **({"priority": COLOR_MAPPING_PRIORITY, "applied": APPLIED} if WEIGHT_MODE == "team" else {})}
++                      **({"priority": COLOR_MAPPING_PRIORITY, "priority_version": PRIORITY_VERSION, "applied": APPLIED} if WEIGHT_MODE == "team" else {})}
+     verification = {"status": "PASS" if rv["ok"] else "FAIL", "max_de00": round(m["de_p90"], 2),
+                     "max_ratio_err": 0.0, "attempts": len(tries), "renderer": f"image:{tries[-1]['painter']}",
+                     "coverage": round(m["coverage"], 3), "review": rv,
+diff --git a/core/sentence_class.py b/core/sentence_class.py
+index b634e70..ae96b9f 100644
+--- a/core/sentence_class.py
++++ b/core/sentence_class.py
+@@ -1,6 +1,6 @@
+ """core/sentence_class.py — '같은 문장급' 판정 (eng-2.3): 조사·어미·시제·어순·띄어쓰기만 다른 문장은 같은 문장으로 본다.
+ 
+-팀장 기준 (2026-10-10): "같은 문장이나 같은 문장급이면 해시·헥스·색상·색상명이 흔들리지 않으면 좋겠다."
++요구사항 (2026-10-10): "같은 문장이나 같은 문장급이면 해시·헥스·색상·색상명이 흔들리지 않으면 좋겠다."
+ eng-2.1 의 문장 키는 문장부호·공백만 지웠다. 그래서 아래 둘이 다른 키였다.
+   "초여름에 엄마와 함께 수박을 먹은 기억"
+   "초여름 엄마랑 같이 수박 먹었던 기억"
+diff --git a/core/sentence_lock.py b/core/sentence_lock.py
+index 4ad8286..21c2201 100644
+--- a/core/sentence_lock.py
++++ b/core/sentence_lock.py
+@@ -1,6 +1,6 @@
+ """core/sentence_lock.py — 문장 고정 (eng-2.1): 같은 문장이면 언제·어느 서버에서·몇 번을 넣어도 같은 해시·HEX·색상·색 이름.
+ 
+-왜 필요한가 (2026-10-10 팀장 피드백 — 같은 문장 두 번 → 해시·HEX 가 달랐다)
++왜 필요한가 (2026-10-10 요구사항 — 같은 문장 두 번 → 해시·HEX 가 달랐다)
+   ① 캐시가 프로세스 메모리(store.CACHE)뿐 → 재배포·재시작·인스턴스가 바뀌면 처음부터 다시 계산
+   ② palette 엔진의 해시는 Claude 가 읽은 결과(라벨) 뒤에 정해진다 → 다시 읽으면 라벨이 흔들릴 수 있다
+   ③ image_first 엔진은 HEX 를 그림에서 잰다 → 그림을 다시 그리면 HEX 가 바뀐다
+@@ -14,7 +14,7 @@
+   원문은 저장하지 않는다(키는 해시). LLM 요약(memory_summary)은 기본으로 저장하지 않는다 — LOCK_KEEP_SUMMARY=1 일 때만.
+ 끄기: SENTENCE_LOCK=0
+ 
+-eng-2.3 (2026-10-10 팀장 피드백 "같은 문장급이면 흔들리지 않게 · 문장·헥스·색상·색상명이 하나의 hash 를 탄생")
++eng-2.3 (2026-10-10 요구사항 "같은 문장급이면 흔들리지 않게 · 문장·헥스·색상·색상명이 하나의 hash 를 탄생")
+   ① 문장급 키 = sha256( 내용 형태소 모음(core/sentence_class) · 엔진·버전·화가·KB · 분석기 버전 )
+      조회 순서: 정확한 문장 키 → 문장급 키 → 없으면 계산. 계산하면 두 키 모두에 같은 값을 고정한다.
+   ② 표본 해시 = sha256( 문장급 키(없으면 문장 키) · 4색의 역할·HEX·LCh·색 이름·면적비 )
+diff --git a/data/cues.json b/data/cues.json
+index d8add96..082d733 100644
+--- a/data/cues.json
++++ b/data/cues.json
+@@ -1,6 +1,6 @@
+ {
+   "version": "cues-0.1",
+-  "about": "키워드 판정 보조 사전 (2026-10-13). 같은 낱말이라도 문맥에 따라 정서가 갈리는 문제(팀장 요청)와 kb-0.2.1 남은 오연결 3건을 다룬다. 출처: 단어별 상황·판별 단서 표(ChatGPT 생성, 15개 단어: 비·아빠·혼자·가족·하늘·눈·꽃·할머니·나무·눈물·웃음·떨리다·바다·밤)의 '판별 단서' 열, 코퍼스 팀 키워드 표(MaC_color_keywords)의 범주 열. 표기: 끝이 '다'인 말은 원형(형태소 분석으로 활용형까지 잡음), 띄어 쓴 말은 내용 형태소가 이어서 나와야 걸림.",
++  "about": "키워드 판정 보조 사전 (2026-10-13). 같은 낱말이라도 문맥에 따라 정서가 갈리는 문제(요구사항)와 kb-0.2.1 남은 오연결 3건을 다룬다. 출처: 단어별 상황·판별 단서 표(ChatGPT 생성, 15개 단어: 비·아빠·혼자·가족·하늘·눈·꽃·할머니·나무·눈물·웃음·떨리다·바다·밤)의 '판별 단서' 열, 코퍼스 팀 키워드 표(MaC_color_keywords)의 범주 열. 표기: 끝이 '다'인 말은 원형(형태소 분석으로 활용형까지 잡음), 띄어 쓴 말은 내용 형태소가 이어서 나와야 걸림.",
+   "weak_keywords": {
+     "_why": "혼자서는 정서를 정하지 않는 낱말. 단어별 표에서 같은 낱말이 3~4가지 정서로 갈렸다. 판정은 코퍼스·검색이 문장 전체로 하고, 거기서도 못 정하면 기본 톤. 기둥·나무·5월은 멘토 피드백(감정 축에 있는 비유·시간 낱말). 이른('이른 봄')·따뜻한('따뜻한 날씨')은 예전 브랜치 KB 0.3·0.4 에서 뺐던 낱말 — 팀 KB 에 남아 있어 약한 낱말로 둔다. 선명은 색·소리·목표에도 쓰여(ChatGPT 상황표: 4가지 중 기억은 1가지) 약한 낱말로 두고, 기억과 붙은 말('선명하게 기억하다', '선명하게 남다', '기억이 선명하다')만 생생한으로 정한다.",
+     "emotion": [
+diff --git a/data/mapping_priority.json b/data/mapping_priority.json
+new file mode 100644
+index 0000000..7afadc5
+--- /dev/null
++++ b/data/mapping_priority.json
+@@ -0,0 +1,23 @@
++{
++  "version": "mp-2026-10-15",
++  "source": "MaC color_association.py COLOR_MAPPING_PRIORITY (2026-10-15 수정본)",
++  "note": "입력 가중치는 고정값이 아니다. 실험으로 조정할 때 이 파일의 weights 만 바꾼다 (합 1.00). 바꾸면 후보 규칙 버전이 바뀌어 같은 문장도 새 가중치로 다시 계산된다.",
++  "weights": {
++    "emotion": 0.15,
++    "memory_quality": 0.20,
++    "time": 0.10,
++    "space": 0.15,
++    "temperature": 0.10,
++    "light": 0.20,
++    "sensory": 0.10
++  },
++  "meaning": {
++    "emotion": "감정/정서, 계절에 기반한 채도·명도 조율",
++    "memory_quality": "기억색·물체색 — 기억 선명도/풍화 정도, 대상 고유 색상(ΔE) 보존 및 중심 앵커",
++    "time": "시간대(명도 결정), 계절 및 시간의 고유 파장",
++    "space": "공간적 배경 — 바다·벽면 등 물리적 배경 텍스처",
++    "temperature": "체감 온도 (Warm/Cool 축 결정)",
++    "light": "광원 특성 — 화폭 전체 명암비 및 기저 톤",
++    "sensory": "미각/촉각 등 공감각적 요소"
++  }
++}
+diff --git a/scripts/eval_ten.py b/scripts/eval_ten.py
+index 692a1b7..f0bb09c 100644
+--- a/scripts/eval_ten.py
++++ b/scripts/eval_ten.py
+@@ -1,4 +1,4 @@
+-"""scripts/eval_ten.py — 같은 10문장을 eng-2.5(측정) 와 eng-2.6(후보 스냅) 으로 실제 화가·Claude 로 그려 비교 (2026-10-13 팀장 요청).
++"""scripts/eval_ten.py — 같은 10문장을 eng-2.5(측정) 와 eng-2.6(후보 스냅) 으로 실제 화가·Claude 로 그려 비교 (2026-10-13 요구사항).
+ 
+   python scripts/eval_ten.py                 # .env 의 키로 10문장 × 2엔진 (Claude 추출 20번 · 그림 20~40장)
+   python scripts/eval_ten.py --only 2.6      # eng-2.6 만
+diff --git a/tests/test_candidates.py b/tests/test_candidates.py
+index b1c6774..98900c4 100644
+--- a/tests/test_candidates.py
++++ b/tests/test_candidates.py
+@@ -242,22 +242,22 @@ def _res4():
+             "quality": Resolution("quality", "", "cherished", "label", 1.0)}
+ 
+ 
+-def test_team_weights_are_color_mapping_priority():            # cand-4: 팀 color_association.py v1.0 값 그대로
+-    assert cd.WEIGHT_MODE == "team" and cd.CAND_VERSION == "cand-4"
+-    assert cd.COLOR_MAPPING_PRIORITY == {"emotion": 0.30, "memory_quality": 0.20, "time": 0.15, "space": 0.15,
+-                                         "temperature": 0.10, "light": 0.05, "sensory": 0.05}
+-    assert abs(sum(cd.COLOR_MAPPING_PRIORITY.values()) - 1.0) < 1e-9
++def test_team_weights_come_from_mapping_priority_file():       # cand-4: 가중치는 data/mapping_priority.json 에서 (값은 팀이 조정)
++    import json
++    f = json.loads(cd.PRIORITY_PATH.read_text(encoding="utf-8"))["weights"]
++    assert cd.WEIGHT_MODE == "team" and cd.COLOR_MAPPING_PRIORITY == f
++    assert set(f) == {"emotion", "memory_quality", "time", "space", "temperature", "light", "sensory"}
++    assert abs(sum(f.values()) - 1.0) < 1e-9
++    assert cd.CAND_VERSION.startswith("cand-4+") and cd.PRIORITY_VERSION in cd.CAND_VERSION
+     from core.synth import synthesize
+     kb, res = KB(), _res4()
+     cs = cd.build(res, kb, [], None, synthesize(res, kb, [], None)["palette"], "")
+     w = {c.category: c.weight for c in cs if c.origin != "shade"}
+-    assert w["emotion"] == 0.30 and w["time"] == 0.15 and w["space"] == 0.15 and w["accent"] == 0.10
+-    # 감정 강도와 상관없이 같은 비중 (가중치는 팀 표가 정한다)
++    assert w["emotion"] == f["emotion"] and w["time"] == f["time"] and w["space"] == f["space"]
+     a1 = cd.build(res, kb, [], _aff(5, 5, (3, 3)), synthesize(res, kb, [], _aff(5, 5, (3, 3)))["palette"], "")
+     assert [c.weight for c in a1 if c.origin == "emotion"] == [c.weight for c in cs if c.origin == "emotion"]
+-    # 넓게 칠할 4색의 면적 목표 비 = 가중치 비 (감정 : 시간 = 2 : 1)
+     t = {c.category: c.area for c in cs if c.tier == "large"}
+-    assert abs(t["emotion"] / t["time"] - 2.0) < 1e-6
++    assert abs(t["emotion"] / t["space"] - f["emotion"] / f["space"]) < 1e-6   # 넓게 칠할 면적 비 = 가중치 비
+ 
+ 
+ def test_weight_fit_compares_targets_with_chips():             # 가중치로 정한 HEX 비중 ↔ 그림 뒤 4색 칩 비중
+diff --git a/tests/test_cues.py b/tests/test_cues.py
+index 1388049..e6425ba 100644
+--- a/tests/test_cues.py
++++ b/tests/test_cues.py
+@@ -56,7 +56,7 @@ def test_compounds_of_short_keywords_are_listed(resolver):
+     assert pick(resolver, "space", "외할머니가 가꾸던 텃밭이 있는 집") == "grandma_house"
+ 
+ 
+-# ── 같은 낱말, 다른 정서 (팀장 요청) ────────────────────────────────────
++# ── 같은 낱말, 다른 정서 (요구사항) ────────────────────────────────────
+ @pytest.mark.parametrize("phrase", ["아빠의 발소리가 들리면 무서워서 숨을 죽이던", "가족끼리 말다툼이 커지던 밤",
+                                     "불 꺼진 건물에 혼자 남아 불안하던", "실수한 나를 비웃던 웃음소리"])
+ def test_unsupported_emotions_are_blocked(resolver, phrase):
+diff --git a/tests/test_sentence_class.py b/tests/test_sentence_class.py
+index 319f2a8..e75518f 100644
+--- a/tests/test_sentence_class.py
++++ b/tests/test_sentence_class.py
+@@ -1,4 +1,4 @@
+-"""eng-2.3 — 같은 문장급이면 같은 해시·HEX·색상·색 이름 / 해시는 문장 + 4색에서 태어난다 (팀장 기준 2026-10-10)."""
++"""eng-2.3 — 같은 문장급이면 같은 해시·HEX·색상·색 이름 / 해시는 문장 + 4색에서 태어난다 (요구사항 2026-10-10)."""
+ import itertools, threading, time
+ import pytest
+ from core import pipeline, sentence_lock, sentence_class, store, image_first
+diff --git a/tests/test_sentence_lock.py b/tests/test_sentence_lock.py
+index fdcc6ee..2e00a76 100644
+--- a/tests/test_sentence_lock.py
++++ b/tests/test_sentence_lock.py
+@@ -1,4 +1,4 @@
+-"""문장 고정 (eng-2.1) — 팀장 기준: 같은 문장을 두 번(동시에) 뽑아도 해시·HEX·색상·색 이름이 같아야 한다."""
++"""문장 고정 (eng-2.1) — 요구사항: 같은 문장을 두 번(동시에) 뽑아도 해시·HEX·색상·색 이름이 같아야 한다."""
+ import itertools, threading, time, random
+ import pytest
+ from core import pipeline, sentence_lock, store, image_first
+-- 
+2.43.0
+
