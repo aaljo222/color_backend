@@ -1,0 +1,523 @@
+From da8dc76942365065d0173b194d24fb9cb7c51e8b Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Thu, 15 Oct 2026 09:38:06 +0000
+Subject: [PATCH] =?UTF-8?q?emb-1:=20KB=C2=B7=EC=BD=94=ED=8D=BC=EC=8A=A4=20?=
+ =?UTF-8?q?=EA=B2=80=EC=83=89=20=EC=9E=84=EB=B2=A0=EB=94=A9=EC=9D=84=20Sup?=
+ =?UTF-8?q?abase=20mac=5Fembeddings=20=ED=85=8C=EC=9D=B4=EB=B8=94=EC=97=90?=
+ =?UTF-8?q?=20=EC=A0=80=EC=9E=A5=20(=EC=A7=80=EA=B8=88=20=EB=AA=A8?=
+ =?UTF-8?q?=EB=8D=B8=EB=A1=9C=20=EC=9E=90=EB=8F=99=20=EC=83=9D=EC=84=B1)?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01S46btGiqCrDxZFjE88yKfS
+---
+ CHANGES_emb-1.md           |  26 +++++++
+ core/kb.py                 |  28 ++++++++
+ core/rag.py                |  14 +++-
+ core/vector_store.py       | 125 ++++++++++++++++++++++++++++++++++
+ scripts/sync_embeddings.py |  26 +++++++
+ sql/migrate_emb-1.sql      |  15 +++++
+ sql/schema.sql             |  17 +++++
+ tests/test_rag.py          |   1 +
+ tests/test_vector_store.py | 134 +++++++++++++++++++++++++++++++++++++
+ 9 files changed, 384 insertions(+), 2 deletions(-)
+ create mode 100644 CHANGES_emb-1.md
+ create mode 100644 core/vector_store.py
+ create mode 100644 scripts/sync_embeddings.py
+ create mode 100644 sql/migrate_emb-1.sql
+ create mode 100644 tests/test_vector_store.py
+
+diff --git a/CHANGES_emb-1.md b/CHANGES_emb-1.md
+new file mode 100644
+index 0000000..e26b5a8
+--- /dev/null
++++ b/CHANGES_emb-1.md
+@@ -0,0 +1,26 @@
++# emb-1 · 검색 임베딩을 Supabase 테이블에 (2026-10-15)
++
++## 문제 (운영 확인)
++- KB·코퍼스 검색 벡터가 레포 JSON 에만 있었다. `corpus_embeddings.json` 은 Gemini 로 만들어졌는데 서버에 `VOYAGE_API_KEY` 가 있으면
++  질의는 Voyage → 모델 불일치 안전장치가 임베딩을 끄고 **ngram 으로 내려갔다** (VOYAGE 키를 넣고 실행해 로그로 재현).
++- `color_prompts.embedding` 에 gemini 4행 · voyage 1행 · NULL 1행이 섞여, 서버 모델에 따라 '비슷한 문장'이 반쪽만 검색됐다.
++
++## 바뀐 것
++- `core/vector_store.py` (신규): 테이블 `mac_embeddings` 에 (kind, item_id, embedding_model) 별로 벡터 저장.
++  지금 서버 모델(oracle/similar.py 하나로 결정)의 벡터가 없거나 문장이 바뀐 항목(content_hash)만 그 자리에서 임베딩해 저장한다.
++  Supabase 가 없으면 프로세스 메모리. 실패하면 None → 예전처럼 파일 → ngram (서비스는 멈추지 않는다).
++- `core/rag.py`: 코퍼스 검색 = ① 테이블 → ② 레포 파일(모델·버전 같을 때) → ③ ngram. 기본 auto 라 **배포하면 바로 켜진다.**
++- `core/kb.py`: `RETRIEVER=embedding` = ① 테이블(`StoreRetriever`) → ② `kb_embeddings.json` → ③ ngram. 기본값은 그대로 ngram.
++- `sql/migrate_emb-1.sql` (+ schema.sql 13절): 테이블 정의.
++- `scripts/sync_embeddings.py`: 미리 채우기·상태 확인 (`--status`). color_prompts 도 지금 모델로 다시 채운다.
++- main.py 는 바꾸지 않았다.
++
++## 적용 순서
++1. Supabase SQL Editor 에서 `sql/migrate_emb-1.sql` 실행
++2. Railway·로컬 .env 의 임베딩 제공자를 같게: `EMBED_PROVIDER=voyage` (+ `VOYAGE_API_KEY`) 또는 `gemini`
++3. 배포 → 첫 요청 때 KB 21 + 코퍼스 203 문장을 한 번 임베딩해 저장 (이후 0회)
++4. (선택) KB 검색도 임베딩으로: `RETRIEVER=embedding` — τ(0.60)는 아직 실측 전이라 `scripts/eval_tau.py --retriever embedding` 으로 정한 뒤 켤 것
++
++## 테스트
++- `tests/test_vector_store.py` 6개 추가 (한 번만 임베딩·모델 변경 분리·문장 변경 그 항목만·키 없음/끔/장애 → None·KB 검색기·Supabase 왕복)
++- 전체 209 통과 (stub). 실제 Supabase·Voyage·Gemini 호출은 이 환경에 키가 없어 돌리지 못함 → 배포 후 `python scripts/sync_embeddings.py --status` 로 확인
+diff --git a/core/kb.py b/core/kb.py
+index 60ea5df..21f347e 100644
+--- a/core/kb.py
++++ b/core/kb.py
+@@ -5,6 +5,7 @@
+   - EmbeddingRetriever  : data/kb_embeddings.json(scripts/build_kb_embeddings.py가 생성) + Gemini 임베딩.
+   - SupabaseRetriever   : pgvector RPC match_color_kb (sql/schema.sql).
+ 환경변수 RETRIEVER = ngram | embedding | supabase  (기본 ngram)
++  embedding = 테이블 mac_embeddings(core/vector_store.py, 지금 모델로 자동 생성) → 없으면 data/kb_embeddings.json
+ """
+ from __future__ import annotations
+ import json, math, os, logging
+@@ -114,6 +115,28 @@ class EmbeddingRetriever:
+         return sorted(out, reverse=True)
+ 
+ 
++class StoreRetriever:
++    """KB 항목 임베딩을 테이블(mac_embeddings)에서 — 지금 서버 모델로 없으면 만들어 저장한다 (emb-1).
++    질의도 같은 모델(oracle/similar.py)이라 파일 모델 불일치로 꺼지는 일이 없다."""
++    name = "embedding"
++
++    def __init__(self, kb: KB):
++        from core import vector_store
++        vec = vector_store.vectors("kb", [(e["id"], kb.text_of(e)) for e in kb.items])
++        if vec is None:
++            raise RuntimeError("임베딩 테이블 사용 불가 (키 없음·VECTOR_STORE=off·장애)")
++        self.kb, self.ids, self._query = kb, [e["id"] for e in kb.items], vector_store.query
++        m = np.array([vec[i] for i in self.ids], float)
++        self.mat = m / np.linalg.norm(m, axis=1, keepdims=True)
++        self.source = "store"
++
++    def search(self, phrase: str, axis: str) -> list[tuple[float, str]]:
++        q = np.array(self._query(phrase), float)
++        sims = self.mat @ (q / (np.linalg.norm(q) or 1))
++        out = [(float(s), i) for s, i in zip(sims, self.ids) if self.kb.by_id[i]["axis"] == axis]
++        return sorted(out, reverse=True)
++
++
+ class SupabaseRetriever:
+     """pgvector: sql/schema.sql 의 match_color_kb(query_embedding, match_axis, match_count)."""
+     name = "supabase"
+@@ -232,6 +255,11 @@ class Resolver:
+ 
+ def make_retriever(kb: KB, kind: Optional[str] = None):
+     kind = (kind or os.getenv("RETRIEVER") or "ngram").lower()
++    if kind == "embedding":                       # ① 테이블 (지금 모델로 맞춰 저장) → ② 레포 파일 → ③ ngram
++        try:
++            return StoreRetriever(kb)
++        except Exception as ex:
++            logger.warning(f"[KB] 임베딩 테이블 검색기 사용 불가({ex}) → 파일")
+     try:
+         if kind == "embedding":
+             return EmbeddingRetriever(kb)
+diff --git a/core/rag.py b/core/rag.py
+index 1f58b71..9f1a3be 100644
+--- a/core/rag.py
++++ b/core/rag.py
+@@ -83,11 +83,12 @@ class _Ngram:
+ class _Embedding:
+     name = "embedding"
+ 
+-    def __init__(self, ids: list[str], data: dict, embed):
++    def __init__(self, ids: list[str], data: dict, embed, source: str = "file"):
+         pos = {i: n for n, i in enumerate(data["ids"])}
+         m = np.array([data["vectors"][pos[i]] for i in ids], float)
+         self.mat = m / np.linalg.norm(m, axis=1, keepdims=True)
+         self._embed = embed
++        self.source = source                                  # store (mac_embeddings) | file (corpus_embeddings.json)
+ 
+     def scores(self, query: str) -> np.ndarray:
+         q = np.array(self._embed(query), float)
+@@ -99,7 +100,15 @@ def _embedding_backend(corpus: Corpus, ids: list[str]):
+     method = (os.getenv("CORPUS_METHOD") or "auto").lower()
+     if method == "ngram":
+         return None
+-    try:
++    try:                                                      # ① 테이블(mac_embeddings) — 지금 모델로 없으면 만들어 저장 (emb-1)
++        from core import vector_store
++        texts = {s["id"]: s["text"] for s in corpus.scenes}
++        vec = vector_store.vectors("corpus", [(i, texts[i]) for i in ids])
++        if vec is not None:
++            return _Embedding(ids, {"ids": ids, "vectors": [vec[i] for i in ids]}, vector_store.query, source="store")
++    except Exception as ex:
++        logger.warning(f"[RAG] 임베딩 테이블 사용 불가 → 파일: {type(ex).__name__}")
++    try:                                                      # ② 레포 파일 (모델·버전이 같을 때만)
+         from oracle import similar
+         model = similar.model_name()
+         if model is None or not EMBED_PATH.exists():
+@@ -123,6 +132,7 @@ class CorpusRAG:
+         self.ngram = _Ngram([s["text"] for s in self.scenes])
+         self.emb = _embedding_backend(corpus, ids)
+         self.method = self.emb.name if self.emb else "ngram"
++        self.emb_source = getattr(self.emb, "source", None)
+         env_tau = os.getenv("CORPUS_TAU")
+         wanted = (os.getenv("CORPUS_METHOD") or "auto").lower()
+         if env_tau and tau is None and self.method == "ngram" and wanted != "ngram":
+diff --git a/core/vector_store.py b/core/vector_store.py
+new file mode 100644
+index 0000000..ac80fe6
+--- /dev/null
++++ b/core/vector_store.py
+@@ -0,0 +1,125 @@
++"""core/vector_store.py — KB·코퍼스 임베딩을 Supabase 테이블(mac_embeddings)에 저장하고 꺼내 쓴다 (emb-1).
++
++왜 (2026-10-15 운영 확인)
++  · 검색 벡터가 레포 JSON(data/corpus_embeddings.json · kb_embeddings.json)에만 있었다. 파일은 Gemini 로 만들어졌는데
++    서버에 VOYAGE_API_KEY 가 있으면 질의는 Voyage 로 만들어져 모델이 달라지고 → 안전장치가 임베딩을 끄고 ngram 으로 내려갔다.
++    파일을 다시 만들려면 PC 에서 스크립트를 돌리고 커밋해야 했다.
++  · 이 모듈은 지금 서버의 임베딩 모델로 벡터를 테이블에서 찾고, 없거나 문장이 바뀐 항목만 그 자리에서 만들어 저장한다.
++    그래서 키를 바꾸거나 코퍼스가 바뀌어도 다음 기동 때 저절로 맞춰진다.
++
++규칙
++  · 제공자·모델·차원은 oracle/similar.py 하나로 정한다 (EMBED_PROVIDER / SIMILAR_PROVIDER, 없으면 VOYAGE 키 → voyage, GEMINI 키 → gemini).
++    색 문장 추천(color_prompts)과 기억 문장 검색(KB·코퍼스)이 같은 모델을 쓴다.
++  · 행 키 = (kind, item_id, embedding_model). 다른 모델의 벡터와는 섞지 않는다.
++  · content_hash = 임베딩한 문장의 sha256 앞 16자. 문장이 바뀌면 그 항목만 다시 만든다.
++  · Supabase 가 없으면(로컬·테스트) 같은 일을 프로세스 메모리에서 한다.
++  · 어떤 단계든 실패하면 None → 호출한 쪽은 예전처럼 파일 → ngram 으로 내려간다 (서비스는 멈추지 않는다).
++
++환경변수  VECTOR_STORE = auto(기본) | off      표 정의: sql/schema.sql 13) mac_embeddings
++"""
++from __future__ import annotations
++import hashlib, json, logging, os
++from typing import Optional
++
++import numpy as np
++
++logger = logging.getLogger("uvicorn")
++TABLE = "mac_embeddings"
++BATCH = 64
++_MEM: dict[tuple, dict] = {}          # Supabase 없을 때: (kind, model) → {item_id: (hash, vec)}
++
++
++def enabled() -> bool:
++    return (os.getenv("VECTOR_STORE") or "auto").lower() != "off"
++
++
++def content_hash(text: str) -> str:
++    return hashlib.sha256((text or "").encode("utf-8")).hexdigest()[:16]
++
++
++def _sb():
++    try:
++        from utils.supabase_client import supabase_admin
++        return supabase_admin
++    except Exception:
++        return None
++
++
++def _parse(v) -> list[float]:
++    """PostgREST 는 vector 칸을 '[0.1,0.2,…]' 문자열로 돌려준다."""
++    return json.loads(v) if isinstance(v, str) else list(v)
++
++
++def _load(sb, kind: str, model: str) -> dict:
++    if sb is None:
++        return dict(_MEM.get((kind, model), {}))
++    out, start = {}, 0
++    while True:                                           # 1000행 단위로 끊어 읽는다 (PostgREST 기본 상한)
++        r = (sb.table(TABLE).select("item_id,content_hash,embedding").eq("kind", kind).eq("embedding_model", model)
++             .range(start, start + 999).execute())
++        rows = r.data or []
++        for x in rows:
++            out[x["item_id"]] = (x["content_hash"], _parse(x["embedding"]))
++        if len(rows) < 1000:
++            return out
++        start += 1000
++
++
++def _save(sb, kind: str, model: str, rows: list[tuple[str, str, list[float]]]):
++    if sb is None:
++        _MEM.setdefault((kind, model), {}).update({i: (h, v) for i, h, v in rows})
++        return
++    from datetime import datetime, timezone
++    now = datetime.now(timezone.utc).isoformat()
++    sb.table(TABLE).upsert([{"kind": kind, "item_id": i, "content_hash": h, "embedding_model": model, "embedding": list(v),
++                             "updated_at": now} for i, h, v in rows], on_conflict="kind,item_id,embedding_model").execute()
++
++
++def vectors(kind: str, items: list[tuple[str, str]]) -> Optional[dict[str, np.ndarray]]:
++    """items = [(item_id, 임베딩할 문장)] → {item_id: 벡터}. 지금 모델 벡터가 없거나 문장이 바뀐 항목만 새로 만든다.
++    임베딩을 쓸 수 없으면(키 없음·끔·장애) None."""
++    if not enabled() or not items:
++        return None
++    from oracle import similar
++    model = similar.model_name()
++    if model is None:
++        return None
++    sb = _sb()
++    try:
++        have = _load(sb, kind, model)
++        todo = [(i, t) for i, t in items if have.get(i, ("",))[0] != content_hash(t)]
++        for s in range(0, len(todo), BATCH):
++            part = todo[s:s + BATCH]
++            vecs = similar.embed_many([t for _, t in part], "document")
++            rows = [(i, content_hash(t), v) for (i, t), v in zip(part, vecs)]
++            _save(sb, kind, model, rows)
++            have.update({i: (h, v) for i, h, v in rows})
++        if todo:
++            logger.info(f"[vector_store] {kind}: {len(todo)}/{len(items)}개 새로 임베딩 · {model} · "
++                        f"{'Supabase ' + TABLE if sb is not None else '메모리'}")
++        return {i: np.asarray(have[i][1], float) for i, _ in items}
++    except Exception as ex:
++        logger.warning(f"[vector_store] {kind} 임베딩 사용 불가 → 파일/ngram: {type(ex).__name__}: {str(ex)[:160]}"
++                       + (" (sql/schema.sql 13) 실행?)" if sb is not None else ""))
++        return None
++
++
++def query(text: str) -> list[float]:
++    """질의 벡터 — 저장 벡터와 같은 모델 (실패하면 예외를 올린다 → 호출한 쪽이 이번 질의만 ngram)."""
++    from oracle import similar
++    return similar.embed_many([text], "query")[0]
++
++
++def status() -> dict:
++    """확인용: 지금 모델과 종류별 저장 행 수."""
++    from oracle import similar
++    model, sb = similar.model_name(), _sb()
++    out = {"enabled": enabled(), "model": model, "backend": "supabase" if sb is not None else "memory", "rows": {}}
++    if model is None:
++        return out
++    for kind in ("kb", "corpus"):
++        try:
++            out["rows"][kind] = len(_load(sb, kind, model))
++        except Exception as ex:
++            out["rows"][kind] = f"오류 {type(ex).__name__}"
++    return out
+diff --git a/scripts/sync_embeddings.py b/scripts/sync_embeddings.py
+new file mode 100644
+index 0000000..9dc02fe
+--- /dev/null
++++ b/scripts/sync_embeddings.py
+@@ -0,0 +1,26 @@
++# -*- coding: utf-8 -*-
++"""scripts/sync_embeddings.py — 검색 임베딩을 한 모델로 맞춘다 (emb-1). 서버 기동 때도 자동으로 되지만, 미리·확인용으로 1회.
++  python scripts/sync_embeddings.py              # KB·코퍼스 → mac_embeddings, 색 문장 → color_prompts.embedding
++  python scripts/sync_embeddings.py --status     # 지금 모델과 저장 행 수만 본다
++필요: SUPABASE_URL · SUPABASE_SERVICE_KEY · 임베딩 키(VOYAGE_API_KEY 또는 GEMINI_API_KEY) · sql/migrate_emb-1.sql 실행.
++★ 로컬 .env 와 Railway 의 임베딩 제공자를 같게 둘 것 (EMBED_PROVIDER=voyage 또는 gemini). 다르면 두 곳이 서로 다른 모델로
++  color_prompts 를 덮어써 '비슷한 문장'이 반쪽만 검색된다 (2026-10-15 운영: gemini 4행 · voyage 1행 섞임).
++"""
++import os, sys, json
++sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
++from dotenv import load_dotenv
++load_dotenv()
++from oracle import similar
++from core import vector_store
++
++if similar.model_name() is None:
++    sys.exit("임베딩 키가 없습니다 (VOYAGE_API_KEY 또는 GEMINI_API_KEY)")
++if "--status" not in sys.argv:
++    from core.kb import KB
++    from core.corpus import get_corpus
++    kb = KB()
++    assert vector_store.vectors("kb", [(e["id"], kb.text_of(e)) for e in kb.items]) is not None, "KB 임베딩 실패 (로그 확인)"
++    c = get_corpus()
++    assert vector_store.vectors("corpus", [(s["id"], s["text"]) for s in c.scenes]) is not None, "코퍼스 임베딩 실패 (로그 확인)"
++    print(f"색 문장(color_prompts) 다시 채움: {similar.backfill(5000)}개")
++print(json.dumps(vector_store.status(), ensure_ascii=False, indent=1))
+diff --git a/sql/migrate_emb-1.sql b/sql/migrate_emb-1.sql
+new file mode 100644
+index 0000000..432422b
+--- /dev/null
++++ b/sql/migrate_emb-1.sql
+@@ -0,0 +1,15 @@
++-- 13) 검색 임베딩 테이블 (core/vector_store.py · emb-1, 2026-10-15) -----------------------------------------
++--     KB 21항목·코퍼스 장면 문단의 임베딩. 서버가 지금 모델(oracle/similar.py)로 없으면 만들어 넣는다 → 레포 JSON 재생성 불필요.
++--     행 키 = (kind, item_id, embedding_model). 모델이 다른 벡터끼리는 비교하지 않는다.
++--     차원 1024 = SIMILAR_DIM (color_prompts.embedding 과 같다). 서버(service_role)만 접근 — 사용자 정책 없음.
++create extension if not exists vector;
++create table if not exists public.mac_embeddings (
++  kind            text not null,               -- kb | corpus
++  item_id         text not null,               -- KB 항목 id · 코퍼스 장면 문단 id
++  embedding_model text not null,               -- 예: voyage:voyage-4:1024 · gemini:gemini-embedding-001:1024
++  content_hash    text not null,               -- 임베딩한 문장의 sha256 앞 16자 (문장이 바뀌면 그 항목만 다시)
++  embedding       vector(1024) not null,
++  updated_at      timestamptz not null default now(),
++  primary key (kind, item_id, embedding_model)
++);
++alter table public.mac_embeddings enable row level security;
+diff --git a/sql/schema.sql b/sql/schema.sql
+index df2a61c..912a9c2 100644
+--- a/sql/schema.sql
++++ b/sql/schema.sql
+@@ -172,3 +172,20 @@ create table if not exists public.mac_sentence_locks (
+   created_at     timestamptz not null default now()
+ );
+ alter table public.mac_sentence_locks enable row level security;
++
++
++-- 13) 검색 임베딩 테이블 (core/vector_store.py · emb-1, 2026-10-15) -----------------------------------------
++--     KB 21항목·코퍼스 장면 문단의 임베딩. 서버가 지금 모델(oracle/similar.py)로 없으면 만들어 넣는다 → 레포 JSON 재생성 불필요.
++--     행 키 = (kind, item_id, embedding_model). 모델이 다른 벡터끼리는 비교하지 않는다.
++--     차원 1024 = SIMILAR_DIM (color_prompts.embedding 과 같다). 서버(service_role)만 접근 — 사용자 정책 없음.
++create extension if not exists vector;
++create table if not exists public.mac_embeddings (
++  kind            text not null,               -- kb | corpus
++  item_id         text not null,               -- KB 항목 id · 코퍼스 장면 문단 id
++  embedding_model text not null,               -- 예: voyage:voyage-4:1024 · gemini:gemini-embedding-001:1024
++  content_hash    text not null,               -- 임베딩한 문장의 sha256 앞 16자 (문장이 바뀌면 그 항목만 다시)
++  embedding       vector(1024) not null,
++  updated_at      timestamptz not null default now(),
++  primary key (kind, item_id, embedding_model)
++);
++alter table public.mac_embeddings enable row level security;
+diff --git a/tests/test_rag.py b/tests/test_rag.py
+index 0f1bef4..dd3431e 100644
+--- a/tests/test_rag.py
++++ b/tests/test_rag.py
+@@ -136,6 +136,7 @@ def test_embedding_backend_used_only_when_model_and_version_match(tmp_path, monk
+     data = {"model": "fake:bag:1", "corpus_version": c.version, "ids": [s["id"] for s in c.scenes],
+             "vectors": fake_embed([s["text"] for s in c.scenes])}
+     path.write_text(json.dumps(data), encoding="utf-8")
++    monkeypatch.setenv("VECTOR_STORE", "off")                   # 이 테스트는 레포 파일 경로의 안전장치만 본다 (테이블 경로는 test_vector_store.py)
+     r = CorpusRAG(c)
+     assert r.method == "embedding" and r.tau == ragmod.DEFAULT_TAU["embedding"]
+     assert r.search("어제 일처럼 또렷하게", axis="quality", k=1)[0].passage["kb_id"] == "vivid"
+diff --git a/tests/test_vector_store.py b/tests/test_vector_store.py
+new file mode 100644
+index 0000000..aba0d2e
+--- /dev/null
++++ b/tests/test_vector_store.py
+@@ -0,0 +1,134 @@
++"""emb-1: KB·코퍼스 임베딩을 테이블(mac_embeddings)에 저장하고, 지금 모델로 없으면 그 자리에서 만든다."""
++import json
++import pytest
++
++from core import vector_store as vs
++from core import rag as ragmod
++from core.corpus import get_corpus
++from core.kb import KB, make_retriever
++
++
++@pytest.fixture(autouse=True)
++def _fresh(monkeypatch):
++    vs._MEM.clear()
++    monkeypatch.delenv("VECTOR_STORE", raising=False)
++    yield
++    vs._MEM.clear()
++
++
++def _fake_provider(monkeypatch, model="fake:bag:1"):
++    """글자 가방 임베딩 — 결정론. 호출 횟수를 센다."""
++    from oracle import similar
++    c, kb = get_corpus(), KB()
++    vocab = sorted({ch for s in c.scenes for ch in s["text"]} | {ch for e in kb.items for ch in kb.text_of(e)})
++    calls = {"document": 0, "query": 0, "texts": 0}
++
++    def embed_many(texts, kind="document"):
++        calls[kind] += 1
++        calls["texts"] += len(texts) if kind == "document" else 0
++        return [[float(t.count(ch)) + 1e-6 for ch in vocab] for t in texts]
++    monkeypatch.setattr(similar, "model_name", lambda: model)
++    monkeypatch.setattr(similar, "embed_many", embed_many)
++    return calls
++
++
++def test_corpus_rag_uses_store_and_embeds_only_once(monkeypatch, tmp_path):
++    monkeypatch.setattr(ragmod, "EMBED_PATH", tmp_path / "없는파일.json")    # 레포 파일 없이도 임베딩 검색
++    calls = _fake_provider(monkeypatch)
++    c = get_corpus()
++    r = ragmod.CorpusRAG(c)
++    assert r.method == "embedding" and r.emb_source == "store"
++    assert calls["texts"] == len(c.scenes)
++    assert r.search("어제 일처럼 또렷하게", axis="quality", k=1)[0].passage["kb_id"] == "vivid"
++    ragmod.CorpusRAG(c)                                                     # 두 번째: 저장된 벡터 그대로 → 새 임베딩 0
++    assert calls["texts"] == len(c.scenes)
++
++
++def test_model_change_reembeds_and_text_change_reembeds_only_that_item(monkeypatch):
++    calls = _fake_provider(monkeypatch, "fake:a:1")
++    items = [("x", "바닷가 노을"), ("y", "엄마 손")]
++    assert set(vs.vectors("corpus", items)) == {"x", "y"} and calls["texts"] == 2
++    vs.vectors("corpus", [("x", "바닷가 노을"), ("y", "엄마 손 따뜻함")])        # 문장이 바뀐 y 만
++    assert calls["texts"] == 3
++    _fake_provider(monkeypatch, "fake:b:1")                                 # 모델이 바뀌면 다른 행 (섞지 않는다)
++    vs.vectors("corpus", items)
++    assert set(vs._MEM) == {("corpus", "fake:a:1"), ("corpus", "fake:b:1")}
++
++
++def test_no_key_or_off_or_failure_returns_none(monkeypatch):
++    from oracle import similar
++    monkeypatch.setattr(similar, "model_name", lambda: None)
++    assert vs.vectors("kb", [("a", "가")]) is None                            # 키 없음
++    _fake_provider(monkeypatch)
++    monkeypatch.setenv("VECTOR_STORE", "off")
++    assert vs.vectors("kb", [("a", "가")]) is None                            # 끔
++    monkeypatch.delenv("VECTOR_STORE")
++
++    def boom(texts, kind="document"):
++        raise RuntimeError("API 장애")
++    monkeypatch.setattr(similar, "embed_many", boom)
++    assert vs.vectors("kb", [("a", "가")]) is None                            # 장애 → 호출한 쪽이 파일/ngram
++
++
++def test_kb_retriever_embedding_uses_store(monkeypatch):
++    _fake_provider(monkeypatch)
++    kb = KB()
++    r = make_retriever(kb, "embedding")
++    assert type(r).__name__ == "StoreRetriever" and r.name == "embedding"
++    top = r.search(kb.text_of(kb.by_id["sea"]), "space")[0]
++    assert top[1] == "sea" and top[0] > 0.99
++
++
++def test_kb_retriever_without_key_uses_file_then_ngram(monkeypatch):
++    from oracle import similar
++    monkeypatch.setattr(similar, "model_name", lambda: None)                 # 키 없음 → 테이블 검색기 못 씀
++    assert type(make_retriever(KB(), "embedding")).__name__ == "EmbeddingRetriever"   # 예전처럼 레포 파일 검색기
++    monkeypatch.setattr("core.llm.embed_model_name", lambda: "other:model")
++    assert make_retriever(KB(), "embedding").name == "ngram"                  # 파일 모델도 안 맞으면 ngram
++
++
++class _FakeSB:
++    """supabase-py 흉내: upsert 저장 → select 시 vector 칸을 문자열로 돌려준다 (실제 PostgREST 와 같게)."""
++    def __init__(self):
++        self.rows = {}
++
++    def table(self, name):
++        assert name == "mac_embeddings"
++        return _Q(self)
++
++
++class _Q:
++    def __init__(self, sb):
++        self.sb, self.f, self.op, self.payload, self.rng = sb, {}, "select", None, (0, 10 ** 9)
++
++    def select(self, cols): return self
++    def eq(self, k, v): self.f[k] = v; return self
++    def range(self, a, b): self.rng = (a, b); return self
++
++    def upsert(self, rows, on_conflict=None):
++        assert on_conflict == "kind,item_id,embedding_model"
++        self.op, self.payload = "upsert", rows
++        return self
++
++    def execute(self):
++        import types
++        if self.op == "upsert":
++            for r in self.payload:
++                self.sb.rows[(r["kind"], r["item_id"], r["embedding_model"])] = {**r, "embedding": json.dumps(r["embedding"])}
++            return types.SimpleNamespace(data=self.payload)
++        hit = [r for r in self.sb.rows.values() if all(r[k] == v for k, v in self.f.items())]
++        return types.SimpleNamespace(data=hit[self.rng[0]:self.rng[1] + 1])
++
++
++def test_supabase_table_roundtrip(monkeypatch):
++    calls = _fake_provider(monkeypatch)
++    sb = _FakeSB()
++    monkeypatch.setattr(vs, "_sb", lambda: sb)
++    items = [("x", "바닷가 노을"), ("y", "엄마 손")]
++    a = vs.vectors("kb", items)
++    assert len(sb.rows) == 2 and all(r["content_hash"] == vs.content_hash(t) for (_, i, _), r in sb.rows.items()
++                                     for j, t in items if i == j)
++    b = vs.vectors("kb", items)                                             # 테이블에서 읽음 (문자열 → 숫자) → 새 임베딩 0
++    assert calls["texts"] == 2 and all((a[i] == b[i]).all() for i, _ in items)
++    st = vs.status()
++    assert st["backend"] == "supabase" and st["model"] == "fake:bag:1" and st["rows"]["kb"] == 2
+-- 
+2.43.0
+
