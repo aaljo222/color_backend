@@ -674,10 +674,21 @@ def run(masked: str, summary: str, res: dict, kb, objects: list, affect, base_pa
                             "axis": "image", "how": "measured", "phrase": f"그림에서 {r*100:.0f}%",
                             "nearest": near}})
     IMAGE_CACHE[key] = img
+    weight_fit = None
+    if cands:                                                    # cand-4: 가중치로 정한 HEX 비중 ↔ 그림 뒤 4색 칩의 실제 비중
+        tg = [p["basis"]["area_target"] for p in palette]
+        pt = [p["area_ratio"] for p in palette]
+        st, sp = sum(tg) or 1, sum(pt) or 1
+        rows = [{"hex": p["hex"], "target": round(a / st, 3), "painted": round(b / sp, 3), "diff": round(b / sp - a / st, 3)}
+                for p, a, b in zip(palette, tg, pt)]
+        from core.candidates import WEIGHT_MODE, COLOR_MAPPING_PRIORITY, APPLIED
+        weight_fit = {"source": "COLOR_MAPPING_PRIORITY (MaC color_association.py v1.0)" if WEIGHT_MODE == "team" else "eng-2.6 감정 가중치",
+                      "chips": rows, "max_abs_diff": round(max(abs(r["diff"]) for r in rows), 3),
+                      **({"priority": COLOR_MAPPING_PRIORITY, "applied": APPLIED} if WEIGHT_MODE == "team" else {})}
     verification = {"status": "PASS" if rv["ok"] else "FAIL", "max_de00": round(m["de_p90"], 2),
                     "max_ratio_err": 0.0, "attempts": len(tries), "renderer": f"image:{tries[-1]['painter']}",
                     "coverage": round(m["coverage"], 3), "review": rv,
-                    **({"snap_coverage": round(m["snap_coverage"], 3), "candidates_in": True} if cands else {}),
+                    **({"snap_coverage": round(m["snap_coverage"], 3), "candidates_in": True, "weight_fit": weight_fit} if cands else {}),
                     "criteria": {"cover_de00": COVER_DE, "cover_min": COVER_MIN_BY_STYLE[style], "style": style,
                                  **({"snap_de00": SNAP_DE} if cands else {}),
                                  "arousal_c": AROUSAL_C.get(affect.arousal) if affect else None,

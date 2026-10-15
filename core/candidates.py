@@ -13,7 +13,16 @@
   word     문장에 직접 쓴 색 말 ("모스 그린", "붉은", "노란") — 사람이 색을 말했으면 가장 강한 단서
   shade    위 색들의 밝은·짙은 형제색 — 작은 붓질용. 그림이 다채로워져도 4색은 여전히 후보 안에 있게 하려는 자리
 
-감정 가중치 (2026-10-13 이재오 제안)
+팀 입력 가중치 (cand-4, 2026-10-15 김외진 요구 — 기본값)
+  MaC color_association.py v1.0 의 COLOR_MAPPING_PRIORITY 를 그대로 후보 HEX 의 비중으로 쓴다.
+    감정 .30 · 기억 질감 .20 · 시간 .15 · 공간 .15 · 체감 온도 .10 · 빛 .05 · 감각 .05  (합 1.00)
+  색을 직접 내는 축(감정·시간·공간·빛·감각)은 그 가중치로 후보 비중을 받는다.
+  기억 질감(.20)은 색이 아니라 채도·대비 보정(quality KB modifiers)으로 이미 들어간다. 체감 온도(.10)는 아직 미구현.
+  사물·문장 속 색 말은 이 표에 없다 → PALETTE_HIERARCHY 의 accent(.10, "기억 속 가장 강렬한 대상·오브젝트") 비중.
+  이 비중이 그리기 전 HEX 의 면적 목표가 되고, 그림 뒤 4색 칩의 실제 비중과 비교된다 (image_first weight_fit).
+  CAND_WEIGHTS=legacy 면 아래 eng-2.6 감정 가중치(cand-3)로 돌아간다.
+
+감정 가중치 (legacy, 2026-10-13 이재오 제안)
   감정 강도 = (|쾌−3| + |각성−3|) / 4   (0 = 담담, 1 = 아주 강함)
   감정 색 가중치 = 1 + EMO_GAIN × (0.5 + 강도)        → 감정이 강할수록 넓은 면을 받는다
   가중치 상위 LARGE_N 색 = '넓게'(면적 목표 합 LARGE_SHARE), 나머지 = '작게'(붓질·튐)
@@ -35,7 +44,14 @@ LARGE_N = int(os.getenv("CAND_LARGE_N", "4"))          # 넓게 칠할 색 수 =
 LARGE_SHARE = float(os.getenv("CAND_LARGE_SHARE", "0.80"))
 MERGE_DE = float(os.getenv("CAND_MERGE_DE", "7"))            # 이보다 가까운 두 후보는 하나로 (가중치는 큰 쪽)
 MAX_CANDS = int(os.getenv("CAND_MAX", "12"))
-CAND_VERSION = "cand-3"   # cand-2 (2026-10-13): 곁색은 부모 색과 한 묶음으로 순위 · 한 묶음에서 칩 하나
+WEIGHT_MODE = os.getenv("CAND_WEIGHTS", "team")   # team (팀 COLOR_MAPPING_PRIORITY) | legacy (eng-2.6 감정 가중치)
+# 팀 기준표 MaC color_association.py v1.0 (2026-10-06 메일) — 값을 바꾸지 않는다
+COLOR_MAPPING_PRIORITY = {"emotion": 0.30, "memory_quality": 0.20, "time": 0.15, "space": 0.15,
+                          "temperature": 0.10, "light": 0.05, "sensory": 0.05}
+PALETTE_ACCENT_W = 0.10   # 팀 PALETTE_HIERARCHY accent: 기억 속 가장 강렬한 대상·오브젝트 → 사물·문장 속 색 말·감정 강조색
+APPLIED = {"emotion": "후보 비중", "time": "후보 비중", "space": "후보 비중", "light": "후보 비중(빛 사물)",
+           "sensory": "후보 비중(감각 사물)", "memory_quality": "채도·대비 보정 (색 후보 아님)", "temperature": "미구현"}
+CAND_VERSION = "cand-4" if WEIGHT_MODE == "team" else "cand-3"   # cand-4: 팀 입력 가중치 · cand-3: 시간·장소 색 늘 후보
 
 # 문장 속 색 말 → 등급 (색상 계열·밝기 1~9·채도 0~5). 설계값 — 코퍼스 팀 검토 대상. 긴 말 먼저 찾는다.
 COLOR_TERMS = {
@@ -67,6 +83,7 @@ class Cand:
     area: float = 0.0
     merged: list = field(default_factory=list)
     parent: "Cand | None" = None   # 곁색이면 부모 후보 (같은 색 묶음)
+    category: str = ""             # 팀 COLOR_MAPPING_PRIORITY 의 어느 칸으로 비중을 받았나 (team 모드)
 
     @property
     def family(self) -> str:
@@ -79,7 +96,7 @@ class Cand:
     def public(self) -> dict:
         return {"id": self.cid, "hex": self.hex, "lch": [round(float(x), 2) for x in self.lch], "origin": self.origin,
                 "label": self.label, "weight": round(self.weight, 3), "tier": self.tier, "area_target": round(self.area, 3),
-                "family": self.family,
+                "family": self.family, **({"category": self.category} if self.category else {}),
                 **({"merged": self.merged} if self.merged else {})}
 
 
@@ -112,6 +129,24 @@ def find_color_terms(text: str, limit: int = 3) -> list[tuple[str, tuple]]:
     return [(w, d) for _, w, d in sorted(found)[:limit]]
 
 
+def _object_category(name: str) -> str:
+    """코퍼스 팀 사물 색표의 분류 (light · sensory · memory_color). 표에 없으면 memory_color."""
+    from core.objects import object_table, _key
+    return (object_table().get(_key(name)) or {}).get("category", "memory_color")
+
+
+def _weights(affect) -> dict:
+    """origin → 비중. team = 팀 COLOR_MAPPING_PRIORITY / legacy = eng-2.6 감정 가중치."""
+    if WEIGHT_MODE == "team":
+        P = COLOR_MAPPING_PRIORITY
+        return {"emotion": P["emotion"], "emotion_accent": PALETTE_ACCENT_W, "space": P["space"], "time": P["time"],
+                "fallback_mult": FALLBACK_W, "object": {"light": P["light"], "sensory": P["sensory"]},
+                "object_default": PALETTE_ACCENT_W, "word": PALETTE_ACCENT_W, "shade": SHADE_W * min(P["space"], P["time"])}
+    w_emo = 1 + EMO_GAIN * (0.5 + intensity(affect))
+    return {"emotion": w_emo, "emotion_accent": 0.5 * w_emo, "space": AXIS_W, "time": AXIS_W, "fallback_mult": FALLBACK_W / AXIS_W,
+            "object": {}, "object_default": OBJECT_W, "word": WORD_W, "shade": SHADE_W}
+
+
 def _from_descriptor(d: tuple) -> tuple:
     from core.objects import descriptor_to_lch
     return descriptor_to_lch({"hue": d[0], "lightness": d[1], "chroma": d[2]})
@@ -126,27 +161,33 @@ def _descriptor_of(lch) -> tuple:
 
 def build(res: dict, kb, objects: list, affect, base_palette: list, masked: str) -> list[Cand]:
     """후보 색 목록 (가중치 내림차순, tier·area 채움). base_palette = eng-1.2 계산 팔레트 (정서 보정이 들어간 축 색)."""
-    by_role = {p["role"]: p for p in base_palette}
-    w_emo = 1 + EMO_GAIN * (0.5 + intensity(affect))
+    W = _weights(affect)
+    w_emo = W["emotion"]
     raw: list[Cand] = []
 
-    def add(origin, lch, label, w, desc=None):
+    def add(origin, lch, label, w, desc=None, category=""):
         hx, Cc = lch_to_hex_clipped(tuple(lch))
         lch = (float(lch[0]), float(Cc), float(lch[2]))
-        raw.append(Cand(f"{origin}:{len(raw)}", lch, hx, origin, label, desc or _descriptor_of(lch), w))
+        raw.append(Cand(f"{origin}:{len(raw)}", lch, hx, origin, label, desc or _descriptor_of(lch), w,
+                        category=category if WEIGHT_MODE == "team" else ""))
+
+    def axis_w(ax, how):
+        return W[ax] * (W["fallback_mult"] if how == "fallback" else 1.0)
 
     # 축 색 — 계산 팔레트에서 축 기준인 칸만 (정서 보정·조화 보정이 이미 들어 있다)
     for p in base_palette:
         b = p.get("basis") or {}
         ax = b.get("axis")
         if ax == "emotion":
-            add("emotion", p["lch"], p.get("color_name", "감정"), w_emo if p["role"] == "dominant" else 0.5 * w_emo)
+            dom = p["role"] == "dominant"
+            add("emotion", p["lch"], p.get("color_name", "감정"), w_emo if dom else W["emotion_accent"],
+                category="emotion" if dom else "accent")
         elif ax in ("space", "time"):
-            add(ax, p["lch"], p.get("color_name", ax), FALLBACK_W if b.get("how") == "fallback" else AXIS_W)
+            add(ax, p["lch"], p.get("color_name", ax), axis_w(ax, b.get("how")), category=ax)
     emo = kb.by_id[res["emotion"].kb_id]
     if not any(c.origin == "emotion" and c.weight < w_emo for c in raw) and emo.get("accent_lch"):
         from core.synth import _display_name                # '밝은 노랑 (회전목마금빛)' → '회전목마금빛' (계산 팔레트와 같은 이름)
-        add("emotion", emo["accent_lch"], f"{_display_name(emo)} · 강조", 0.5 * w_emo)
+        add("emotion", emo["accent_lch"], f"{_display_name(emo)} · 강조", W["emotion_accent"], category="accent")
     # 시간·장소 색은 계산 팔레트에 없어도 후보에 넣는다 (cand-3, 2026-10-14 운영: "비 오는 밤" — 사물 '비·창'이 계산 팔레트의
     # 분위기·강조 칸을 차지해 밤색이 후보에서 통째로 빠졌다. 정서 보정(명도·채도)은 감정·장소 색과 같게 준다)
     for ax in ("space", "time"):
@@ -158,11 +199,14 @@ def build(res: dict, kb, objects: list, affect, base_palette: list, masked: str)
         if affect is not None:
             C, L = C * affect.c_mult, max(15.0, min(95.0, L + affect.dL))
         from core.synth import _display_name
-        add(ax, (L, C, h), _display_name(e), FALLBACK_W if r.how == "fallback" else AXIS_W)
+        add(ax, (L, C, h), _display_name(e), axis_w(ax, r.how), category=ax)
     for i, o in enumerate(objects or []):
-        add("object", o.lch, o.name, OBJECT_W * (1.1 if i == 0 else 1.0), tuple(o.descriptor))
+        cat = _object_category(o.name) if WEIGHT_MODE == "team" else ""
+        ow = W["object"].get(cat, W["object_default"])
+        add("object", o.lch, o.name, ow * (1.1 if i == 0 else 1.0), tuple(o.descriptor),
+            category=cat if cat in ("light", "sensory") else "accent")
     for w, d in find_color_terms(masked):
-        add("word", _from_descriptor(d), w, WORD_W, d)
+        add("word", _from_descriptor(d), w, W["word"], d, category="accent")
     # 같은 색 합치기 — 가중치 큰 쪽이 남고, 합쳐진 출처를 기록
     raw.sort(key=lambda c: -c.weight)
     cands: list[Cand] = []
@@ -181,7 +225,7 @@ def build(res: dict, kb, objects: list, affect, base_palette: list, masked: str)
             lch = (max(12.0, min(96.0, L + dL)), C * k, h)
             lab = lch2lab(lch)
             if all(delta_e_2000(lab, x.lab) >= MERGE_DE for x in cands):
-                add("shade", lch, f"{tag} {c.label}", SHADE_W)
+                add("shade", lch, f"{tag} {c.label}", W["shade"], category="shade")
                 raw[-1].parent = c
                 cands.append(raw[-1])
     cands = sorted(cands, key=lambda c: -c.weight)[:MAX_CANDS]

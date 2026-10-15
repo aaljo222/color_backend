@@ -60,7 +60,8 @@ def test_snap_holds_even_when_painter_ignores_hex():           # 화가가 엉�
     assert not rv["ok"] and any("더 분명하고 넓게" in f for f in rv["fails"])
 
 
-def test_emotion_weight_grows_with_intensity():                # 감정이 강할수록 감정 색이 넓은 면을 받는다
+def test_emotion_weight_grows_with_intensity(monkeypatch):     # legacy(eng-2.6): 감정이 강할수록 감정 색이 넓은 면을 받는다
+    monkeypatch.setattr(cd, "WEIGHT_MODE", "legacy")
     kb = KB()
     res = {"emotion": Resolution("emotion", "", "longing_melancholy", "label", 1.0),
            "time": Resolution("time", "", "night", "label", 1.0),
@@ -232,3 +233,37 @@ def test_always_four_chips_even_with_three_families():
     img = Image.new("RGB", (imf.W, imf.H), cands[0].hex)
     m = imf.measure_snapped(img, cands)
     assert len(m["picked"]) == 3                                   # 후보가 3개뿐이면 3개 (더 만들지 않는다)
+
+
+def _res4():
+    return {"emotion": Resolution("emotion", "", "joy_excitement", "label", 1.0),
+            "time": Resolution("time", "", "afternoon", "label", 1.0),
+            "space": Resolution("space", "", "amusement_park", "label", 1.0),
+            "quality": Resolution("quality", "", "cherished", "label", 1.0)}
+
+
+def test_team_weights_are_color_mapping_priority():            # cand-4: 팀 color_association.py v1.0 값 그대로
+    assert cd.WEIGHT_MODE == "team" and cd.CAND_VERSION == "cand-4"
+    assert cd.COLOR_MAPPING_PRIORITY == {"emotion": 0.30, "memory_quality": 0.20, "time": 0.15, "space": 0.15,
+                                         "temperature": 0.10, "light": 0.05, "sensory": 0.05}
+    assert abs(sum(cd.COLOR_MAPPING_PRIORITY.values()) - 1.0) < 1e-9
+    from core.synth import synthesize
+    kb, res = KB(), _res4()
+    cs = cd.build(res, kb, [], None, synthesize(res, kb, [], None)["palette"], "")
+    w = {c.category: c.weight for c in cs if c.origin != "shade"}
+    assert w["emotion"] == 0.30 and w["time"] == 0.15 and w["space"] == 0.15 and w["accent"] == 0.10
+    # 감정 강도와 상관없이 같은 비중 (가중치는 팀 표가 정한다)
+    a1 = cd.build(res, kb, [], _aff(5, 5, (3, 3)), synthesize(res, kb, [], _aff(5, 5, (3, 3)))["palette"], "")
+    assert [c.weight for c in a1 if c.origin == "emotion"] == [c.weight for c in cs if c.origin == "emotion"]
+    # 넓게 칠할 4색의 면적 목표 비 = 가중치 비 (감정 : 시간 = 2 : 1)
+    t = {c.category: c.area for c in cs if c.tier == "large"}
+    assert abs(t["emotion"] / t["time"] - 2.0) < 1e-6
+
+
+def test_weight_fit_compares_targets_with_chips():             # 가중치로 정한 HEX 비중 ↔ 그림 뒤 4색 칩 비중
+    r = analyze("초여름 오후, 아빠 손을 잡고 놀이공원 회전목마 앞에서 설레던 기억", cache=CACHE, engine="image_first")
+    wf = r["verification"]["weight_fit"]
+    assert wf["source"].startswith("COLOR_MAPPING_PRIORITY") and len(wf["chips"]) == 4
+    assert {c["hex"] for c in wf["chips"]} == {p["hex"] for p in r["palette"]}
+    assert abs(sum(c["target"] for c in wf["chips"]) - 1) < 0.01 and abs(sum(c["painted"] for c in wf["chips"]) - 1) < 0.01
+    assert wf["applied"]["temperature"] == "미구현"

@@ -230,7 +230,7 @@ def _compute(masked, mask_stats, resolver, kb, engine, generator, cache, variant
         "palette": syn["palette"],
         "affect": syn["affect"],
         "verification": {k: ver[k] for k in ("status", "max_de00", "max_ratio_err", "attempts", "renderer", "criteria",
-                                             "coverage", "review", "snap_coverage", "candidates_in") if k in ver},
+                                             "coverage", "review", "snap_coverage", "candidates_in", "weight_fit") if k in ver},
         "grounding": _link_colors(grounding, syn["palette"], res, rag),
         **extra_out,
         **({"variant": variant} if variant else {}),
