@@ -1,0 +1,636 @@
+{
+  "status": "success",
+  "service": "Astral Color Report",
+  "engine_version": "astral-color-0.1.0",
+  "report_version": "astral-report-0.15.0",
+  "profile": {
+    "gender": "male",
+    "birth_city": "서울특별시",
+    "solar_date": "1995-05-21",
+    "time_unknown": false
+  },
+  "pillars": {
+    "year": "을해",
+    "month": "신사",
+    "day": "임자",
+    "hour": "병오"
+  },
+  "overview": {
+    "headline": "당신은 살피고 이해하는 편으로, 깊은 바다색 바탕에 연보라빛·청록빛을 잇고 보리 들빛으로 여백을 더해요.",
+    "summary": "일간 임을 중심에 두고, 월령의 화 조건을 생활의 배경으로 봅니다. 활동에서는 정인(배움과 이해), 가까운 관계에서는 겁재(협력과 경쟁)의 주제를 함께 살펴봅니다.",
+    "keywords": [
+      "큰 흐름과 여러 가능성을 함께 살피는 힘",
+      "생각을 드러내고 주변과 나누는 조건",
+      "정인 · 배움과 이해",
+      "겁재 · 협력과 경쟁"
+    ]
+  },
+  "reading": [
+    {
+      "key": "day_master",
+      "title": "나를 보는 기준 · 일간",
+      "evidence": "출생일의 일간은 임으로 계산되었습니다.",
+      "possibility": "넓게 흐름을 살피는 이미지로 해석할 수 있습니다.",
+      "strength": "큰 흐름과 여러 가능성을 함께 살피는 힘",
+      "watch": "가능성을 넓히는 동안 결론의 시점을 놓치지 않도록 해보세요.",
+      "action": "결론 전에 새로운 관점을 하나 더 찾아보세요.",
+      "color_role": "고유색"
+    },
+    {
+      "key": "month_command",
+      "title": "태어난 계절의 조건 · 월령",
+      "evidence": "월지 사의 본기는 병이며 화의 조건으로 읽습니다.",
+      "possibility": "생각을 드러내고 주변과 나누는 조건이 생활의 배경으로 나타날 가능성을 살펴볼 수 있습니다.",
+      "strength": "생각을 드러내고 주변과 나누는 조건을 일상의 리듬으로 활용할 수 있습니다.",
+      "watch": "표현의 속도가 상대의 이해 속도보다 앞서지 않는지 확인해 보세요.",
+      "action": "중요한 생각을 한 문장으로 표현해 보세요.",
+      "color_role": "균형색"
+    },
+    {
+      "key": "talent",
+      "title": "일과 활동의 방식 · 정인",
+      "evidence": "월간 신·정인 2표 / 시간 병·편재 1표 / 연간 을·상관 1표로 계산되어 정인(배움과 이해)이 재능 주제로 선택되었습니다.",
+      "possibility": "정보를 충분히 이해하고 자신의 체계로 정리하는 방식",
+      "strength": "반복해서 쓰기 쉬운 방식이므로 일·공부·프로젝트의 시작점으로 활용할 수 있습니다.",
+      "watch": "더 배우는 일이 실제 선택을 미루는 이유가 되지 않는지 확인해 보세요.",
+      "action": "받은 도움이나 정보를 내 말로 한 번 정리해 보세요.",
+      "color_role": "재능색"
+    },
+    {
+      "key": "relationship",
+      "title": "가까운 관계의 방식 · 겁재",
+      "evidence": "일지 자의 본기와 일간의 관계는 겁재(협력과 경쟁)입니다.",
+      "possibility": "사람과 자원을 빠르게 연결하며 함께 움직이는 방식",
+      "strength": "친밀한 관계에서 반복될 수 있는 반응을 관찰하는 기준으로 사용할 수 있습니다.",
+      "watch": "역할과 책임의 경계가 흐려지면 피로가 커질 수 있습니다.",
+      "action": "속도보다 역할과 경계를 먼저 맞춰 보세요.",
+      "color_role": "관계색"
+    }
+  ],
+  "colors": [
+    {
+      "role": "고유색",
+      "basis": "임",
+      "name": "깊은 바다색",
+      "hex": "#244B63",
+      "guide": {
+        "use": "나의 기준을 다시 확인하고 싶은 날, 가장 작은 개인 소품이나 화면의 중심 포인트",
+        "avoid": "고유색이 성격이나 운명을 확정한다고 설명하지 않습니다."
+      },
+      "display_role": "고유색",
+      "variant": "primary",
+      "label": "깊은 바다색",
+      "element": "수",
+      "description": "깊은 바다색은 큰 흐름과 여러 가능성을 함께 살피는 힘을 담은 색이에요. 내 속도로 일상을 돌보고, 나만의 기준을 지키는 작은 소품에 잘 어울립니다.",
+      "selection_reason": "나를 바라보는 기준과 태어난 계절의 흐름을 기반으로 해석하여 깊은 바다색과 주홍빛을 산출하였습니다. 깊은 바다색은 넓은 관찰, 주홍빛은 표현의 온기를 담습니다.",
+      "companion": {
+        "role": "고유색",
+        "display_role": "고유색",
+        "variant": "companion",
+        "label": "주홍빛",
+        "name": "주홍빛",
+        "hex": "#D85A3A",
+        "basis": "병",
+        "element": "화",
+        "source": "월지 본기",
+        "primary_hex": "#244B63",
+        "tone_name": "주홍빛",
+        "description": "주홍빛은 생각을 드러내고 주변과 나누는 조건을 떠올리는 색이에요. 익숙한 나의 모습에 다른 리듬을 더하고 싶을 때 곁에 두어 보세요.",
+        "guide": {
+          "use": "중요한 생각을 한 문장으로 표현해 보세요. 노트나 컵처럼 매일 보는 물건에 이 색을 더해 보세요.",
+          "avoid": "고유색이 성격이나 운명을 확정한다고 설명하지 않습니다."
+        },
+        "design_fallback": false,
+        "base_hex": "#D85A3A"
+      },
+      "base_hex": "#244B63"
+    },
+    {
+      "role": "재능색",
+      "basis": "정인",
+      "name": "연보라빛",
+      "hex": "#AAA0B7",
+      "guide": {
+        "use": "일·공부·프로젝트를 시작할 때 노트, 폴더, 작업 도구의 포인트",
+        "avoid": "능력의 우열이 아니라 자주 꺼내 쓰는 활동 주제로 봅니다."
+      },
+      "display_role": "재능색",
+      "variant": "primary",
+      "label": "연보라빛",
+      "element": "금",
+      "description": "연보라빛은 정보를 충분히 이해하고 자신의 체계로 정리하는 방식을 담아요. 생각을 일과 공부의 결과물로 옮기는 순간에 꺼내 보세요.",
+      "selection_reason": "일과 활동을 표현하는 방식과 일상에서 반복되는 활동 주제을 기반으로 해석하여 연보라빛과 금빛을 산출하였습니다. 연보라빛은 배움과 이해, 금빛은 넓은 활용을 담습니다.",
+      "companion": {
+        "role": "재능색",
+        "display_role": "재능색",
+        "variant": "companion",
+        "label": "금빛",
+        "name": "금빛",
+        "hex": "#B99453",
+        "basis": "편재",
+        "element": "화",
+        "source": "지지 본기 십신 가중",
+        "primary_hex": "#AAA0B7",
+        "tone_name": "금빛",
+        "description": "금빛은 여러 기회와 사람 사이에서 자원을 넓게 활용하는 방식을 떠올리게 해요. 늘 하던 방식에 새로운 시도를 더할 때 작은 포인트로 사용해 보세요.",
+        "guide": {
+          "use": "눈앞의 기회를 현재 자원과 비교해 보세요. 작업 노트나 책갈피에 색을 더해 보세요.",
+          "avoid": "능력의 우열이 아니라 자주 꺼내 쓰는 활동 주제로 봅니다."
+        },
+        "design_fallback": false,
+        "base_hex": "#B99453"
+      },
+      "base_hex": "#AAA0B7"
+    },
+    {
+      "role": "관계색",
+      "basis": "겁재",
+      "name": "청록빛",
+      "hex": "#4E7C75",
+      "guide": {
+        "use": "대화와 만남이 있는 날 카드, 스카프, 메시지 배경처럼 시야에 들어오는 작은 면",
+        "avoid": "상대와의 궁합이나 관계 결과를 보장하는 색이 아닙니다."
+      },
+      "display_role": "관계색",
+      "variant": "primary",
+      "label": "청록빛",
+      "element": "수",
+      "description": "청록빛은 사람과 자원을 빠르게 연결하며 함께 움직이는 방식을 담아요. 가까운 사람과 함께할 때 나의 마음과 상대의 생각을 조율하는 색으로 사용해 보세요.",
+      "selection_reason": "가까운 사람과 관계를 맺는 방식과 일상과 사회에서의 관계 방식을 기반으로 해석하여 청록빛과 금빛을 산출하였습니다. 청록빛은 협력과 경쟁, 금빛은 넓은 활용을 담습니다.",
+      "companion": {
+        "role": "관계색",
+        "display_role": "관계색",
+        "variant": "companion",
+        "label": "금빛",
+        "name": "금빛",
+        "hex": "#DCB572",
+        "basis": "편재",
+        "element": "화",
+        "source": "월지 본기 십신",
+        "primary_hex": "#4E7C75",
+        "tone_name": "금빛",
+        "description": "금빛은 여러 기회와 사람 사이에서 자원을 넓게 활용하는 방식을 떠올리게 해요. 내 입장을 전하면서도 상대의 속도를 살피고 싶을 때 곁에 두어 보세요. 같은 색 계열의 밝은 톤(#DCB572)으로 표현해 다른 컬러칩과 구분합니다.",
+        "guide": {
+          "use": "눈앞의 기회를 현재 자원과 비교해 보세요. 스카프나 메시지 카드에 작은 포인트로 사용해 보세요.",
+          "avoid": "상대와의 궁합이나 관계 결과를 보장하는 색이 아닙니다."
+        },
+        "design_fallback": false,
+        "base_hex": "#B99453",
+        "tone_adjustment": {
+          "rule": "lch-d50-distinct-2",
+          "original_hex": "#B99453",
+          "final_hex": "#DCB572",
+          "color_space": "CIELCH-D50",
+          "hue_policy": "preserve-lch-h",
+          "original_lch": [
+            63.79355501753402,
+            40.4317729847148,
+            77.72344765134983
+          ],
+          "target_lch": [
+            76,
+            40.4317729847148,
+            77.72344765134983
+          ],
+          "realized_lch": [
+            76.11186199561295,
+            40.42794708166815,
+            78.0003783812571
+          ],
+          "tone": "밝은"
+        }
+      },
+      "base_hex": "#4E7C75"
+    },
+    {
+      "role": "균형색",
+      "basis": "토",
+      "name": "보리 들빛",
+      "hex": "#D3BF96",
+      "guide": {
+        "use": "토의 시각적 면적이 적을 때 배경, 패브릭, 잠금화면처럼 넓은 면",
+        "avoid": "용신색이나 운을 개선하는 색으로 설명하지 않습니다."
+      },
+      "display_role": "보완색",
+      "variant": "primary",
+      "label": "보리 들빛",
+      "element": "토",
+      "description": "보리 들빛으로 흐름의 중심을 색으로 정돈해 보세요. 익숙한 색 사이에 새로운 분위기를 더해 주는 색입니다.",
+      "selection_reason": "오행의 시각적 분포과 함께 어울리는 색의 여백을 기반으로 해석하여 보리 들빛과 어린 잎빛을 산출하였습니다. 보리 들빛은 정돈과 안정, 어린 잎빛은 시작과 확장을 담습니다.",
+      "companion": {
+        "role": "균형색",
+        "display_role": "보완색",
+        "variant": "companion",
+        "label": "어린 잎빛",
+        "name": "어린 잎빛",
+        "hex": "#A7BDA4",
+        "basis": "목",
+        "element": "목",
+        "source": "이미지용 오행 구성의 두 번째 적은 오행",
+        "primary_hex": "#D3BF96",
+        "tone_name": "어린 잎빛",
+        "description": "어린 잎빛은 시작과 확장을 떠올리게 하는 작은 신호로 활용해 보세요.",
+        "guide": {
+          "use": "새로 시작할 일을 적는 노트 표지나 폴더 탭",
+          "avoid": "용신색이나 운을 개선하는 색으로 설명하지 않습니다."
+        },
+        "design_fallback": false,
+        "base_hex": "#A7BDA4"
+      },
+      "base_hex": "#D3BF96"
+    }
+  ],
+  "expanded_colors": [
+    {
+      "role": "고유색",
+      "basis": "임",
+      "name": "깊은 바다색",
+      "hex": "#244B63",
+      "guide": {
+        "use": "나의 기준을 다시 확인하고 싶은 날, 가장 작은 개인 소품이나 화면의 중심 포인트",
+        "avoid": "고유색이 성격이나 운명을 확정한다고 설명하지 않습니다."
+      },
+      "display_role": "고유색",
+      "variant": "primary",
+      "label": "깊은 바다색",
+      "element": "수",
+      "description": "깊은 바다색은 큰 흐름과 여러 가능성을 함께 살피는 힘을 담은 색이에요. 내 속도로 일상을 돌보고, 나만의 기준을 지키는 작은 소품에 잘 어울립니다.",
+      "selection_reason": "나를 바라보는 기준과 태어난 계절의 흐름을 기반으로 해석하여 깊은 바다색과 주홍빛을 산출하였습니다. 깊은 바다색은 넓은 관찰, 주홍빛은 표현의 온기를 담습니다.",
+      "base_hex": "#244B63"
+    },
+    {
+      "role": "고유색",
+      "display_role": "고유색",
+      "variant": "companion",
+      "label": "주홍빛",
+      "name": "주홍빛",
+      "hex": "#D85A3A",
+      "basis": "병",
+      "element": "화",
+      "source": "월지 본기",
+      "primary_hex": "#244B63",
+      "tone_name": "주홍빛",
+      "description": "주홍빛은 생각을 드러내고 주변과 나누는 조건을 떠올리는 색이에요. 익숙한 나의 모습에 다른 리듬을 더하고 싶을 때 곁에 두어 보세요.",
+      "guide": {
+        "use": "중요한 생각을 한 문장으로 표현해 보세요. 노트나 컵처럼 매일 보는 물건에 이 색을 더해 보세요.",
+        "avoid": "고유색이 성격이나 운명을 확정한다고 설명하지 않습니다."
+      },
+      "design_fallback": false,
+      "base_hex": "#D85A3A"
+    },
+    {
+      "role": "재능색",
+      "basis": "정인",
+      "name": "연보라빛",
+      "hex": "#AAA0B7",
+      "guide": {
+        "use": "일·공부·프로젝트를 시작할 때 노트, 폴더, 작업 도구의 포인트",
+        "avoid": "능력의 우열이 아니라 자주 꺼내 쓰는 활동 주제로 봅니다."
+      },
+      "display_role": "재능색",
+      "variant": "primary",
+      "label": "연보라빛",
+      "element": "금",
+      "description": "연보라빛은 정보를 충분히 이해하고 자신의 체계로 정리하는 방식을 담아요. 생각을 일과 공부의 결과물로 옮기는 순간에 꺼내 보세요.",
+      "selection_reason": "일과 활동을 표현하는 방식과 일상에서 반복되는 활동 주제을 기반으로 해석하여 연보라빛과 금빛을 산출하였습니다. 연보라빛은 배움과 이해, 금빛은 넓은 활용을 담습니다.",
+      "base_hex": "#AAA0B7"
+    },
+    {
+      "role": "재능색",
+      "display_role": "재능색",
+      "variant": "companion",
+      "label": "금빛",
+      "name": "금빛",
+      "hex": "#B99453",
+      "basis": "편재",
+      "element": "화",
+      "source": "지지 본기 십신 가중",
+      "primary_hex": "#AAA0B7",
+      "tone_name": "금빛",
+      "description": "금빛은 여러 기회와 사람 사이에서 자원을 넓게 활용하는 방식을 떠올리게 해요. 늘 하던 방식에 새로운 시도를 더할 때 작은 포인트로 사용해 보세요.",
+      "guide": {
+        "use": "눈앞의 기회를 현재 자원과 비교해 보세요. 작업 노트나 책갈피에 색을 더해 보세요.",
+        "avoid": "능력의 우열이 아니라 자주 꺼내 쓰는 활동 주제로 봅니다."
+      },
+      "design_fallback": false,
+      "base_hex": "#B99453"
+    },
+    {
+      "role": "관계색",
+      "basis": "겁재",
+      "name": "청록빛",
+      "hex": "#4E7C75",
+      "guide": {
+        "use": "대화와 만남이 있는 날 카드, 스카프, 메시지 배경처럼 시야에 들어오는 작은 면",
+        "avoid": "상대와의 궁합이나 관계 결과를 보장하는 색이 아닙니다."
+      },
+      "display_role": "관계색",
+      "variant": "primary",
+      "label": "청록빛",
+      "element": "수",
+      "description": "청록빛은 사람과 자원을 빠르게 연결하며 함께 움직이는 방식을 담아요. 가까운 사람과 함께할 때 나의 마음과 상대의 생각을 조율하는 색으로 사용해 보세요.",
+      "selection_reason": "가까운 사람과 관계를 맺는 방식과 일상과 사회에서의 관계 방식을 기반으로 해석하여 청록빛과 금빛을 산출하였습니다. 청록빛은 협력과 경쟁, 금빛은 넓은 활용을 담습니다.",
+      "base_hex": "#4E7C75"
+    },
+    {
+      "role": "관계색",
+      "display_role": "관계색",
+      "variant": "companion",
+      "label": "금빛",
+      "name": "금빛",
+      "hex": "#DCB572",
+      "basis": "편재",
+      "element": "화",
+      "source": "월지 본기 십신",
+      "primary_hex": "#4E7C75",
+      "tone_name": "금빛",
+      "description": "금빛은 여러 기회와 사람 사이에서 자원을 넓게 활용하는 방식을 떠올리게 해요. 내 입장을 전하면서도 상대의 속도를 살피고 싶을 때 곁에 두어 보세요. 같은 색 계열의 밝은 톤(#DCB572)으로 표현해 다른 컬러칩과 구분합니다.",
+      "guide": {
+        "use": "눈앞의 기회를 현재 자원과 비교해 보세요. 스카프나 메시지 카드에 작은 포인트로 사용해 보세요.",
+        "avoid": "상대와의 궁합이나 관계 결과를 보장하는 색이 아닙니다."
+      },
+      "design_fallback": false,
+      "base_hex": "#B99453",
+      "tone_adjustment": {
+        "rule": "lch-d50-distinct-2",
+        "original_hex": "#B99453",
+        "final_hex": "#DCB572",
+        "color_space": "CIELCH-D50",
+        "hue_policy": "preserve-lch-h",
+        "original_lch": [
+          63.79355501753402,
+          40.4317729847148,
+          77.72344765134983
+        ],
+        "target_lch": [
+          76,
+          40.4317729847148,
+          77.72344765134983
+        ],
+        "realized_lch": [
+          76.11186199561295,
+          40.42794708166815,
+          78.0003783812571
+        ],
+        "tone": "밝은"
+      }
+    },
+    {
+      "role": "균형색",
+      "basis": "토",
+      "name": "보리 들빛",
+      "hex": "#D3BF96",
+      "guide": {
+        "use": "토의 시각적 면적이 적을 때 배경, 패브릭, 잠금화면처럼 넓은 면",
+        "avoid": "용신색이나 운을 개선하는 색으로 설명하지 않습니다."
+      },
+      "display_role": "보완색",
+      "variant": "primary",
+      "label": "보리 들빛",
+      "element": "토",
+      "description": "보리 들빛으로 흐름의 중심을 색으로 정돈해 보세요. 익숙한 색 사이에 새로운 분위기를 더해 주는 색입니다.",
+      "selection_reason": "오행의 시각적 분포과 함께 어울리는 색의 여백을 기반으로 해석하여 보리 들빛과 어린 잎빛을 산출하였습니다. 보리 들빛은 정돈과 안정, 어린 잎빛은 시작과 확장을 담습니다.",
+      "base_hex": "#D3BF96"
+    },
+    {
+      "role": "균형색",
+      "display_role": "보완색",
+      "variant": "companion",
+      "label": "어린 잎빛",
+      "name": "어린 잎빛",
+      "hex": "#A7BDA4",
+      "basis": "목",
+      "element": "목",
+      "source": "이미지용 오행 구성의 두 번째 적은 오행",
+      "primary_hex": "#D3BF96",
+      "tone_name": "어린 잎빛",
+      "description": "어린 잎빛은 시작과 확장을 떠올리게 하는 작은 신호로 활용해 보세요.",
+      "guide": {
+        "use": "새로 시작할 일을 적는 노트 표지나 폴더 탭",
+        "avoid": "용신색이나 운을 개선하는 색으로 설명하지 않습니다."
+      },
+      "design_fallback": false,
+      "base_hex": "#A7BDA4"
+    }
+  ],
+  "palette_tone_version": "lch-d50-distinct-2",
+  "palette_rule": "기존 해석 맥락으로 선정한 8색의 원본 컬러네임·역할·선정 근거를 유지합니다. 동일하거나 지나치게 유사한 색은 CIELCH(D50)의 색상각 H를 고정하고 L·C만 결정적으로 보정하여 전체 28쌍의 CIE76 색차를 12 이상 확보합니다. HEX 양자화 후 색상각 오차도 검사합니다. 화면·복사·다운로드 메타데이터·회화 프롬프트는 같은 최종 HEX를 공유합니다. 전문가 검증 전인 디자인 규칙입니다.",
+  "visual_composition": {
+    "목": 1,
+    "화": 3,
+    "토": 0,
+    "금": 1,
+    "수": 3
+  },
+  "visual_slot_count": 8,
+  "element_profile": {
+    "counts": {
+      "목": 1,
+      "화": 3,
+      "토": 0,
+      "금": 1,
+      "수": 3
+    },
+    "dominant": [
+      "화",
+      "수"
+    ],
+    "least": [
+      "토"
+    ],
+    "balance_element": "토",
+    "slot_count": 8,
+    "element_colors": {
+      "목": "#A7BDA4",
+      "화": "#DBA09A",
+      "토": "#D3BF96",
+      "금": "#E7E2D8",
+      "수": "#A4B8C5"
+    },
+    "color_solution": {
+      "headline": "흐름의 중심을 색으로 정돈해 보세요",
+      "summary": "보리 들빛은 흩어진 일에 순서와 안정감을 주는 배경색으로 사용합니다.",
+      "uses": [
+        "달력의 고정 일정이나 반복 루틴을 묶는 배경",
+        "린넨 수납함·매트·파일 박스처럼 자리를 정하는 물건",
+        "해야 할 일을 세 단계로 나눈 체크리스트의 바탕색"
+      ],
+      "moment": "일정과 공간을 정리하고 기준을 다시 세우고 싶은 때",
+      "ratio": "패브릭이나 문서 배경처럼 25~35%의 안정적인 면으로 사용",
+      "element": "토",
+      "color_name": "보리 들빛",
+      "hex": "#D3BF96",
+      "context": "이미지용 8칸 중 토은 0칸으로 나타났습니다."
+    },
+    "note": "천간 1칸과 지지 본기 1칸을 합산한 이미지용 구성입니다. 적게 나타난 항목은 색채 활용 제안에만 쓰며 강약·용신·행운 판단에 사용하지 않습니다."
+  },
+  "pattern_seed": "c8d7a72e9f33095b",
+  "pattern_family": {
+    "key": "courtyard",
+    "name": "마당을 닮은 조각보",
+    "inspiration": "넓은 면을 둘러싼 작은 조각들"
+  },
+  "today_fortune": {
+    "date_kst": "2026-10-15",
+    "score": 77,
+    "score_components": {
+      "base": 72,
+      "cycle_rhythm": 5,
+      "element_familiarity": 0,
+      "talent_match": 0,
+      "relationship_match": 0,
+      "branch_relation": 0
+    },
+    "score_policy": "100점 만점 MaC 콘텐츠 규칙 적용(가능 범위 45~100)",
+    "theme": "자기 기준",
+    "reading": "오늘 천간의 십신은 비견입니다. 평소와 다른 방식으로 접근할 여지가 있습니다. 특별한 합·충 없음은 좋고 나쁨보다 오늘의 관계 리듬을 확인하는 참고 지표입니다.",
+    "recommended_action": "결론 전에 확인할 사실 하나를 더 찾아보세요.",
+    "check_point": "혼자 정하기 전에 주변의 의견도 한 번 확인해 보세요.",
+    "today_color": {
+      "basis": "비견",
+      "name": "숲빛",
+      "hex": "#426B50"
+    },
+    "notice": "60일 순환 거리와 이미지용 오행 구성을 포함한 MaC 콘텐츠 지표이며 미래를 확정하지 않습니다."
+  },
+  "notices": [],
+  "boundary_candidates": [],
+  "disclaimer": "이 보고서는 전통 명리 계산과 MaC 자체 색상 규칙으로 만든 콘텐츠입니다. 용신·기신·격국·대운을 확정하지 않으며 의료·수명·임신·투자 결과를 예측하지 않습니다.",
+  "artwork": {
+    "spec": {
+      "version": "astral-traditional-5",
+      "size": "1536x2048",
+      "aspect_ratio": "3:4",
+      "pillars": {
+        "year": "을해",
+        "month": "신사",
+        "day": "임자",
+        "hour": "병오"
+      },
+      "day_stem": "임",
+      "interpretation": [
+        {
+          "theme": "나를 보는 기준 · 일간",
+          "possibility": "넓게 흐름을 살피는 이미지로 해석할 수 있습니다."
+        },
+        {
+          "theme": "태어난 계절의 조건 · 월령",
+          "possibility": "생각을 드러내고 주변과 나누는 조건이 생활의 배경으로 나타날 가능성을 살펴볼 수 있습니다."
+        },
+        {
+          "theme": "일과 활동의 방식 · 정인",
+          "possibility": "정보를 충분히 이해하고 자신의 체계로 정리하는 방식"
+        },
+        {
+          "theme": "가까운 관계의 방식 · 겁재",
+          "possibility": "사람과 자원을 빠르게 연결하며 함께 움직이는 방식"
+        }
+      ],
+      "overview": "당신은 살피고 이해하는 편으로, 깊은 바다색 바탕에 연보라빛·청록빛을 잇고 보리 들빛으로 여백을 더해요.",
+      "visual_composition": {
+        "목": 1,
+        "화": 3,
+        "토": 0,
+        "금": 1,
+        "수": 3
+      },
+      "palette": [
+        {
+          "art_role": "주색 1",
+          "color_role": "고유색",
+          "name": "깊은 바다색",
+          "hex": "#244B63",
+          "meaning": "깊은 바다색은 큰 흐름과 여러 가능성을 함께 살피는 힘을 담은 색이에요. 내 속도로 일상을 돌보고, 나만의 기준을 지키는 작은 소품에 잘 어울립니다."
+        },
+        {
+          "art_role": "주색 2",
+          "color_role": "고유색",
+          "name": "주홍빛",
+          "hex": "#D85A3A",
+          "meaning": "주홍빛은 생각을 드러내고 주변과 나누는 조건을 떠올리는 색이에요. 익숙한 나의 모습에 다른 리듬을 더하고 싶을 때 곁에 두어 보세요."
+        },
+        {
+          "art_role": "보조색 1",
+          "color_role": "재능색",
+          "name": "연보라빛",
+          "hex": "#AAA0B7",
+          "meaning": "연보라빛은 정보를 충분히 이해하고 자신의 체계로 정리하는 방식을 담아요. 생각을 일과 공부의 결과물로 옮기는 순간에 꺼내 보세요."
+        },
+        {
+          "art_role": "보조색 2",
+          "color_role": "재능색",
+          "name": "금빛",
+          "hex": "#B99453",
+          "meaning": "금빛은 여러 기회와 사람 사이에서 자원을 넓게 활용하는 방식을 떠올리게 해요. 늘 하던 방식에 새로운 시도를 더할 때 작은 포인트로 사용해 보세요."
+        },
+        {
+          "art_role": "보조색 3",
+          "color_role": "보완색",
+          "name": "어린 잎빛",
+          "hex": "#A7BDA4",
+          "meaning": "어린 잎빛은 시작과 확장을 떠올리게 하는 작은 신호로 활용해 보세요."
+        },
+        {
+          "art_role": "강조색 1",
+          "color_role": "관계색",
+          "name": "청록빛",
+          "hex": "#4E7C75",
+          "meaning": "청록빛은 사람과 자원을 빠르게 연결하며 함께 움직이는 방식을 담아요. 가까운 사람과 함께할 때 나의 마음과 상대의 생각을 조율하는 색으로 사용해 보세요."
+        },
+        {
+          "art_role": "강조색 2",
+          "color_role": "관계색",
+          "name": "금빛",
+          "hex": "#DCB572",
+          "meaning": "금빛은 여러 기회와 사람 사이에서 자원을 넓게 활용하는 방식을 떠올리게 해요. 내 입장을 전하면서도 상대의 속도를 살피고 싶을 때 곁에 두어 보세요. 같은 색 계열의 밝은 톤(#DCB572)으로 표현해 다른 컬러칩과 구분합니다."
+        },
+        {
+          "art_role": "균형색 1",
+          "color_role": "보완색",
+          "name": "보리 들빛",
+          "hex": "#D3BF96",
+          "meaning": "보리 들빛으로 흐름의 중심을 색으로 정돈해 보세요. 익숙한 색 사이에 새로운 분위기를 더해 주는 색입니다."
+        }
+      ],
+      "style": "화조민화",
+      "supporting_style": "담채채색화의 부드러움",
+      "symbols": [
+        "소나무",
+        "학",
+        "물결"
+      ],
+      "mood": "배움과 이해",
+      "composition": "순환형",
+      "art_direction": {
+        "label": "담백하고 힘 있는 결",
+        "brushwork": "굵고 절제된 윤곽선, 힘 있게 이어지는 붓질, 장식보다 형태의 골격을 강조",
+        "geometry": "주요 오브제의 안정적인 무게감, 수직선과 구조적인 덩어리, 선명한 중심과 넓은 여백",
+        "color_expression": "8색 HEX와 색 계열은 그대로 유지한다. 주색의 묵직한 색면과 겹친 안료를 또렷하게 드러내고 작은 강조색으로 대비한다."
+      },
+      "presentation_mat": {
+        "hex": "#E7E7E7",
+        "name": "밝은 회색"
+      },
+      "object_stories": [
+        {
+          "object": "소나무",
+          "meaning": "주변 상황이 바뀌어도 내가 중요하게 생각하는 기준을 지키는 마음을 담고자 했어요."
+        },
+        {
+          "object": "학",
+          "meaning": "바쁜 하루에도 한 걸음 물러서서 내 속도를 찾는 여유를 담고자 했어요."
+        },
+        {
+          "object": "물결",
+          "meaning": "계획대로 되지 않는 날에도 잠시 쉬고 다른 길을 찾아가는 유연함을 담고자 했어요."
+        }
+      ],
+      "direction_note": "기존 재능 주제를 연결한 MaC 미술 연출이며 사주 재해석이나 길흉 판단이 아닙니다."
+    },
+    "ticket": "eyJleHBpcmVzIjoxNzkyMDU4Njc0LCJzcGVjIjp7InZlcnNpb24iOiJhc3RyYWwtdHJhZGl0aW9uYWwtNSIsInNpemUiOiIxNTM2eDIwNDgiLCJhc3BlY3RfcmF0aW8iOiIzOjQiLCJwaWxsYXJzIjp7InllYXIiOiLsnYTtlbQiLCJtb250aCI6IuyLoOyCrCIsImRheSI6IuyehOyekCIsImhvdXIiOiLrs5HsmKQifSwiZGF5X3N0ZW0iOiLsnoQiLCJpbnRlcnByZXRhdGlvbiI6W3sidGhlbWUiOiLrgpjrpbwg67O064qUIOq4sOykgCDCtyDsnbzqsIQiLCJwb3NzaWJpbGl0eSI6IuuEk-qyjCDtnZDrpoTsnYQg7IK07ZS864qUIOydtOuvuOyngOuhnCDtlbTshJ3tlaAg7IiYIOyeiOyKteuLiOuLpC4ifSx7InRoZW1lIjoi7YOc7Ja064KcIOqzhOygiOydmCDsobDqsbQgwrcg7JuU66C5IiwicG9zc2liaWxpdHkiOiLsg53qsIHsnYQg65Oc65-s64K06rOgIOyjvOuzgOqzvCDrgpjriITripQg7KGw6rG07J20IOyDne2ZnOydmCDrsLDqsr3snLzroZwg64KY7YOA64KgIOqwgOuKpeyEseydhCDsgrTtjrTrs7wg7IiYIOyeiOyKteuLiOuLpC4ifSx7InRoZW1lIjoi7J286rO8IO2ZnOuPmeydmCDrsKnsi50gwrcg7KCV7J24IiwicG9zc2liaWxpdHkiOiLsoJXrs7Trpbwg7Lap67aE7Z6IIOydtO2VtO2VmOqzoCDsnpDsi6DsnZgg7LK06rOE66GcIOygleumrO2VmOuKlCDrsKnsi50ifSx7InRoZW1lIjoi6rCA6rmM7Jq0IOq0gOqzhOydmCDrsKnsi50gwrcg6rKB7J6sIiwicG9zc2liaWxpdHkiOiLsgqzrnozqs7wg7J6Q7JuQ7J2EIOu5oOultOqyjCDsl7DqsrDtlZjrqbAg7ZWo6ruYIOybgOyngeydtOuKlCDrsKnsi50ifV0sIm92ZXJ2aWV3Ijoi64u57Iug7J2AIOyCtO2UvOqzoCDsnbTtlbTtlZjripQg7Y647Jy866GcLCDquYrsnYAg67CU64uk7IOJIOuwlO2DleyXkCDsl7Drs7TrnbzruZvCt-yyreuhneu5m-ydhCDsnofqs6Ag67O066asIOuTpOu5m-ycvOuhnCDsl6zrsLHsnYQg642U7ZW07JqULiIsInZpc3VhbF9jb21wb3NpdGlvbiI6eyLrqqkiOjEsIu2ZlCI6Mywi7YagIjowLCLquIgiOjEsIuyImCI6M30sInBhbGV0dGUiOlt7ImFydF9yb2xlIjoi7KO87IOJIDEiLCJjb2xvcl9yb2xlIjoi6rOg7Jyg7IOJIiwibmFtZSI6Iuq5iuydgCDrsJTri6Tsg4kiLCJoZXgiOiIjMjQ0QjYzIiwibWVhbmluZyI6Iuq5iuydgCDrsJTri6Tsg4nsnYAg7YGwIO2dkOumhOqzvCDsl6zrn6wg6rCA64ql7ISx7J2EIO2VqOq7mCDsgrTtlLzripQg7Z6Y7J2EIOuLtOydgCDsg4nsnbTsl5DsmpQuIOuCtCDsho3rj4TroZwg7J287IOB7J2EIOuPjOuztOqzoCwg64KY66eM7J2YIOq4sOykgOydhCDsp4DtgqTripQg7J6R7J2AIOyGjO2SiOyXkCDsnpgg7Ja07Jq466a964uI64ukLiJ9LHsiYXJ0X3JvbGUiOiLso7zsg4kgMiIsImNvbG9yX3JvbGUiOiLqs6DsnKDsg4kiLCJuYW1lIjoi7KO87ZmN67mbIiwiaGV4IjoiI0Q4NUEzQSIsIm1lYW5pbmciOiLso7ztmY3ruZvsnYAg7IOd6rCB7J2EIOuTnOufrOuCtOqzoCDso7zrs4Dqs7wg64KY64iE64qUIOyhsOqxtOydhCDrlqDsmKzrpqzripQg7IOJ7J207JeQ7JqULiDsnbXsiJntlZwg64KY7J2YIOuqqOyKteyXkCDri6Trpbgg66as65Os7J2EIOuNlO2VmOqzoCDsi7bsnYQg65WMIOqzgeyXkCDrkZDslrQg67O07IS47JqULiJ9LHsiYXJ0X3JvbGUiOiLrs7TsobDsg4kgMSIsImNvbG9yX3JvbGUiOiLsnqzriqXsg4kiLCJuYW1lIjoi7Jew67O0652867mbIiwiaGV4IjoiI0FBQTBCNyIsIm1lYW5pbmciOiLsl7Drs7TrnbzruZvsnYAg7KCV67O066W8IOy2qeu2hO2eiCDsnbTtlbTtlZjqs6Ag7J6Q7Iug7J2YIOyytOqzhOuhnCDsoJXrpqztlZjripQg67Cp7Iud7J2EIOuLtOyVhOyalC4g7IOd6rCB7J2EIOydvOqzvCDqs7XrtoDsnZgg6rKw6rO866y866GcIOyYruq4sOuKlCDsiJzqsITsl5Ag6rq864K0IOuztOyEuOyalC4ifSx7ImFydF9yb2xlIjoi67O07KGw7IOJIDIiLCJjb2xvcl9yb2xlIjoi7J6s64ql7IOJIiwibmFtZSI6Iuq4iOu5myIsImhleCI6IiNCOTk0NTMiLCJtZWFuaW5nIjoi6riI67mb7J2AIOyXrOufrCDquLDtmozsmYAg7IKs656MIOyCrOydtOyXkOyEnCDsnpDsm5DsnYQg64ST6rKMIO2ZnOyaqe2VmOuKlCDrsKnsi53snYQg65ag7Jis66as6rKMIO2VtOyalC4g64qYIO2VmOuNmCDrsKnsi53sl5Ag7IOI66Gc7Jq0IOyLnOuPhOulvCDrjZTtlaAg65WMIOyekeydgCDtj6zsnbjtirjroZwg7IKs7Jqp7ZW0IOuztOyEuOyalC4ifSx7ImFydF9yb2xlIjoi67O07KGw7IOJIDMiLCJjb2xvcl9yb2xlIjoi67O07JmE7IOJIiwibmFtZSI6IuyWtOumsCDsno7ruZsiLCJoZXgiOiIjQTdCREE0IiwibWVhbmluZyI6IuyWtOumsCDsno7ruZvsnYAg7Iuc7J6R6rO8IO2ZleyepeydhCDrlqDsmKzrpqzqsowg7ZWY64qUIOyekeydgCDsi6DtmLjroZwg7Zmc7Jqp7ZW0IOuztOyEuOyalC4ifSx7ImFydF9yb2xlIjoi6rCV7KGw7IOJIDEiLCJjb2xvcl9yb2xlIjoi6rSA6rOE7IOJIiwibmFtZSI6Iuyyreuhneu5myIsImhleCI6IiM0RTdDNzUiLCJtZWFuaW5nIjoi7LKt66Gd67mb7J2AIOyCrOuejOqzvCDsnpDsm5DsnYQg67mg66W06rKMIOyXsOqysO2VmOupsCDtlajqu5gg7JuA7KeB7J2064qUIOuwqeyLneydhCDri7TslYTsmpQuIOqwgOq5jOyatCDsgqzrnozqs7wg7ZWo6ruY7ZWgIOuVjCDrgpjsnZgg66eI7J2M6rO8IOyDgeuMgOydmCDsg53qsIHsnYQg7KGw7Jyo7ZWY64qUIOyDieycvOuhnCDsgqzsmqntlbQg67O07IS47JqULiJ9LHsiYXJ0X3JvbGUiOiLqsJXsobDsg4kgMiIsImNvbG9yX3JvbGUiOiLqtIDqs4Tsg4kiLCJuYW1lIjoi6riI67mbIiwiaGV4IjoiI0RDQjU3MiIsIm1lYW5pbmciOiLquIjruZvsnYAg7Jes65-sIOq4sO2ajOyZgCDsgqzrnowg7IKs7J207JeQ7IScIOyekOybkOydhCDrhJPqsowg7Zmc7Jqp7ZWY64qUIOuwqeyLneydhCDrlqDsmKzrpqzqsowg7ZW07JqULiDrgrQg7J6F7J6l7J2EIOyghO2VmOuptOyEnOuPhCDsg4HrjIDsnZgg7IaN64-E66W8IOyCtO2UvOqzoCDsi7bsnYQg65WMIOqzgeyXkCDrkZDslrQg67O07IS47JqULiDqsJnsnYAg7IOJIOqzhOyXtOydmCDrsJ3snYAg7YakKCNEQ0I1NzIp7Jy866GcIO2RnO2YhO2VtCDri6Trpbgg7Lus65-s7Lmp6rO8IOq1rOu2hO2VqeuLiOuLpC4ifSx7ImFydF9yb2xlIjoi6reg7ZiV7IOJIDEiLCJjb2xvcl9yb2xlIjoi67O07JmE7IOJIiwibmFtZSI6IuuztOumrCDrk6TruZsiLCJoZXgiOiIjRDNCRjk2IiwibWVhbmluZyI6IuuztOumrCDrk6TruZvsnLzroZwg7Z2Q66aE7J2YIOykkeyLrOydhCDsg4nsnLzroZwg7KCV64-I7ZW0IOuztOyEuOyalC4g7J217IiZ7ZWcIOyDiSDsgqzsnbTsl5Ag7IOI66Gc7Jq0IOu2hOychOq4sOulvCDrjZTtlbQg7KO864qUIOyDieyeheuLiOuLpC4ifV0sInN0eWxlIjoi7ZmU7KGw66-87ZmUIiwic3VwcG9ydGluZ19zdHlsZSI6IuuLtOyxhOyxhOyDie2ZlOydmCDrtoDrk5zrn6zsm4AiLCJzeW1ib2xzIjpbIuyGjOuCmOustCIsIu2VmSIsIuusvOqysCJdLCJtb29kIjoi67Cw7JuA6rO8IOydtO2VtCIsImNvbXBvc2l0aW9uIjoi7Iic7ZmY7ZiVIiwiYXJ0X2RpcmVjdGlvbiI6eyJsYWJlbCI6IuuLtOuwse2VmOqzoCDtnpgg7J6I64qUIOqysCIsImJydXNod29yayI6Iuq1teqzoCDsoIjsoJzrkJwg7Jyk6rO97ISgLCDtnpgg7J6I6rKMIOydtOyWtOyngOuKlCDrtpPsp4gsIOyepeyLneuztOuLpCDtmJXtg5zsnZgg6rOo6rKp7J2EIOqwleyhsCIsImdlb21ldHJ5Ijoi7KO87JqUIOyYpOu4jOygnOydmCDslYjsoJXsoIHsnbgg66y06rKM6rCQLCDsiJjsp4HshKDqs7wg6rWs7KGw7KCB7J24IOuNqeyWtOumrCwg7ISg66qF7ZWcIOykkeyLrOqzvCDrhJPsnYAg7Jes67CxIiwiY29sb3JfZXhwcmVzc2lvbiI6Ijjsg4kgSEVY7JmAIOyDiSDqs4Tsl7TsnYAg6re464yA66GcIOycoOyngO2VnOuLpC4g7KO87IOJ7J2YIOusteynge2VnCDsg4nrqbTqs7wg6rK57LmcIOyViOujjOulvCDrmJDroLftlZjqsowg65Oc65-s64K06rOgIOyekeydgCDqsJXsobDsg4nsnLzroZwg64yA67mE7ZWc64ukLiJ9LCJwcmVzZW50YXRpb25fbWF0Ijp7ImhleCI6IiNFN0U3RTciLCJuYW1lIjoi67Cd7J2AIO2ajOyDiSJ9LCJvYmplY3Rfc3RvcmllcyI6W3sib2JqZWN0Ijoi7IaM64KY66y0IiwibWVhbmluZyI6IuyjvOuzgCDsg4HtmansnbQg67CU64CM7Ja064-EIOuCtOqwgCDspJHsmpTtlZjqsowg7IOd6rCB7ZWY64qUIOq4sOykgOydhCDsp4DtgqTripQg66eI7J2M7J2EIOuLtOqzoOyekCDtlojslrTsmpQuIn0seyJvYmplY3QiOiLtlZkiLCJtZWFuaW5nIjoi67CU7IGcIO2VmOujqOyXkOuPhCDtlZwg6rG47J2MIOusvOufrOyEnOyEnCDrgrQg7IaN64-E66W8IOywvuuKlCDsl6zsnKDrpbwg64u06rOg7J6QIO2WiOyWtOyalC4ifSx7Im9iamVjdCI6IuusvOqysCIsIm1lYW5pbmciOiLqs4Ttmo3rjIDroZwg65CY7KeAIOyViuuKlCDrgqDsl5Drj4Qg7J6g7IucIOyJrOqzoCDri6Trpbgg6ri47J2EIOywvuyVhOqwgOuKlCDsnKDsl7DtlajsnYQg64u06rOg7J6QIO2WiOyWtOyalC4ifV0sImRpcmVjdGlvbl9ub3RlIjoi6riw7KG0IOyerOuKpSDso7zsoJzrpbwg7Jew6rKw7ZWcIE1hQyDrr7jsiKAg7Jew7Lac7J2066mwIOyCrOyjvCDsnqztlbTshJ3snbTrgpgg6ri47Z2JIO2MkOuLqOydtCDslYTri5nri4jri6QuIn0sIm93bmVyIjpudWxsfQ==.xiIjY18r8JW4I7lpL0B-G5QfYIl6gzYOZ9NNRvQDtlw=",
+    "configured": false,
+    "provider": "openai",
+    "model": "gpt-image-2",
+    "message": "전통화 생성 연결은 준비되었습니다. 운영자가 서버 API 키와 생성 설정을 완료하면 이용할 수 있습니다."
+  }
+}

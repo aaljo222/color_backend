@@ -1,0 +1,149 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ko">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MaC — Chromatic Specimen</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f5f3ef; font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Pretendard', sans-serif; -webkit-font-smoothing: antialiased;">
+
+  <!-- Outer Canvas -->
+  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f5f3ef; padding: 48px 12px;">
+    <tr>
+      <td align="center">
+
+        <!-- Slim Package Box (380px 규격) -->
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 380px; background-color: #ffffff; border: 1px solid #e5e0d8; border-radius: 8px; overflow: hidden; box-shadow: 0 16px 36px rgba(28, 25, 23, 0.05);">
+          
+          <!-- Top Ribbon Band -->
+          <tr>
+            <td style="padding: 10px 20px; background-color: #eae5dc; text-align: center; border-bottom: 1px solid #ddd7cc; border-radius: 7px 7px 0 0;">
+              <p style="margin: 0; font-size: 9px; letter-spacing: 0.26em; text-transform: uppercase; color: #78716c; font-weight: 600;">
+                Atelier of Chromatic Memory
+              </p>
+            </td>
+          </tr>
+
+          <!-- Brand & Floating Elevation Cipher Area -->
+          <tr>
+            <td style="padding: 36px 24px 22px 24px; text-align: center;">
+              <h1 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 700; letter-spacing: 0.2em; color: #1c1917; text-transform: uppercase;">
+                Memory &amp; Color
+              </h1>
+              
+              <!-- Floating Details Container -->
+              <div style="display: inline-block; position: relative; text-align: center;">
+                <details style="cursor: pointer; display: inline-block;">
+                  <!-- 하단 버튼: 키 아이콘과 은은한 라벨 -->
+                  <summary style="font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: #8c827a; font-family: ui-monospace, Menlo, Consolas, monospace; list-style: none; outline: none; padding: 2px 8px; user-select: none;">
+                    🗝️ &nbsp;[&nbsp; SPECIMEN HASH ID &nbsp;]
+                  </summary>
+
+                  <!-- 상단으로 비껴 올라가며 부드러운 음영을 드리우는 플로팅 배지 -->
+                  <div style="margin: 6px auto 0 auto; background-color: #242220; border: 1px solid #3d3835; border-radius: 5px; padding: 7px 18px; display: inline-block; box-shadow: 0 8px 20px -2px rgba(28, 25, 23, 0.35), 0 3px 6px -1px rgba(28, 25, 23, 0.2); transform: translateY(-2px);">
+                    <span style="font-size: 11.5px; letter-spacing: 0.22em; color: #f6f3ed; font-weight: 700; font-family: ui-monospace, Menlo, Consolas, monospace; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">
+                      {{ specimen_hash }}
+                    </span>
+                  </div>
+                </details>
+              </div>
+            </td>
+          </tr>
+
+          <!-- 정제된 한 줄 사연 인용구 -->
+          <tr>
+            <td style="padding: 0 22px 20px 22px;">
+              <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #faf8f5; border-left: 2px solid #1c1917; border-radius: 0 4px 4px 0;">
+                <tr>
+                  <td style="padding: 12px 14px; font-size: 12.5px; line-height: 1.65; color: #292524; font-weight: 500;">
+                    "{{ memory_summary }}"
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Color Specimen 2x2 Grid -->
+          <tr>
+            <td style="padding: 0 22px 24px 22px;">
+              <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <!-- Card 01 -->
+                  <td width="48%" style="vertical-align: top; padding-right: 2%;">
+                    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #ffffff; border: 1px solid #eae5de; border-radius: 5px; overflow: hidden; margin-bottom: 10px;">
+                      <tr><td height="72" style="background-color: {{ palette[0].hex }};"></td></tr>
+                      <tr>
+                        <td style="padding: 8px 9px;">
+                          <p style="margin: 0; font-size: 8px; font-weight: 600; color: #8c827a; font-family: ui-monospace, Menlo, monospace;">MaC SPECIMEN 01</p>
+                          <p style="margin: 1px 0; font-size: 11.5px; font-weight: 700; color: #1c1917;">{{ palette[0].color_name }}</p>
+                          <p style="margin: 0; font-size: 9.5px; font-weight: 600; color: #a8a29e; font-family: ui-monospace, Menlo, monospace;">{{ palette[0].hex }}</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+
+                  <!-- Card 02 -->
+                  <td width="48%" style="vertical-align: top; padding-left: 2%;">
+                    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #ffffff; border: 1px solid #eae5de; border-radius: 5px; overflow: hidden; margin-bottom: 10px;">
+                      <tr><td height="72" style="background-color: {{ palette[1].hex }};"></td></tr>
+                      <tr>
+                        <td style="padding: 8px 9px;">
+                          <p style="margin: 0; font-size: 8px; font-weight: 600; color: #8c827a; font-family: ui-monospace, Menlo, monospace;">MaC SPECIMEN 02</p>
+                          <p style="margin: 1px 0; font-size: 11.5px; font-weight: 700; color: #1c1917;">{{ palette[1].color_name }}</p>
+                          <p style="margin: 0; font-size: 9.5px; font-weight: 600; color: #a8a29e; font-family: ui-monospace, Menlo, monospace;">{{ palette[1].hex }}</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <tr>
+                  <!-- Card 03 -->
+                  <td width="48%" style="vertical-align: top; padding-right: 2%;">
+                    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #ffffff; border: 1px solid #eae5de; border-radius: 5px; overflow: hidden;">
+                      <tr><td height="72" style="background-color: {{ palette[2].hex }};"></td></tr>
+                      <tr>
+                        <td style="padding: 8px 9px;">
+                          <p style="margin: 0; font-size: 8px; font-weight: 600; color: #8c827a; font-family: ui-monospace, Menlo, monospace;">MaC SPECIMEN 03</p>
+                          <p style="margin: 1px 0; font-size: 11.5px; font-weight: 700; color: #1c1917;">{{ palette[2].color_name }}</p>
+                          <p style="margin: 0; font-size: 9.5px; font-weight: 600; color: #a8a29e; font-family: ui-monospace, Menlo, monospace;">{{ palette[2].hex }}</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+
+                  <!-- Card 04 -->
+                  <td width="48%" style="vertical-align: top; padding-left: 2%;">
+                    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #ffffff; border: 1px solid #eae5de; border-radius: 5px; overflow: hidden;">
+                      <tr><td height="72" style="background-color: {{ palette[3].hex }};"></td></tr>
+                      <tr>
+                        <td style="padding: 8px 9px;">
+                          <p style="margin: 0; font-size: 8px; font-weight: 600; color: #8c827a; font-family: ui-monospace, Menlo, monospace;">MaC SPECIMEN 04</p>
+                          <p style="margin: 1px 0; font-size: 11.5px; font-weight: 700; color: #1c1917;">{{ palette[3].color_name }}</p>
+                          <p style="margin: 0; font-size: 9.5px; font-weight: 600; color: #a8a29e; font-family: ui-monospace, Menlo, monospace;">{{ palette[3].hex }}</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 16px 20px; text-align: center; background-color: #faf8f5; border-top: 1px solid #f2ede4; border-radius: 0 0 7px 7px;">
+              <p style="margin: 0; font-size: 9px; color: #a8a29e; letter-spacing: 0.08em; font-family: ui-monospace, Menlo, monospace;">
+                &copy; MaC (Memory &amp; Color). All rights reserved.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>

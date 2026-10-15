@@ -1,0 +1,4178 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>MaC | 𝑀𝑒𝓂𝑜𝓇𝓎 𝒶𝓃𝒹 𝒞𝑜𝓁𝑜𝓇</title>
+
+  <link rel="icon" type="image/png" href="images/reference.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Pretendard:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/astral.css">
+
+  <style>
+    /* ---------- Global Reset & Base ---------- */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    :root {
+      --bg-pure: #ffffff;
+      --text-dark: #141211;
+      --text-soft-dark: #221f1d;
+      --gold-primary: #8c7042;
+      --gold-fill: #9b7e4f;
+      --gold-dark-charcoal: #3d3731;
+      --label-soft-gold: #7d756d;
+      --text-body: #383838;
+      --text-muted: #6b6560;
+      --text-light: #a39c94;
+      --line-subtle: #eae6e1;
+      --font-arch: "Plus Jakarta Sans", "Pretendard", -apple-system, sans-serif;
+      --font-serif: "Cormorant Garamond", "Didot", "Bodoni MT", serif;
+    }
+
+    body {
+      font-family: var(--font-arch);
+      background-color: var(--bg-pure);
+      color: var(--text-dark);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+      word-break: keep-all;
+      overflow-x: hidden;
+    }
+
+    /* ---------- Top Header Navigation ---------- */
+    .arch-header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 74px;
+      padding: 0 52px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      background: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0) 100%);
+    }
+
+    .brand-logo {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: var(--text-dark);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .brand-logo span {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 14.5px;
+      font-weight: 400;
+      color: var(--gold-primary);
+      letter-spacing: 0.02em;
+    }
+
+    .brand-logo span em {
+      font-style: italic;
+      font-weight: 400;
+      color: inherit;
+      margin: 0 1px;
+    }
+
+    .nav-menu {
+      display: flex;
+      gap: 36px;
+      list-style: none;
+    }
+
+    .nav-item a {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-dark);
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      transition: color 0.2s ease;
+      cursor: pointer;
+    }
+
+    .nav-item a:hover {
+      color: var(--gold-primary);
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      width: 36px;
+      height: 36px;
+      padding: 6px;
+      flex-direction: column;
+      justify-content: center;
+      gap: 6px;
+      z-index: 150;
+    }
+
+    .mobile-menu-btn span {
+      display: block;
+      width: 22px;
+      height: 1.5px;
+      background-color: var(--text-dark);
+      transition: all 0.3s ease;
+    }
+
+    /* ---------- Universal Minimal Close Button ---------- */
+    .gallery-close-btn {
+      position: absolute;
+      top: 24px;
+      right: 28px;
+      border: none;
+      background: transparent;
+      font-family: var(--font-arch);
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 6px 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.25s ease;
+      z-index: 20;
+    }
+
+    .gallery-close-btn::after {
+      content: "—";
+      font-weight: 400;
+      color: var(--text-light);
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+
+    .gallery-close-btn:hover {
+      color: var(--text-dark);
+    }
+
+    .gallery-close-btn:hover::after {
+      color: var(--text-dark);
+      transform: translateX(3px);
+    }
+
+    /* ---------- Mobile Fullscreen Drawer ---------- */
+    .mobile-drawer {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #ffffff;
+      z-index: 200;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 24px 36px 44px 36px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .mobile-drawer.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .drawer-top-bar {
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      position: relative;
+      height: 48px;
+    }
+
+    .drawer-center-stage {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      margin: auto 0;
+      transform: translateY(-4vh);
+    }
+
+    .mobile-nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .mobile-nav-item {
+      width: 100%;
+      border-bottom: 1px solid rgba(26, 24, 22, 0.08);
+      padding-bottom: 12px;
+      transition: border-color 0.25s ease;
+    }
+
+    .mobile-nav-item:active {
+      border-bottom-color: var(--text-dark);
+    }
+
+    .mobile-nav-item a {
+      font-family: var(--font-arch);
+      font-size: 22px;
+      font-weight: 350;
+      letter-spacing: -0.01em;
+      color: #383431;
+      text-decoration: none;
+      line-height: 1.25;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .mobile-nav-item a .brand-prefix {
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-right: 1px;
+    }
+
+    .mobile-nav-item a .nav-arrow {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text-light);
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+
+    .mobile-nav-item:active .nav-arrow {
+      transform: translate(2px, -2px);
+      color: var(--text-dark);
+    }
+
+    .astral-nav-item {
+      border-bottom-color: rgba(26, 24, 22, 0.04);
+    }
+
+    .astral-nav-item a {
+      color: #9e968f !important;
+    }
+
+    .astral-nav-item a .brand-prefix {
+      color: #7d756e !important;
+      font-weight: 600;
+    }
+
+    .drawer-footer {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 13.5px;
+      color: var(--gold-primary);
+      letter-spacing: 0.04em;
+      text-align: center;
+    }
+
+    /* ---------- Hero Banner ---------- */
+    .arch-hero-banner {
+      width: 100%;
+      height: 52vh;
+      min-height: 400px;
+      position: relative;
+      background-color: #faf9f7;
+      overflow: hidden;
+      cursor: pointer;
+      border-bottom: 1px solid var(--line-subtle);
+    }
+
+    .banner-img-wrap {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    .banner-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 38%;
+      filter: saturate(0.95) brightness(0.98);
+      transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .arch-hero-banner:hover .banner-img-wrap img {
+      transform: scale(1.015);
+    }
+
+    .banner-overlay-caption {
+      position: absolute;
+      bottom: 24px;
+      right: 52px;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(10px);
+      padding: 8px 16px;
+      font-size: 11.5px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--text-dark);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      border-radius: 2px;
+    }
+
+    /* ---------- Section 1 : Content Layout ---------- */
+    .content-container {
+      max-width: 1360px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 96px 52px 130px 52px;
+      display: grid;
+      grid-template-columns: minmax(240px, 300px) 1fr;
+      gap: 80px;
+      align-items: start;
+    }
+
+    .left-column {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      position: sticky;
+      top: 110px;
+    }
+
+    .section-main-title {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+      line-height: 1.2;
+      color: var(--gold-primary);
+    }
+
+    .social-links {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .social-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--gold-fill);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      text-decoration: none;
+      box-shadow: 0 2px 6px rgba(140, 112, 66, 0.22);
+      transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .social-btn:hover {
+      background: #846838;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 12px rgba(140, 112, 66, 0.35);
+    }
+
+    .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .statement-block {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      width: 100%;
+    }
+
+    .headline-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .headline-lead-wrap {
+      display: flex;
+      align-items: flex-end;
+      gap: 5px;
+      width: 100%;
+    }
+
+    .headline-lead {
+      font-size: 16.5px;
+      font-weight: 600;
+      color: var(--gold-primary);
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      line-height: 1.1;
+    }
+
+    .lead-baseline-tail {
+      display: inline-block;
+      width: 34px;
+      height: 1.4px;
+      background: var(--gold-primary);
+      opacity: 0.88;
+      border-radius: 1px;
+      margin-bottom: 2.5px;
+      transform-origin: left center;
+    }
+
+    .headline-main {
+      font-size: clamp(24px, 4vw, 36px);
+      font-weight: 600;
+      color: var(--text-soft-dark);
+      letter-spacing: -0.02em;
+      line-height: 1.3;
+    }
+
+    .headline-dots {
+      letter-spacing: 0.22em;
+      color: var(--gold-primary);
+      font-weight: 400;
+      margin: 0 5px 0 2px;
+      opacity: 0.8;
+    }
+
+    .statement-body {
+      font-size: clamp(14.5px, 2vw, 16.5px);
+      color: var(--gold-dark-charcoal);
+      line-height: 1.9;
+      font-weight: 450;
+      width: 100%;
+      max-width: 100%;
+      letter-spacing: -0.015em;
+    }
+
+    .br-desktop {
+      display: inline;
+    }
+
+    @media (min-width: 961px) {
+      .br-desktop {
+        display: block;
+        content: "";
+        margin-top: 3px;
+      }
+    }
+
+    /* ---------- Form & Inputs ---------- */
+    .arch-form-wrapper {
+      margin-top: 10px;
+      padding-top: 26px;
+      border-top: 1px solid var(--line-subtle);
+      width: 100%;
+    }
+
+    .form-inline-tooltip {
+      display: none;
+      margin-bottom: 22px;
+      padding: 13px 18px;
+      background: #faf6f0;
+      border-left: 3px solid var(--gold-primary);
+      border-radius: 2px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: #634f2d;
+      line-height: 1.65;
+      letter-spacing: -0.01em;
+      box-shadow: 0 3px 10px rgba(140, 112, 66, 0.08);
+      animation: tooltipFadeIn 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .form-inline-tooltip.is-active {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .form-inline-tooltip .tooltip-icon {
+      color: var(--gold-primary);
+      font-size: 14px;
+      line-height: 1.6;
+      flex-shrink: 0;
+    }
+
+    @keyframes tooltipFadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-row {
+      margin-bottom: 34px;
+    }
+
+    .form-row label {
+      display: block;
+      font-size: 13.5px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--label-soft-gold);
+      margin-bottom: 8px;
+    }
+
+    .form-row input {
+      width: 100%;
+      border: none;
+      background: transparent;
+      padding: 12px 0;
+      font-size: 15.5px;
+      font-weight: 400;
+      color: var(--text-dark);
+      outline: none;
+      transition: box-shadow 0.25s ease;
+    }
+
+    .form-row input::placeholder {
+      color: var(--text-light);
+      font-size: 14.5px;
+    }
+
+    .input-strong {
+      box-shadow:
+        0 2px 0 var(--gold-primary),
+        0 3px 6px -1px rgba(140, 112, 66, 0.28),
+        0 4px 0 #ffffff;
+    }
+
+    .input-strong:focus {
+      box-shadow:
+        0 2.5px 0 #6e552f,
+        0 4px 10px -1px rgba(110, 85, 47, 0.4);
+    }
+
+    .input-standard {
+      box-shadow:
+        0 1px 0 rgba(0, 0, 0, 0.12),
+        0 2px 3px -1px rgba(0, 0, 0, 0.08),
+        0 3px 0 #ffffff;
+    }
+
+    .input-standard:focus {
+      box-shadow:
+        0 1.5px 0 var(--gold-primary),
+        0 3px 6px -1px rgba(140, 112, 66, 0.25);
+    }
+
+    .submit-wrap {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .submit-arch-btn {
+      padding: 16px 38px;
+      background: var(--text-dark);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 3px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow:
+        0 6px 18px rgba(20, 18, 17, 0.25),
+        0 2px 4px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      transition: all 0.25s ease;
+    }
+
+    .submit-arch-btn:hover {
+      background: #231f1d;
+      transform: translateY(-1.5px);
+      box-shadow:
+        0 10px 24px rgba(20, 18, 17, 0.32),
+        0 3px 6px rgba(0, 0, 0, 0.18),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    .submit-arch-btn:active {
+      transform: translateY(1px);
+      box-shadow:
+        0 3px 8px rgba(20, 18, 17, 0.2),
+        inset 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .submit-arch-btn:disabled {
+      background: #8c827a;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .form-guide-txt {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      font-weight: 500;
+      letter-spacing: -0.01em;
+    }
+
+    /* ---------- Universal Minimalist Modals ---------- */
+    .arch-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(17, 17, 17, 0.82);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .arch-modal-overlay.is-active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .arch-modal-window {
+      position: relative;
+      background: #ffffff;
+      max-width: 640px;
+      width: 100%;
+      max-height: 94vh;
+      overflow-y: auto;
+      padding: 48px 44px 42px;
+      text-align: left;
+      border-radius: 4px;
+      box-shadow: 0 40px 90px rgba(0, 0, 0, 0.35);
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      animation: modalSlideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    @keyframes modalSlideUp {
+      from { transform: translateY(12px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    #memoryModal.arch-modal-overlay {
+      align-items: flex-start;
+      padding-top: 8vh;
+    }
+
+    #memoryModal .arch-modal-window {
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .modal-badge {
+      display: inline-block;
+      align-self: flex-start;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #78716c;
+      background: #f7f5f2;
+      padding: 4px 10px;
+      border-radius: 2px;
+      border: 1px solid var(--line-subtle);
+    }
+
+    .modal-head-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .modal-main-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-dark);
+      letter-spacing: -0.02em;
+    }
+
+    .modal-subtitle {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 14px;
+      color: var(--gold-primary);
+      letter-spacing: 0.02em;
+    }
+
+    .easel-halo-stage {
+      position: relative;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px 10px;
+      margin: 4px 0;
+      background: transparent;
+      border: none;
+    }
+
+    .easel-halo-stage::before {
+      content: "";
+      position: absolute;
+      width: 90%;
+      height: 90%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle, rgba(255, 235, 215, 0.45) 0%, rgba(255, 255, 255, 0) 72%);
+      filter: blur(28px);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .easel-artwork-img {
+      position: relative;
+      z-index: 2;
+      max-width: 100%;
+      max-height: 580px;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      display: block;
+      border-radius: 4px;
+      box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.06),
+        0 16px 36px -4px rgba(28, 25, 23, 0.16),
+        0 36px 64px -8px rgba(28, 25, 23, 0.12);
+    }
+
+    .modal-narrative-box {
+      background: #faf9f7;
+      border-left: 2.5px solid var(--gold-primary);
+      padding: 16px 18px;
+      font-size: 13.5px;
+      color: var(--text-body);
+      line-height: 1.75;
+      font-weight: 400;
+    }
+
+    .modal-palette-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .palette-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      background: #faf9f7;
+      border: 1px solid var(--line-subtle);
+      border-radius: 2px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-dark);
+      font-family: ui-monospace, Menlo, monospace;
+    }
+
+    .palette-item .swatch-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .astral-field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .astral-field label {
+      font-size: 12.5px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .astral-field input {
+      width: 100%;
+      border: none;
+      background: transparent;
+      padding: 10px 0;
+      font-size: 15px;
+      color: var(--text-dark);
+      outline: none;
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
+      transition: box-shadow 0.25s ease;
+    }
+
+    .astral-field input:focus {
+      box-shadow: 0 1.5px 0 var(--gold-primary);
+    }
+
+    .astral-disabled-btn {
+      width: 100%;
+      padding: 14px;
+      background: #eae7e2;
+      color: #8c827a;
+      border: none;
+      border-radius: 2px;
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      cursor: not-allowed;
+      text-align: center;
+    }
+
+    /* ---------- Synthesized Chromatic Specimen Modal ---------- */
+    .mac-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(24, 22, 20, 0.45);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      opacity: 1;
+      padding: 20px;
+      transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .mac-modal-backdrop.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .mac-modal {
+      position: relative;
+      width: 100%;
+      max-width: 420px;
+      background: #faf8f5;
+      border: 1px solid #e2ddd3;
+      border-radius: 20px;
+      box-shadow: 0 25px 60px rgba(28, 25, 23, 0.16), 0 0 35px rgba(232, 180, 184, 0.12);
+      overflow: hidden;
+      transform-origin: 50% 10%;
+      transform: scale(1) translateY(0) rotateX(0deg);
+      opacity: 1;
+      filter: blur(0px);
+      transition:
+        transform 0.45s cubic-bezier(0.34, 1.3, 0.64, 1),
+        opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+        filter 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .mac-modal-backdrop.hidden .mac-modal {
+      transform: scale(0.15, 0.05) translateY(-60px) rotateX(30deg);
+      opacity: 0;
+      filter: blur(8px);
+      transition:
+        transform 0.4s cubic-bezier(0.55, 0.055, 0.675, 0.19),
+        opacity 0.35s ease-in,
+        filter 0.35s ease-in;
+    }
+
+    .modal-close-handle-wrap {
+      width: 100%;
+      padding-top: 14px;
+      padding-bottom: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      background: #faf8f5;
+    }
+
+    .modal-close-handle-bar {
+      width: 44px;
+      height: 4px;
+      background: #d1cbc1;
+      border-radius: 2px;
+      transition: all 0.2s ease;
+    }
+
+    .modal-close-handle-wrap:hover .modal-close-handle-bar {
+      background: #8c827a;
+      transform: scaleX(1.15);
+    }
+
+    .specimen-header {
+      padding: 4px 20px 14px 20px;
+      background: #faf8f5;
+      border-bottom: 1px solid #ede8e0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .specimen-header .brand {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      font-weight: 800;
+      color: #1c1917;
+      text-transform: uppercase;
+    }
+
+    .specimen-header .hash-chip {
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      color: #78716c;
+      background: #eeeae3;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    .specimen-body {
+      padding: 20px 20px 22px 20px;
+      background: #ffffff;
+    }
+
+    .summary-box {
+      background: #faf8f5;
+      border-left: 3px solid #1c1917;
+      padding: 12px 14px;
+      margin-bottom: 18px;
+      border-radius: 0 6px 6px 0;
+    }
+
+    .summary-text {
+      font-size: 12.5px;
+      line-height: 1.55;
+      color: #292524;
+      font-weight: 600;
+    }
+
+    .spectrum-section {
+      margin-bottom: 20px;
+      max-height: 50px;
+      opacity: 1;
+      overflow: hidden;
+      transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, margin-bottom 0.35s ease;
+    }
+
+    .spectrum-section.collapsed {
+      max-height: 0;
+      opacity: 0;
+      margin-bottom: 6px;
+    }
+
+    .spectrum-label {
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #8c827a;
+      font-weight: 700;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .spectrum-bar {
+      width: 100%;
+      height: 14px;
+      border-radius: 4px;
+      display: flex;
+      overflow: hidden;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .spectrum-segment {
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+
+    .specimen-list {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .specimen-card {
+      display: flex;
+      align-items: center;
+      background: #ffffff;
+      border: 1px solid #eeeae3;
+      border-radius: 8px;
+      padding: 8px 12px;
+      gap: 12px;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+
+    .specimen-card:hover {
+      transform: translateX(3px);
+      border-color: #d1cbc1;
+    }
+
+    .swatch {
+      width: 42px;
+      height: 42px;
+      border-radius: 6px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.06);
+    }
+
+    .specimen-info {
+      flex-grow: 1;
+      min-width: 0;
+    }
+
+    .info-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 2px;
+    }
+
+    .color-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1c1917;
+    }
+
+    .hex-code {
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 10px;
+      font-weight: 600;
+      color: #78716c;
+    }
+
+    .reason-text {
+      font-size: 11px;
+      color: #78716c;
+      line-height: 1.4;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .ratio-pill {
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #f5f2eb;
+      color: #44403c;
+      margin-left: 6px;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    .ratio-pill.collapsed {
+      opacity: 0;
+      transform: scale(0.8);
+      pointer-events: none;
+    }
+
+    .control-panel {
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px dashed #e2ddd3;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .control-panel span {
+      font-size: 10.5px;
+      color: #8c827a;
+      letter-spacing: 0.04em;
+    }
+
+    .control-panel button {
+      font-size: 11px;
+      padding: 7px 14px;
+      background: #1c1917;
+      color: #f5f3ef;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+
+    .control-panel button:active {
+      transform: scale(0.96);
+    }
+
+    .control-panel button:hover {
+      background: #383330;
+    }
+
+    /* ---------- Section 4 & 5 : Glass cards ---------- */
+    .archive-section,
+    .concierge-section {
+      width: 100%;
+      max-width: 1160px;
+      margin: 70px auto 50px auto;
+      padding: 0 24px;
+      scroll-margin-top: 80px;
+    }
+
+    .concierge-section {
+      margin-bottom: 90px;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      border-radius: 32px;
+      padding: 60px 44px 64px 44px;
+      box-shadow: 0 20px 50px rgba(43, 39, 37, 0.04);
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+
+    .section-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.32em;
+      color: #8c827a;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .tag-highlight {
+      background: rgba(162, 196, 237, 0.55);
+      color: #3b5980;
+      padding: 2px 6px 2px 8px;
+      border-radius: 3px;
+      font-weight: 700;
+      display: inline-block;
+      line-height: 1.3;
+    }
+
+    .section-title {
+      font-size: clamp(24px, 4.5vw, 38px);
+      font-weight: 800;
+      color: #8a8275;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      line-height: 1.25;
+    }
+
+    .gallery-grid-5col {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 20px;
+    }
+
+    .gallery-card {
+      position: relative;
+      background: #ffffff;
+      border: 1px solid rgba(140, 130, 122, 0.16);
+      border-radius: 20px;
+      overflow: hidden;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 16px rgba(43, 39, 37, 0.04);
+      transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+                  box-shadow 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+                  border-color 0.3s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .gallery-card:hover {
+      transform: translateY(-5px) scale(1.018);
+      border-color: rgba(255, 255, 255, 1);
+      box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.95),
+                  0 20px 40px rgba(43, 39, 37, 0.16),
+                  0 0 35px rgba(255, 245, 220, 1),
+                  0 0 70px rgba(255, 215, 150, 0.75),
+                  0 0 100px rgba(255, 190, 110, 0.35);
+      z-index: 10;
+    }
+
+    .floating-frame-outer {
+      padding: 18px 18px 6px 18px;
+      background: #fdfcfb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .floating-canvas-viewport {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background: #faf8f5;
+      display: block;
+      overflow: hidden;
+      border-radius: 12px;
+      border: none;
+      box-shadow: 0 8px 20px -3px rgba(90, 75, 60, 0.18),
+                  0 3px 8px -2px rgba(90, 75, 60, 0.12);
+      transition: all 0.4s ease;
+    }
+
+    .floating-canvas-viewport svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .gallery-card:hover .floating-canvas-viewport svg {
+      transform: scale(1.04);
+    }
+
+    .card-meta {
+      padding: 16px 12px 18px 12px;
+      background: #ffffff;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      text-align: left;
+      justify-content: flex-start;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #2b2725;
+      margin-bottom: 12px;
+      letter-spacing: -0.01em;
+      text-align: left;
+      width: 100%;
+    }
+
+    .badge-chip-group {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 4px;
+      width: 100%;
+    }
+
+    .badge-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 10px;
+      font-weight: 600;
+      color: #3b3632;
+      background: #f7f5f2;
+      border: 1px solid rgba(140, 130, 122, 0.24);
+      padding: 3px 6px;
+      border-radius: 5px;
+    }
+
+    .badge-chip .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    /* ---------- Archive detail modal ---------- */
+    .memory-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(43, 39, 37, 0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .memory-modal-overlay.is-active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .memory-modal-window {
+      position: relative;
+      background: #faf8f5;
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      border-radius: 28px;
+      max-width: 480px;
+      width: 100%;
+      overflow: hidden;
+      box-shadow: 0 32px 64px rgba(0, 0, 0, 0.28);
+      animation: modalPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      padding: 36px 24px 28px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    @keyframes modalPop {
+      from { transform: scale(0.92) translateY(12px); opacity: 0; }
+      to { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    .gallery-hanger-btn {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      z-index: 10;
+      padding: 4px 16px;
+      transition: transform 0.2s ease, opacity 0.2s;
+    }
+
+    .hanger-pin {
+      width: 28px;
+      height: 4px;
+      background: #8c827a;
+      border-radius: 3px;
+      transition: background-color 0.2s, width 0.2s;
+    }
+
+    .hanger-wire {
+      width: 1.5px;
+      height: 8px;
+      background: rgba(140, 130, 122, 0.5);
+      margin-top: 1px;
+    }
+
+    .modal-artwork-frame {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background: #fdfcfb;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 3.5px solid #d4c5b3;
+      padding: 10px;
+      box-shadow: 0 12px 28px rgba(43, 39, 37, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-artwork-canvas {
+      width: 100%;
+      height: 100%;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #111;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+    }
+
+    .modal-artwork-canvas svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .archive-modal-body {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 0 4px;
+      text-align: left;
+      align-items: flex-start;
+    }
+
+    .archive-modal-tag {
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      color: #8c827a;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .archive-modal-title {
+      font-size: 23px;
+      font-weight: 700;
+      color: #2b2725;
+      letter-spacing: -0.01em;
+      line-height: 1.3;
+      text-align: left;
+    }
+
+    .archive-modal-memory-text {
+      font-size: 14.5px;
+      color: #6e6660;
+      line-height: 1.8;
+      font-weight: 400;
+      text-align: left;
+      background: #f7f5f2;
+      padding: 14px 18px;
+      border-radius: 12px;
+      width: 100%;
+    }
+
+    .archive-modal-palette-section {
+      margin-top: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .archive-modal-palette-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      color: #8c827a;
+      text-transform: uppercase;
+    }
+
+    .archive-modal-palette-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      gap: 8px;
+    }
+
+    .archive-modal-palette-row .badge-chip {
+      font-size: 12px;
+      padding: 5px 12px;
+      border-radius: 6px;
+      background: #f0ede8;
+      border: 1px solid rgba(140, 130, 122, 0.3);
+      color: #2b2725;
+    }
+
+    .archive-modal-palette-row .dot {
+      width: 8px;
+      height: 8px;
+    }
+
+    /* ---------- Color Concierge & Contact ---------- */
+    .concierge-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 64px;
+      align-items: start;
+    }
+
+    .concierge-narrative {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .concierge-tag-orig {
+      font-size: 12.5px;
+      font-weight: 700;
+      letter-spacing: 0.28em;
+      color: var(--gold-primary);
+      text-transform: uppercase;
+    }
+
+    .concierge-headline-orig {
+      font-size: clamp(20px, 3.2vw, 25px);
+      font-weight: 750;
+      color: #2b2725;
+      letter-spacing: -0.015em;
+      line-height: 1.45;
+    }
+
+    .concierge-desc-orig {
+      font-size: clamp(13.5px, 1.8vw, 14.5px);
+      color: #6e6660;
+      line-height: 1.85;
+      font-weight: 400;
+    }
+
+    .contact-minimal-list {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      border-top: 1px solid rgba(140, 130, 122, 0.18);
+      padding-top: 22px;
+    }
+
+    .contact-row {
+      display: flex;
+      align-items: baseline;
+      font-size: 14.5px;
+      line-height: 1.5;
+    }
+
+    .contact-row .label {
+      width: 95px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: #8c827a;
+      text-transform: uppercase;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    .contact-row .val {
+      font-size: 15px;
+      font-weight: 600;
+      color: #2b2725;
+      letter-spacing: 0.01em;
+    }
+
+    .concierge-form {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      padding-top: 4px;
+      position: relative;
+    }
+
+    .field-wrap {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field-label {
+      font-size: 12.5px;
+      font-weight: 650;
+      letter-spacing: 0.16em;
+      color: #786b5c;
+      text-transform: uppercase;
+    }
+
+    .field-input,
+    .field-select,
+    .field-textarea {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.55);
+      border: 1px solid rgba(140, 130, 122, 0.22);
+      border-bottom: 2px solid rgba(140, 130, 122, 0.45);
+      border-radius: 8px 8px 0 0;
+      padding: 12px 14px;
+      font-size: 15px;
+      font-weight: 450;
+      color: #2b2725;
+      font-family: inherit;
+      outline: none;
+      box-shadow: inset 0 2px 4px rgba(43, 39, 37, 0.02), 0 2px 6px rgba(0, 0, 0, 0.02);
+      transition: all 0.3s ease;
+    }
+
+    .field-input::placeholder,
+    .field-textarea::placeholder {
+      color: #9c948d;
+      font-weight: 400;
+      font-size: 13.5px;
+    }
+
+    .field-input:focus,
+    .field-select:focus,
+    .field-textarea:focus {
+      background: rgba(255, 255, 255, 0.92);
+      border-bottom-color: var(--gold-primary);
+      box-shadow: inset 0 2px 4px rgba(43, 39, 37, 0.03), 0 4px 12px rgba(140, 112, 66, 0.08);
+    }
+
+    .field-invalid {
+      border-bottom-color: #c45b38 !important;
+      background: rgba(255, 245, 240, 0.85) !important;
+    }
+
+    .field-tooltip-bubble {
+      position: absolute;
+      top: calc(100% + 7px);
+      left: 6px;
+      z-index: 100;
+      background: #fdfaf7;
+      color: #8c3b20;
+      border: 1px solid rgba(196, 91, 56, 0.35);
+      box-shadow: 0 6px 16px rgba(184, 93, 56, 0.12), 0 2px 5px rgba(0, 0, 0, 0.04);
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      display: none;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      animation: tooltipSlide 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .field-tooltip-bubble::before {
+      content: "";
+      position: absolute;
+      top: -5px;
+      left: 14px;
+      width: 8px;
+      height: 8px;
+      background: #fdfaf7;
+      border-left: 1px solid rgba(196, 91, 56, 0.35);
+      border-top: 1px solid rgba(196, 91, 56, 0.35);
+      transform: rotate(45deg);
+    }
+
+    .field-tooltip-bubble.is-visible {
+      display: inline-flex;
+    }
+
+    @keyframes tooltipSlide {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .field-select {
+      font-size: 14.5px;
+      font-weight: 450;
+      color: #3b3530;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
+      padding-right: 32px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%2378716c' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+    }
+
+    .field-select:invalid,
+    .field-select option[value=""] {
+      color: #9c948d;
+      font-weight: 400;
+    }
+
+    .field-select option {
+      font-size: 14px;
+      font-weight: 450;
+      color: #2b2725;
+      background: #faf8f5;
+      padding: 10px 14px;
+    }
+
+    .field-textarea {
+      resize: none;
+      min-height: 84px;
+      line-height: 1.65;
+    }
+
+    .submit-anchor-wrap {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      margin-top: 4px;
+      gap: 10px;
+    }
+
+    .btn-notify-bar {
+      width: 100%;
+      background: rgba(253, 251, 248, 0.96);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(140, 112, 66, 0.22);
+      border-radius: 8px;
+      padding: 12px 18px;
+      box-shadow: 0 4px 16px rgba(43, 39, 37, 0.05);
+      display: none;
+      align-items: center;
+      transition: all 0.3s ease;
+      animation: notifySlideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .btn-notify-bar.is-active {
+      display: flex;
+    }
+
+    .btn-notify-bar.status-connecting {
+      border-left: 3.5px solid var(--gold-primary);
+      background: rgba(253, 251, 248, 0.96);
+    }
+
+    .btn-notify-bar.status-failed {
+      border-left: 3.5px solid #c45b38;
+      background: rgba(255, 246, 243, 0.97);
+    }
+
+    .btn-notify-text {
+      font-size: 12.5px;
+      font-weight: 550;
+      color: #383330;
+      letter-spacing: -0.01em;
+      line-height: 1.5;
+      white-space: pre-line;
+    }
+
+    @keyframes notifySlideUp {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .request-btn {
+      align-self: flex-start;
+      padding: 14px 42px;
+      background: #2b2725;
+      color: #f7f6f4;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 40px;
+      font-size: 12.5px;
+      font-weight: 650;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(43, 39, 37, 0.14);
+      transition: all 0.25s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .request-btn:hover {
+      background: #403a37;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(43, 39, 37, 0.2);
+    }
+
+    .request-btn:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 1024px) {
+      .gallery-grid-5col {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 960px) {
+      .arch-header {
+        padding: 0 28px;
+      }
+      .nav-menu {
+        gap: 20px;
+        display: none;
+      }
+      .mobile-menu-btn {
+        display: flex;
+      }
+      .mobile-drawer {
+        display: flex;
+      }
+      .content-container {
+        grid-template-columns: 1fr;
+        gap: 48px;
+        padding: 60px 28px 80px 28px;
+      }
+      .left-column {
+        position: static;
+      }
+      .section-main-title {
+        font-size: 22px;
+      }
+      .section-header {
+        margin-bottom: 38px;
+      }
+      .concierge-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+      .request-btn {
+        width: 100%;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .glass-card {
+        padding: 36px 18px;
+        border-radius: 24px;
+      }
+      .section-tag { font-size: 11px; }
+      .contact-row { flex-direction: column; align-items: flex-start; gap: 2px; }
+      .contact-row .label { width: 100%; font-size: 11.5px; }
+      .gallery-grid-5col {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .arch-header {
+        padding: 0 18px;
+      }
+      .arch-hero-banner {
+        height: 35vh;
+        min-height: 280px;
+      }
+      .banner-overlay-caption {
+        right: 14px;
+        bottom: 12px;
+        font-size: 10px;
+        padding: 6px 12px;
+      }
+      .headline-lead {
+        font-size: 14px;
+      }
+      .lead-baseline-tail {
+        width: 22px;
+        margin-bottom: 2px;
+      }
+      .submit-wrap {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .submit-arch-btn {
+        width: 100%;
+        text-align: center;
+      }
+      .arch-modal-window {
+        padding: 32px 18px;
+      }
+      .easel-artwork-img {
+        max-height: 360px;
+      }
+      .modal-palette-grid {
+        grid-template-columns: 1fr;
+      }
+      .concierge-headline-orig {
+        font-size: 19.5px;
+        line-height: 1.4;
+      }
+      .btn-notify-bar {
+        padding: 10px 14px;
+      }
+      .btn-notify-text {
+        font-size: 12px;
+      }
+    }
+
+    /* ---------- Astral Modal (입력 화면) ---------- */
+    #astralModal.arch-modal-overlay {
+      align-items: stretch;
+      padding: 0;
+      background: rgba(17, 17, 17, 0.96);
+    }
+    #astralModal .arch-modal-window {
+      max-width: 100%;
+      width: 100%;
+      height: 100vh;
+      max-height: 100vh;
+      padding: 0;
+      gap: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      border-radius: 0;
+      background: #f2efe9;
+      box-shadow: none;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    #astralModal .gallery-close-btn {
+      position: absolute;
+      top: 20px;
+      right: 24px;
+      z-index: 50;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      padding: 7px 15px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+
+    #astralModal .hero-atelier {
+      position: relative;
+      isolation: isolate;
+      min-height: 480px;
+      margin: 0;
+      padding: 64px 44px 54px;
+      text-align: left;
+      overflow: hidden;
+      border-bottom: 1px solid rgba(53, 47, 43, 0.12);
+      background: #f2efe9;
+      flex-shrink: 0;
+    }
+    #astralModal .hero-art {
+      position: absolute;
+      z-index: -3;
+      top: -12px;
+      bottom: 0;
+      left: 20%;
+      width: 85%;
+      pointer-events: none;
+      mask-image: linear-gradient(90deg, transparent, black 16%, black 88%, transparent);
+      -webkit-mask-image: linear-gradient(90deg, transparent, black 16%, black 88%, transparent);
+    }
+    #astralModal .hero-art svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      opacity: .92;
+    }
+    #astralModal .hero-reveal-stroke {
+      stroke-dasharray: 1400;
+      stroke-dashoffset: 0;
+    }
+    #astralModal .hero-art[data-reveal="on"] .hero-reveal-stroke {
+      animation: astral-brush-reveal 3.1s cubic-bezier(.2,.55,.3,1) var(--brush-delay) both;
+    }
+    #astralModal .hero-art[data-reveal="off"] .hero-reveal-stroke {
+      stroke-dashoffset: 1400;
+    }
+    @keyframes astral-brush-reveal {
+      from { stroke-dashoffset: 1400; }
+      to { stroke-dashoffset: 0; }
+    }
+    #astralModal .hero-veil {
+      position: absolute;
+      z-index: -2;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, #f2efe9 0%, rgba(242,239,233,.98) 26%, rgba(242,239,233,.78) 42%, rgba(242,239,233,.08) 68%),
+        linear-gradient(0deg, #f2efe9 0%, transparent 18%, transparent 88%, rgba(242,239,233,.65) 100%);
+    }
+    #astralModal .hero-content {
+      position: relative;
+      max-width: 520px;
+    }
+    #astralModal .hero-content .eyebrow {
+      font-size: 10.5px;
+      letter-spacing: .18em;
+      margin-bottom: 20px;
+      color: var(--gold-primary);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    #astralModal .hero-atelier h2 {
+      font-size: clamp(48px, 6vw, 76px);
+      line-height: .9;
+      letter-spacing: -.065em;
+      color: var(--text-dark);
+      font-weight: 800;
+      margin: 0;
+    }
+    #astralModal .hero-atelier h2 em {
+      display: inline-block;
+      margin-left: 20px;
+      font-size: 1.05em;
+      letter-spacing: -.055em;
+      font-family: var(--font-serif);
+      font-style: italic;
+      color: var(--gold-primary);
+      font-weight: 400;
+    }
+    #astralModal .hero-tagline {
+      margin: 20px 0 0;
+      font-size: clamp(17px, 2vw, 23px);
+      font-weight: 600;
+      line-height: 1.5;
+      letter-spacing: -.04em;
+      color: #24211f;
+    }
+    #astralModal .hero-atelier .hero-copy {
+      margin: 12px 0 24px;
+      font-size: 13.5px;
+      line-height: 1.85;
+      color: #736d63;
+    }
+    #astralModal .hero-start {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 13px 22px;
+      background: #292723;
+      border: 1px solid #292723;
+      color: #fffdf8;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(41,39,35,0.18);
+      transition: background .2s, transform .2s;
+    }
+    #astralModal .hero-start:hover {
+      background: #4e463a;
+      transform: translateY(-2px);
+    }
+    #astralModal .hero-footnote {
+      position: absolute;
+      left: 44px;
+      right: 44px;
+      bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      align-items: center;
+      color: #8a8275;
+    }
+    #astralModal .hero-footnote > span {
+      font-size: 9.5px;
+      letter-spacing: .12em;
+    }
+    #astralModal .hero-replay {
+      padding: 5px 0 5px 8px;
+      border: 0;
+      border-bottom: 1px solid rgba(140,112,66,.25);
+      background: transparent;
+      color: #716650;
+      font-size: 11px;
+      cursor: pointer;
+      transition: color .2s;
+    }
+    #astralModal .hero-replay:hover {
+      color: var(--gold-primary);
+    }
+    #astralModal .hero-replay span {
+      display: inline-block;
+      margin-left: 6px;
+    }
+
+    #astralModal .birth-section {
+      display: block;
+      width: 100%;
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 44px 32px 56px;
+      border: none;
+      background: transparent;
+      box-shadow: none;
+    }
+    #astralModal .birth-section .form-panel {
+      padding: 0;
+    }
+    #astralModal .birth-section .panel-heading {
+      margin-bottom: 30px;
+      border-bottom: 1px solid rgba(53, 47, 43, 0.1);
+      padding-bottom: 18px;
+    }
+    #astralModal .birth-section .step-label {
+      margin-bottom: 8px;
+      color: var(--gold-primary);
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+    }
+    #astralModal .birth-section .panel-heading h2 {
+      color: var(--text-dark);
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -.03em;
+    }
+    #astralModal #astralForm {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 22px 28px;
+    }
+    #astralModal #astralForm .field-group {
+      min-width: 0;
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+    #astralModal #astralForm .field-group legend,
+    #astralModal #astralForm .field-group > label,
+    #astralModal #astralForm .field-label-row > label:first-child,
+    #astralModal #astralForm .field-title {
+      display: block;
+      margin-bottom: 9px;
+      color: var(--text-dark);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 0;
+    }
+    #astralModal .segmented-control {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    #astralModal .segmented-control label {
+      cursor: pointer;
+      margin: 0;
+    }
+    #astralModal .segmented-control input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+    #astralModal .segmented-control span {
+      display: grid;
+      place-items: center;
+      min-height: 48px;
+      border: 1px solid rgba(53, 47, 43, 0.16);
+      border-radius: 10px;
+      color: #756e68;
+      font-size: 13.5px;
+      font-weight: 500;
+      background: #ffffff;
+      transition: all .2s ease;
+    }
+    #astralModal .segmented-control input:checked + span {
+      border-color: #4a443f;
+      color: var(--text-dark);
+      background: #eee9e1;
+      font-weight: 600;
+      box-shadow: inset 0 0 0 1px #4a443f;
+    }
+    #astralModal .date-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr;
+      gap: 8px;
+    }
+    #astralModal .input-wrap {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+    }
+    #astralModal .input-wrap label {
+      display: block;
+      margin: 0 0 7px;
+      color: #756e68;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    #astralModal .input-wrap input,
+    #astralModal .input-wrap select,
+    #astralModal .standard-input {
+      width: 100%;
+      min-height: 48px;
+      padding: 0 13px;
+      border: 1px solid rgba(53, 47, 43, 0.16);
+      border-radius: 10px;
+      outline: none;
+      color: var(--text-dark);
+      background: #ffffff;
+      font-size: 14px;
+      font-family: inherit;
+      transition: border-color .2s ease, box-shadow .2s ease;
+    }
+    #astralModal .input-wrap select {
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23756e68' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: calc(100% - 11px) center;
+      padding-right: 28px;
+    }
+    #astralModal .input-wrap input:focus,
+    #astralModal .input-wrap select:focus,
+    #astralModal .standard-input:focus {
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 0 3px rgba(146, 118, 77, .12);
+    }
+    #astralModal .standard-input:disabled {
+      opacity: .55;
+      background: #ece8e1;
+    }
+    #astralModal .today-set-btn {
+      background: transparent;
+      border: 1px solid rgba(140, 112, 66, 0.3);
+      border-radius: 4px;
+      padding: 3px 8px;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--gold-primary);
+      cursor: pointer;
+      letter-spacing: .02em;
+      transition: all .2s ease;
+    }
+    #astralModal .today-set-btn:hover {
+      background: var(--gold-primary);
+      color: #ffffff;
+    }
+    #astralModal #astralForm .privacy-note,
+    #astralModal #astralForm .form-error,
+    #astralModal #astralForm .primary-button {
+      grid-column: 1 / -1;
+    }
+    #astralModal #astralForm .privacy-note {
+      display: flex;
+      gap: 12px;
+      margin: 8px 0 0;
+      padding: 14px 18px;
+      border-radius: 12px;
+      background: #ece8e1;
+      border-left: 3px solid var(--gold-primary);
+    }
+    #astralModal #astralForm .privacy-note p {
+      color: #675f59;
+      font-size: 11px;
+      line-height: 1.65;
+      margin: 0;
+    }
+    #astralModal #astralForm .privacy-note strong {
+      color: #3c3835;
+    }
+    #astralModal #astralForm .form-error {
+      margin: 0;
+      padding: 11px 14px;
+      border-radius: 9px;
+      background: #f5dfdc;
+      color: #8c423a;
+      font-size: 11.5px;
+      line-height: 1.5;
+    }
+    #astralModal #astralForm .primary-button {
+      display: flex;
+      min-height: 52px;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding: 0 24px;
+      border: 0;
+      border-radius: 12px;
+      color: #fff;
+      background: #2e2a27;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: 0 4px 14px rgba(46, 42, 39, 0.2);
+      transition: all .2s ease;
+    }
+    #astralModal #astralForm .primary-button:hover {
+      background: #171513;
+      transform: translateY(-1.5px);
+      box-shadow: 0 6px 18px rgba(46, 42, 39, 0.3);
+    }
+    #astralModal .field-label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 9px;
+    }
+    #astralModal .check-label {
+      display: inline-flex !important;
+      align-items: center;
+      gap: 6px;
+      margin: 0 !important;
+      color: var(--text-muted) !important;
+      font-size: 11px !important;
+      cursor: pointer;
+    }
+    #astralModal .check-label input {
+      accent-color: #4b433d;
+    }
+    #astralModal .field-help {
+      margin: 7px 0 0;
+      color: #918982;
+      font-size: 10.5px;
+      line-height: 1.5;
+    }
+    #astralModal .loading-result {
+      padding: 24px 0 0;
+      text-align: center;
+    }
+    #astralModal .loading-ring {
+      width: 32px;
+      height: 32px;
+      margin: 0 auto 12px;
+      border: 2px solid rgba(140, 112, 66, 0.2);
+      border-top-color: var(--gold-primary);
+      border-radius: 50%;
+      animation: astralSpin 1s linear infinite;
+    }
+    @keyframes astralSpin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+      #astralModal .hero-atelier {
+        padding: 50px 20px 44px;
+        min-height: 420px;
+      }
+      #astralModal .hero-art {
+        left: 10%;
+        width: 110%;
+        top: 50px;
+      }
+      #astralModal .hero-atelier h2 {
+        font-size: 42px;
+      }
+      #astralModal .hero-tagline {
+        font-size: 17px;
+      }
+      #astralModal .hero-footnote {
+        left: 20px;
+        right: 20px;
+      }
+      #astralModal .birth-section {
+        padding: 32px 18px 44px;
+      }
+      #astralModal #astralForm {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 20px;
+      }
+      #astralModal .date-grid {
+        grid-template-columns: 1.2fr 1fr 1fr;
+        gap: 6px;
+      }
+    }
+
+    /* ---------- Astral Result Studio (풀스크린 오버레이) ---------- */
+    body.studio-open { overflow: hidden; }
+
+    .astral-studio {
+      position: fixed; inset: 0; z-index: 3000;
+      display: flex; flex-direction: column;
+      background: #f2efe9;
+      opacity: 0; visibility: hidden; pointer-events: none;
+      transform: translateY(24px) scale(.985);
+      transition: opacity .45s cubic-bezier(.22,.7,.2,1),
+                  transform .45s cubic-bezier(.22,.7,.2,1),
+                  visibility 0s linear .45s;
+    }
+    .astral-studio.is-active {
+      opacity: 1; visibility: visible; pointer-events: auto; transform: none;
+      transition: opacity .45s cubic-bezier(.22,.7,.2,1),
+                  transform .45s cubic-bezier(.22,.7,.2,1),
+                  visibility 0s;
+    }
+    .astral-studio [hidden] { display: none !important; }
+
+    .studio-bar {
+      flex: 0 0 auto;
+      display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px;
+      padding: max(14px, env(safe-area-inset-top)) 28px 14px;
+      border-bottom: 1px solid rgba(53,47,43,.12);
+      background: rgba(242,239,233,.92);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    }
+    .studio-brand {
+      font-size: 12px; font-weight: 800; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--text-dark);
+    }
+    .studio-brand em {
+      font-family: var(--font-serif); font-style: italic; font-weight: 400;
+      letter-spacing: .02em; text-transform: none; color: var(--gold-primary);
+    }
+    .astral-studio .section-nav {
+      display: flex; gap: 6px; justify-self: center;
+      position: static; margin: 0; padding: 0;
+    }
+    .astral-studio .section-nav a {
+      padding: 8px 16px; border-radius: 999px; border: 1px solid transparent;
+      font-size: 12.5px; font-weight: 600; color: #756e68; text-decoration: none;
+      white-space: nowrap; transition: all .2s ease;
+    }
+    .astral-studio .section-nav a:hover { color: var(--text-dark); }
+    .astral-studio .section-nav a[aria-current] {
+      color: var(--text-dark); background: #fff; border-color: rgba(53,47,43,.14);
+    }
+    .astral-studio .section-nav a[aria-disabled="true"] { opacity: .4; cursor: not-allowed; }
+    .studio-bar .gallery-close-btn { position: static; justify-self: end; }
+
+    .studio-scroll {
+      flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+    .studio-inner {
+      max-width: 1120px; margin: 0 auto;
+      padding: 40px 28px calc(96px + env(safe-area-inset-bottom));
+    }
+    .astral-studio .paid-report { margin: 0; max-width: none; }
+
+    @media (max-width: 640px) {
+      .studio-bar { grid-template-columns: 1fr auto; padding: 10px 14px; }
+      .studio-brand { display: none; }
+      .astral-studio .section-nav { justify-self: start; }
+      .astral-studio .section-nav a { padding: 7px 12px; font-size: 12px; }
+      .studio-inner { padding: 24px 16px calc(72px + env(safe-area-inset-bottom)); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .astral-studio, .astral-studio.is-active { transition: none; transform: none; }
+    }
+
+    /* ---------- 대표색 카드 인라인 아코디언 ---------- */
+    .styling-grid { align-items: start; }
+    .styling-card.is-open { grid-column: 1 / -1; }
+
+    .styling-panel {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows .35s cubic-bezier(.22, .7, .2, 1);
+    }
+    .styling-card.is-open .styling-panel { grid-template-rows: 1fr; }
+    .styling-panel-inner { min-height: 0; overflow: hidden; }
+    .styling-card.is-open .styling-panel-inner { padding-top: 16px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .styling-panel { transition: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================= TOP HEADER NAVIGATION ================= -->
+  <header class="arch-header">
+    <a href="#" class="brand-logo">
+      MaC <span>/ Memory <em>&amp;</em> Color</span>
+    </a>
+
+    <ul class="nav-menu">
+      <li class="nav-item"><a id="navMemory">Memory</a></li>
+      <li class="nav-item"><a href="#archive">archive</a></li>
+      <li class="nav-item"><a href="#concierge">Concierge</a></li>
+      <li class="nav-item"><a id="navAstral">Astral</a></li>
+    </ul>
+
+    <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="메뉴 열기">
+      <span></span>
+      <span></span>
+    </button>
+  </header>
+
+  <!-- ================= MOBILE FULLSCREEN DRAWER ================= -->
+  <div class="mobile-drawer" id="mobileDrawer">
+    <div class="drawer-top-bar">
+      <button class="gallery-close-btn" id="mobileDrawerCloseBtn" aria-label="메뉴 닫기">Close</button>
+    </div>
+
+    <div class="drawer-center-stage">
+      <ul class="mobile-nav-list">
+        <li class="mobile-nav-item">
+          <a class="mobile-nav-link" id="mobileNavMemory">
+            <span><span class="brand-prefix">M</span>emory</span>
+            <span class="nav-arrow">↗</span>
+          </a>
+        </li>
+        <li class="mobile-nav-item">
+          <a class="mobile-nav-link" href="#archive">
+            <span><span class="brand-prefix">a</span>rchive</span>
+            <span class="nav-arrow">↗</span>
+          </a>
+        </li>
+        <li class="mobile-nav-item">
+          <a class="mobile-nav-link" href="#concierge">
+            <span><span class="brand-prefix">C</span>oncierge</span>
+            <span class="nav-arrow">↗</span>
+          </a>
+        </li>
+        <li class="mobile-nav-item astral-nav-item">
+          <a class="mobile-nav-link" id="mobileNavAstral">
+            <span><span class="brand-prefix">A</span>stral</span>
+            <span class="nav-arrow">—</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="drawer-footer">
+      MaC | Memory and Color
+    </div>
+  </div>
+
+  <!-- ================= WIDE ARCHITECTURAL HERO BANNER ================= -->
+  <section class="arch-hero-banner" id="heroBanner" title="클릭하여 레퍼런스 원화 확대 감상">
+    <div class="banner-img-wrap">
+      <img src="images/generReference.png" alt="Color Reference" onerror="this.src='https://picsum.photos/1920/1080?grayscale'" />
+    </div>
+    <div class="banner-overlay-caption">Reference No. 01 / View Artwork ↗</div>
+  </section>
+
+  <!-- ================= 2-COLUMN SECTION 1 ================= -->
+  <main class="content-container">
+
+    <div class="left-column">
+      <h1 class="section-main-title">About Color</h1>
+      <div class="social-links">
+        <a href="#archive" class="social-btn" aria-label="Archive">Ar</a>
+        <a href="#" class="social-btn" aria-label="Instagram">In</a>
+        <a href="#concierge" class="social-btn" aria-label="Mail">@</a>
+      </div>
+    </div>
+
+    <div class="right-column">
+
+      <article class="statement-block">
+        <div class="headline-stack">
+          <div class="headline-lead-wrap">
+            <span class="headline-lead">당신의 추억을 남겨 주세요</span>
+            <span class="lead-baseline-tail" aria-hidden="true"></span>
+          </div>
+
+          <h2 class="headline-main">추억을<span class="headline-dots">...</span>색으로 돌려드립니다.</h2>
+        </div>
+
+        <p class="statement-body">
+          기억 속 장면과 정서를 한 줄의 문장과 색채 언어로 시각화합니다. 공간과 순간에 머물던 기억의 파편은 색면 추상으로 재구성되어 <span class="br-desktop"></span>형태 너머 내면 깊은 곳의 여운을 관조합니다.
+        </p>
+      </article>
+
+      <form class="arch-form-wrapper" id="colorArchForm" novalidate>
+
+        <div class="form-inline-tooltip" id="formInlineTooltip" role="alert" aria-live="polite">
+          <span class="tooltip-icon">✦</span>
+          <span class="tooltip-text" id="tooltipText">장소, 시간, 계절, 행동, 기분 등의 그날의 뉘앙스가 느껴지는 기억을 채워주세요. 좀 더 구체적일수록 잘 보여드릴게요.</span>
+        </div>
+
+        <div class="form-row">
+          <label for="userMemory">Your Memory Statement</label>
+          <input type="text" id="userMemory" class="input-strong" placeholder="당신의 기억을 한 줄로 적어 주세요." />
+        </div>
+
+        <div class="form-row">
+          <label for="userEmail">Recipient Email</label>
+          <input type="email" id="userEmail" class="input-standard" placeholder="결과를 전송받으실 이메일 주소" />
+        </div>
+
+        <div class="submit-wrap">
+          <button type="submit" class="submit-arch-btn" id="submitBtn">Synthesize Palette</button>
+          <span class="form-guide-txt">메일을 남겨 주시면 Hex 컬러칩을 전송해드립니다.</span>
+        </div>
+      </form>
+
+    </div>
+
+  </main>
+
+  <!-- ================= SECTION 4 : MEMORY ARCHIVE ================= -->
+  <section class="archive-section" id="archive">
+    <div class="glass-card">
+
+      <header class="section-header">
+        <span class="section-tag">
+          CURATED <span class="tag-highlight">EXHIBITION</span>
+        </span>
+        <h2 class="section-title">MEMORY ARCHIVE</h2>
+      </header>
+
+      <div class="gallery-grid-5col" id="galleryGrid">
+        <article class="gallery-card" data-id="0">
+          <div class="floating-frame-outer">
+            <div class="floating-canvas-viewport">
+              <svg viewBox="90 104 282 282" preserveAspectRatio="xMidYMid slice">
+                <image href="images/gallery.png" width="2048" height="1152"></image>
+              </svg>
+            </div>
+          </div>
+          <div class="card-meta">
+            <h4 class="card-title">초여름 수국 골목</h4>
+            <div class="badge-chip-group">
+              <span class="badge-chip"><span class="dot" style="background:#7CA5B8"></span>#7CA5B8</span>
+              <span class="badge-chip"><span class="dot" style="background:#B497D6"></span>#B497D6</span>
+              <span class="badge-chip"><span class="dot" style="background:#9BC495"></span>#9BC495</span>
+              <span class="badge-chip"><span class="dot" style="background:#C4D4BA"></span>#C4D4BA</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="gallery-card" data-id="1">
+          <div class="floating-frame-outer">
+            <div class="floating-canvas-viewport">
+              <svg viewBox="485 104 282 282" preserveAspectRatio="xMidYMid slice">
+                <image href="images/gallery.png" width="2048" height="1152"></image>
+              </svg>
+            </div>
+          </div>
+          <div class="card-meta">
+            <h4 class="card-title">어린 시절 골목길 가로등</h4>
+            <div class="badge-chip-group">
+              <span class="badge-chip"><span class="dot" style="background:#FFB703"></span>#FFB703</span>
+              <span class="badge-chip"><span class="dot" style="background:#023047"></span>#023047</span>
+              <span class="badge-chip"><span class="dot" style="background:#FB8500"></span>#FB8500</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="gallery-card" data-id="2">
+          <div class="floating-frame-outer">
+            <div class="floating-canvas-viewport">
+              <svg viewBox="880 104 282 282" preserveAspectRatio="xMidYMid slice">
+                <image href="images/gallery.png" width="2048" height="1152"></image>
+              </svg>
+            </div>
+          </div>
+          <div class="card-meta">
+            <h4 class="card-title">가을날 단풍 운동장</h4>
+            <div class="badge-chip-group">
+              <span class="badge-chip"><span class="dot" style="background:#C85D38"></span>#C85D38</span>
+              <span class="badge-chip"><span class="dot" style="background:#DAB049"></span>#DAB049</span>
+              <span class="badge-chip"><span class="dot" style="background:#4DA7E8"></span>#4DA7E8</span>
+              <span class="badge-chip"><span class="dot" style="background:#9B381E"></span>#9B381E</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="gallery-card" data-id="3">
+          <div class="floating-frame-outer">
+            <div class="floating-canvas-viewport">
+              <svg viewBox="1275 104 282 282" preserveAspectRatio="xMidYMid slice">
+                <image href="images/gallery.png" width="2048" height="1152"></image>
+              </svg>
+            </div>
+          </div>
+          <div class="card-meta">
+            <h4 class="card-title">여름 바닷가</h4>
+            <div class="badge-chip-group">
+              <span class="badge-chip"><span class="dot" style="background:#E3C594"></span>#E3C594</span>
+              <span class="badge-chip"><span class="dot" style="background:#48CAE4"></span>#48CAE4</span>
+              <span class="badge-chip"><span class="dot" style="background:#F8F9FA"></span>#F8F9FA</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="gallery-card" data-id="4">
+          <div class="floating-frame-outer">
+            <div class="floating-canvas-viewport">
+              <svg viewBox="1670 104 282 282" preserveAspectRatio="xMidYMid slice">
+                <image href="images/gallery.png" width="2048" height="1152"></image>
+              </svg>
+            </div>
+          </div>
+          <div class="card-meta">
+            <h4 class="card-title">비 오는 날 창밖</h4>
+            <div class="badge-chip-group">
+              <span class="badge-chip"><span class="dot" style="background:#6C757D"></span>#6C757D</span>
+              <span class="badge-chip"><span class="dot" style="background:#4682B4"></span>#4682B4</span>
+              <span class="badge-chip"><span class="dot" style="background:#8C7A6B"></span>#8C7A6B</span>
+              <span class="badge-chip"><span class="dot" style="background:#34495E"></span>#34495E</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="gallery-card" data-id="5">
+          <div class="floating-frame-outer">
+            <div class="floating-canvas-viewport">
+              <svg viewBox="90 608 282 282" preserveAspectRatio="xMidYMid slice">
+                <image href="images/gallery.png" width="2048" height="1152"></image>
+              </svg>
+            </div>
+          </div>
+          <div class="card-meta">
+            <h4 class="card-title">봄날 벚꽃길</h4>
+            <div class="badge-chip-group">
+              <span class="badge-chip"><span class="dot" style="background:#FFC8DD"></span>#FFC8DD</span>
+              <span class="badge-chip"><span class="dot" style="background:#F8F9FA"></span>#F8F9FA</span>
+              <span class="badge-chip"><span class="dot" style="background:#D4A373"></span>#D4A373</span>
+              <span class="badge-chip"><span class="dot" style="background:#FFAFCC"></span>#FFAFCC</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="gallery-card" data-id="6">
+          <div class="floating-frame-outer">
+            <div class="floating-canvas-viewport">
+              <svg viewBox="485 608 282 282" preserveAspectRatio="xMidYMid slice">
+                <image href="images/gallery.png" width="2048" height="1152"></image>
+              </svg>
+            </div>
+          </div>
+          <div class="card-meta">
+            <h4 class="card-title">겨울날 아침 햇살</h4>
+            <div class="badge-chip-group">
+              <span class="badge-chip"><span class="dot" style="background:#FDF0D5"></span>#FDF0D5</span>
+              <span class="badge-chip"><span class="dot" style="background:#E9D8A6"></span>#E9D8A6</span>
+              <span class="badge-chip"><span class="dot" style="background:#EE9B00"></span>#EE9B00</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="gallery-card" data-id="7">
+          <div class="floating-frame-outer">
+            <div class="floating-canvas-viewport">
+              <svg viewBox="880 608 282 282" preserveAspectRatio="xMidYMid slice">
+                <image href="images/gallery.png" width="2048" height="1152"></image>
+              </svg>
+            </div>
+          </div>
+          <div class="card-meta">
+            <h4 class="card-title">노을 지는 제방길</h4>
+            <div class="badge-chip-group">
+              <span class="badge-chip"><span class="dot" style="background:#F4A261"></span>#F4A261</span>
+              <span class="badge-chip"><span class="dot" style="background:#E76F51"></span>#E76F51</span>
+              <span class="badge-chip"><span class="dot" style="background:#264653"></span>#264653</span>
+              <span class="badge-chip"><span class="dot" style="background:#E9C46A"></span>#E9C46A</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="gallery-card" data-id="8">
+          <div class="floating-frame-outer">
+            <div class="floating-canvas-viewport">
+              <svg viewBox="1275 608 282 282" preserveAspectRatio="xMidYMid slice">
+                <image href="images/gallery.png" width="2048" height="1152"></image>
+              </svg>
+            </div>
+          </div>
+          <div class="card-meta">
+            <h4 class="card-title">할머니 댁 수박</h4>
+            <div class="badge-chip-group">
+              <span class="badge-chip"><span class="dot" style="background:#E63946"></span>#E63946</span>
+              <span class="badge-chip"><span class="dot" style="background:#2A9D8F"></span>#2A9D8F</span>
+              <span class="badge-chip"><span class="dot" style="background:#A98467"></span>#A98467</span>
+              <span class="badge-chip"><span class="dot" style="background:#1D3557"></span>#1D3557</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="gallery-card" data-id="9">
+          <div class="floating-frame-outer">
+            <div class="floating-canvas-viewport">
+              <svg viewBox="1670 608 282 282" preserveAspectRatio="xMidYMid slice">
+                <image href="images/gallery.png" width="2048" height="1152"></image>
+              </svg>
+            </div>
+          </div>
+          <div class="card-meta">
+            <h4 class="card-title">늦은 밤 독서실 스탠드</h4>
+            <div class="badge-chip-group">
+              <span class="badge-chip"><span class="dot" style="background:#FFB703"></span>#FFB703</span>
+              <span class="badge-chip"><span class="dot" style="background:#212529"></span>#212529</span>
+              <span class="badge-chip"><span class="dot" style="background:#432818"></span>#432818</span>
+            </div>
+          </div>
+        </article>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= 아카이브 카드 상세 모달 ================= -->
+  <aside id="archiveDetailModal" class="memory-modal-overlay" aria-hidden="true">
+    <div class="memory-modal-window">
+      <div class="gallery-hanger-btn" id="modalHangerBtn" title="갤러리로 돌아가기">
+        <span class="hanger-pin"></span>
+        <span class="hanger-wire"></span>
+      </div>
+
+      <div class="modal-artwork-frame">
+        <div class="modal-artwork-canvas">
+          <svg id="archiveModalSvg" viewBox="90 104 282 282" preserveAspectRatio="xMidYMid slice">
+            <image href="images/gallery.png" width="2048" height="1152"></image>
+          </svg>
+        </div>
+      </div>
+
+      <div class="archive-modal-body">
+        <div>
+          <span class="archive-modal-tag" id="archiveModalTag">SPECIMEN NO. 01</span>
+          <h3 class="archive-modal-title" id="archiveModalTitle">작품 제목</h3>
+        </div>
+
+        <p class="archive-modal-memory-text" id="archiveModalMemoryText">
+          추억 문구가 들어갑니다.
+        </p>
+
+        <div class="archive-modal-palette-section">
+          <span class="archive-modal-palette-label">EXTRACTED PALETTE</span>
+          <div class="archive-modal-palette-row" id="archiveModalPaletteRow"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ================= SECTION 5 : COLOR CONCIERGE & CONTACT ================= -->
+  <section class="concierge-section" id="concierge">
+    <div class="glass-card">
+
+      <div class="concierge-grid">
+        <div class="concierge-narrative">
+          <span class="concierge-tag-orig">MaC Concierge</span>
+
+          <h3 class="concierge-headline-orig">
+            당신만의 기억을<br>
+            색채 언어로 조색합니다
+          </h3>
+
+          <p class="concierge-desc-orig">
+            마음에 오래 머물던 순간, 잊히지 않는 장면의 정서를 색채 언어로 기록합니다. 원화 에디션의 프라이빗 소장 및 비스포크 조색 의뢰는 MaC 컨시어지 데스크를 통해 비공개로 조율됩니다.
+          </p>
+
+          <div class="contact-minimal-list">
+            <div class="contact-row">
+              <span class="label">CONTACT</span>
+              <span class="val">Concierge@mac.ai.kr</span>
+            </div>
+            <div class="contact-row">
+              <span class="label">ATELIER</span>
+              <span class="val">Private Salon, Seoul (By Appointment Only)</span>
+            </div>
+          </div>
+        </div>
+
+        <form class="concierge-form" id="conciergeForm" novalidate>
+          <div class="field-wrap">
+            <label class="field-label" for="clientName">CLIENT NAME</label>
+            <input type="text" id="clientName" class="field-input" placeholder="성함 또는 칭호를 남겨주세요" required>
+            <div class="field-tooltip-bubble" id="nameTooltip">이 항목을 입력해 주세요.</div>
+          </div>
+
+          <div class="field-wrap">
+            <label class="field-label" for="clientContact">CONTACT INFO</label>
+            <input type="text" id="clientContact" class="field-input" placeholder="회신받으실 이메일 또는 연락처" required>
+            <div class="field-tooltip-bubble" id="contactTooltip">이 항목을 입력해 주세요.</div>
+          </div>
+
+          <div class="field-wrap">
+            <label class="field-label" for="inquirySubject">NATURE OF REQUEST</label>
+            <select id="inquirySubject" class="field-select" required>
+              <option value="" disabled selected
+                      data-short="Select Inquiry Type (문의 유형 선택)"
+                      data-full="Select Inquiry Type (문의 유형 선택)">Select Inquiry Type (문의 유형 선택)</option>
+              <option value="artwork"
+                      data-short="Curated Artwork - 전시작 원화 소장"
+                      data-full="Acquisition of Curated Artwork - 전시작 원화 소장">Acquisition of Curated Artwork - 전시작 원화 소장</option>
+              <option value="bespoke"
+                      data-short="Bespoke Color - 1:1 맞춤 조색 의뢰"
+                      data-full="Bespoke Memory Color Commission - 1:1 맞춤 조색 의뢰">Bespoke Memory Color Commission - 1:1 맞춤 조색 의뢰</option>
+              <option value="partnership"
+                      data-short="Partnership - 비공개 협업 및 대관"
+                      data-full="Confidential Partnership & Curation - 비공개 협업 및 전시 대관">Confidential Partnership & Curation - 비공개 협업 및 전시 대관</option>
+              <option value="viewing"
+                      data-short="Private Viewing - 살롱 프라이빗 뷰잉"
+                      data-full="Private Salon Viewing - 프라이빗 뷰잉 세션 예약">Private Salon Viewing - 프라이빗 뷰잉 세션 예약</option>
+            </select>
+            <div class="field-tooltip-bubble" id="subjectTooltip">목록에서 항목을 선택해 주세요.</div>
+          </div>
+
+          <div class="field-wrap">
+            <label class="field-label" for="clientMessage">PRIVATE NOTE</label>
+            <textarea id="clientMessage" class="field-textarea" placeholder="문의를 남겨주세요." required></textarea>
+            <div class="field-tooltip-bubble" id="messageTooltip">이 항목을 입력해 주세요.</div>
+          </div>
+
+          <div class="submit-anchor-wrap">
+            <aside id="btnNotifyBar" class="btn-notify-bar" role="status" aria-live="polite">
+              <span class="btn-notify-text" id="btnNotifyText"></span>
+            </aside>
+            <button type="submit" class="request-btn" id="conciergeSubmitBtn">SUBMIT PRIVATE REQUEST</button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= 1ST NAV: MEMORY PHILOSOPHY MODAL ================= -->
+  <aside id="memoryModal" class="arch-modal-overlay" aria-hidden="true">
+    <div class="arch-modal-window">
+      <button class="gallery-close-btn" id="memoryCloseBtn" aria-label="닫기">Close</button>
+
+      <div class="modal-head-group">
+        <span class="modal-badge">Philosophy</span>
+        <h3 class="modal-main-title">박제된 시간, 불멸의 색채</h3>
+        <p class="modal-subtitle">MaC | Memory and Color</p>
+      </div>
+
+      <div class="modal-narrative-box">
+        형태는 소멸하고 시간은 흐르지만, 색채는 무의식의 가장 깊은 심연에 남아 영원히 박제됩니다.
+      </div>
+
+      <p class="statement-body" style="font-size: 14.5px; line-height: 1.85; font-weight: 400;">
+        망각의 파편으로 흩어지는 기억 속에서 찰나의 빛과 온도를 건져 올리는 일.<br>
+        MaC은 당신이 지나온 시간을, 한 편의 색채 표본으로 결코 바래지 않을 고유의 암호로 보존합니다.
+      </p>
+
+      <div style="font-family: var(--font-serif); font-style: italic; font-size: 13px; color: var(--gold-primary); margin-top: 4px;">
+        MaC Curatorial Archive
+      </div>
+    </div>
+  </aside>
+
+  <!-- ================= REFERENCE LIGHTBOX MODAL ================= -->
+  <aside id="archModal" class="arch-modal-overlay" aria-hidden="true">
+    <div class="arch-modal-window">
+      <button class="gallery-close-btn" id="modalCloseBtn" aria-label="닫기">Close</button>
+
+      <div class="modal-head-group">
+        <span class="modal-badge" id="modalBadge">Reference Mood</span>
+        <h3 class="modal-main-title" id="modalTitle">놀이공원 추억: 슈가 핑크와 웜 브라운</h3>
+        <p class="modal-subtitle" id="modalSubtitle">Curated Reference &amp; Palette</p>
+      </div>
+
+      <div class="easel-halo-stage" id="modalImageStage">
+        <img class="easel-artwork-img" id="modalArtworkImg" src="images/generReference.png" alt="놀이공원 추억: 슈가 핑크와 웜 브라운" onerror="this.src='https://picsum.photos/1000/1200?grayscale'" />
+      </div>
+
+      <div class="modal-narrative-box" id="modalNarrative">
+        늘 바쁘던 아빠의 손을 잡고 나선 눈부신 5월의 휴일. 입안 가득 사르르 녹아내리던 달콤한 솜사탕, 회전목마의 황금빛 불빛과 왁자지껄한 음악 소리 속에서 마주 보며 웃던 따스하고 설렜던 오후.
+      </div>
+
+      <div class="modal-palette-grid" id="modalPaletteGrid">
+        <div class="palette-item">
+          <span class="swatch-dot" style="background:#FFB7C5;"></span>
+          <span>#FFB7C5 Sugar Pink</span>
+        </div>
+        <div class="palette-item">
+          <span class="swatch-dot" style="background:#87CEEB;"></span>
+          <span>#87CEEB May Sky</span>
+        </div>
+        <div class="palette-item">
+          <span class="swatch-dot" style="background:#FFD700;"></span>
+          <span>#FFD700 Carousel Gold</span>
+        </div>
+        <div class="palette-item">
+          <span class="swatch-dot" style="background:#A0522D;"></span>
+          <span>#A0522D Warm Brown</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ================= SYNTHESIZED SPECIMEN (4색 결과) MODAL ================= -->
+  <div id="modalBackdrop" class="mac-modal-backdrop hidden" aria-hidden="true">
+    <div class="mac-modal" role="dialog" aria-modal="true" aria-label="색채 표본 결과">
+      <div class="modal-close-handle-wrap" onclick="closeDynamicModal()" title="닫기">
+        <div class="modal-close-handle-bar"></div>
+      </div>
+      <div class="specimen-header">
+        <span class="brand">MaC Specimen</span>
+        <span class="hash-chip" id="specimenHash"></span>
+      </div>
+      <div class="specimen-body">
+        <div class="summary-box">
+          <p class="summary-text" id="memorySummary"></p>
+        </div>
+        <div class="spectrum-section" id="spectrumSection">
+          <div class="spectrum-label"><span>Color Ratio</span><span id="ratioLabel"></span></div>
+          <div class="spectrum-bar" id="spectrumBar"></div>
+        </div>
+        <div class="specimen-list" id="specimenList"></div>
+        <div class="control-panel">
+          <span>Hex 컬러칩은 메일로도 전송됩니다.</span>
+          <button type="button" onclick="toggleRatio()">비율 표시 전환</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 4TH NAV: ASTRAL 입력 모달 ================= -->
+  <aside id="astralModal" class="arch-modal-overlay" aria-hidden="true">
+    <div class="arch-modal-window">
+      <button class="gallery-close-btn" id="astralCloseBtn" aria-label="닫기">Close</button>
+
+      <section class="hero hero-atelier" id="astralHeroAtelier" aria-labelledby="astral-title">
+        <div class="hero-art" id="heroPainting" data-reveal="on" aria-hidden="true">
+          <svg viewBox="0 0 900 760" preserveAspectRatio="xMidYMid slice" focusable="false">
+            <defs>
+              <filter id="heroBrushGrain" x="-10%" y="-10%" width="120%" height="120%">
+                <feTurbulence type="fractalNoise" baseFrequency=".025" numOctaves="2" seed="7" result="grain" />
+                <feDisplacementMap in="SourceGraphic" in2="grain" scale="20" xChannelSelector="R" yChannelSelector="G" />
+              </filter>
+              <mask id="heroPaintingReveal" maskUnits="userSpaceOnUse" x="0" y="0" width="900" height="760">
+                <g fill="none" stroke="white" stroke-width="190" stroke-linecap="round" filter="url(#heroBrushGrain)">
+                  <path class="hero-reveal-stroke" style="--brush-delay:0s" d="M 1020 0 Q 570 90 -120 20" />
+                  <path class="hero-reveal-stroke" style="--brush-delay:.45s" d="M -120 125 Q 440 65 1020 150" />
+                  <path class="hero-reveal-stroke" style="--brush-delay:.9s" d="M 1020 265 Q 480 190 -120 260" />
+                  <path class="hero-reveal-stroke" style="--brush-delay:1.35s" d="M -120 375 Q 480 305 1020 395" />
+                  <path class="hero-reveal-stroke" style="--brush-delay:1.8s" d="M 1020 515 Q 470 445 -120 500" />
+                  <path class="hero-reveal-stroke" style="--brush-delay:2.25s" d="M -120 625 Q 470 550 1020 640" />
+                  <path class="hero-reveal-stroke" style="--brush-delay:2.7s" d="M 1020 775 Q 470 680 -120 760" />
+                </g>
+              </mask>
+            </defs>
+            <image href="assets/astral-hero-painting.png" x="-56" y="-230" width="1012" height="1349.33" mask="url(#heroPaintingReveal)" />
+          </svg>
+        </div>
+        <div class="hero-veil" aria-hidden="true"></div>
+        <div class="hero-content">
+          <p class="eyebrow">MaC · A Portrait of Your Colors</p>
+          <h2 id="astral-title">Astral<br><em>Color</em></h2>
+          <p class="hero-tagline">태어난 순간의 색,<br>한 폭의 나로 피어나다.</p>
+          <p class="hero-copy">나의 사주를 여덟 가지 색으로 읽고,<br>오래 곁에 둘 한국 전통화로 만나보세요.</p>
+          <a class="hero-start" id="heroStartButton" href="#birthSection">출생정보 입력하기 <span aria-hidden="true">↓</span></a>
+        </div>
+        <div class="hero-footnote">
+          <span>ILLUSTRATIVE ARTWORK · 전통화 예시</span>
+          <button id="replayHeroPainting" class="hero-replay" type="button" aria-label="전통화 그려지는 애니메이션 다시 보기">붓결 다시 보기 <span aria-hidden="true">↻</span></button>
+        </div>
+      </section>
+
+      <section class="workspace birth-section" id="birthSection" aria-labelledby="birth-title">
+        <div class="form-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="step-label">Birth Information</p>
+              <h2 id="birth-title">출생정보 입력</h2>
+            </div>
+          </div>
+          <form id="astralForm" novalidate>
+            <div class="field-group">
+              <label for="birthName">이름 (선택)</label>
+              <input id="birthName" class="standard-input" type="text" maxlength="40" autocomplete="name" placeholder="예: 홍길동" />
+            </div>
+            <fieldset class="field-group">
+              <legend>달력 기준</legend>
+              <div class="segmented-control">
+                <label><input type="radio" name="calendarType" value="solar" checked /><span>양력</span></label>
+                <label><input type="radio" name="calendarType" value="lunar" /><span>음력</span></label>
+              </div>
+            </fieldset>
+
+            <fieldset class="field-group lunar-only" id="leapMonthGroup" hidden>
+              <legend>음력 월 구분</legend>
+              <div class="segmented-control">
+                <label><input type="radio" name="leapMonth" value="false" checked /><span>평달</span></label>
+                <label><input type="radio" name="leapMonth" value="true" /><span>윤달</span></label>
+              </div>
+            </fieldset>
+
+            <fieldset class="field-group">
+              <div class="field-label-row">
+                <legend>생년월일</legend>
+                <button type="button" id="btnTodayBirth" class="today-set-btn" title="현재(오늘) 연도·월·일로 채우기">현재(오늘) 날짜</button>
+              </div>
+              <div class="date-grid">
+                <div class="input-wrap">
+                  <label for="birthYear">연도</label>
+                  <input id="birthYear" name="birthYear" type="number" min="1948" max="2050" value="1995" inputmode="numeric" required />
+                </div>
+                <div class="input-wrap">
+                  <label for="birthMonth">월</label>
+                  <select id="birthMonth" name="birthMonth" required></select>
+                </div>
+                <div class="input-wrap">
+                  <label for="birthDay">일</label>
+                  <select id="birthDay" name="birthDay" required></select>
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="field-group">
+              <legend>성별</legend>
+              <div class="segmented-control">
+                <label><input type="radio" name="gender" value="male" checked required /><span>남성</span></label>
+                <label><input type="radio" name="gender" value="female" required /><span>여성</span></label>
+              </div>
+            </fieldset>
+
+            <div class="field-group">
+              <div class="field-label-row">
+                <label for="birthTime">출생 시각</label>
+                <label class="check-label">
+                  <input type="checkbox" id="timeUnknown" />
+                  <span>시간을 몰라요</span>
+                </label>
+              </div>
+              <input id="birthTime" class="standard-input" type="time" value="12:00" required />
+              <p class="field-help">기록된 출생지 시계의 시각을 입력해 주세요.</p>
+            </div>
+
+            <div class="field-group">
+              <div class="field-label-row">
+                <label id="birthRegionLabel" for="birthCity">출생 지역 <span id="birthRegionDetail" class="label-detail">(시·군)</span></label>
+                <label class="check-label"><input id="birthOverseas" type="checkbox" /><span>해외 출생</span></label>
+              </div>
+              <div id="domesticBirthGroup">
+                <input
+                  id="birthCity"
+                  class="standard-input"
+                  type="text"
+                  list="koreanCitySuggestions"
+                  placeholder="예: 여수시, 강릉시"
+                  autocomplete="address-level2"
+                  maxlength="40"
+                  required
+                />
+                <datalist id="koreanCitySuggestions">
+                  <option value="서울특별시"></option><option value="부산광역시"></option>
+                  <option value="대구광역시"></option><option value="인천광역시"></option>
+                  <option value="광주광역시"></option><option value="대전광역시"></option>
+                  <option value="울산광역시"></option><option value="세종특별자치시"></option>
+                  <option value="수원시"></option><option value="고양시"></option>
+                  <option value="용인시"></option><option value="성남시"></option>
+                  <option value="춘천시"></option><option value="원주시"></option>
+                  <option value="강릉시"></option><option value="청주시"></option>
+                  <option value="충주시"></option><option value="천안시"></option>
+                  <option value="공주시"></option><option value="전주시"></option>
+                  <option value="군산시"></option><option value="익산시"></option>
+                  <option value="목포시"></option><option value="여수시"></option>
+                  <option value="순천시"></option><option value="나주시"></option>
+                  <option value="포항시"></option><option value="경주시"></option>
+                  <option value="구미시"></option><option value="창원시"></option>
+                  <option value="진주시"></option><option value="김해시"></option>
+                  <option value="제주시"></option><option value="서귀포시"></option>
+                </datalist>
+                <p class="field-help">목록에 있는 국내 시·군을 입력하거나 선택해 주세요. 영문·임의 지역명은 계산할 수 없습니다.</p>
+              </div>
+              <div id="overseasBirthGroup" hidden>
+                <label class="field-title" for="countrySearch">국가 검색</label>
+                <input id="countrySearch" class="standard-input" type="search" placeholder="예: 미국, 일본" disabled />
+                <label class="field-title" for="birthCountry">출생 국가·지역</label>
+                <select id="birthCountry" class="standard-input" disabled><option value="">국가·지역을 선택해 주세요</option></select>
+                <p class="field-help" role="status">해외 출생 계산은 준비 중입니다. 국가만으로는 정확히 계산할 수 없어, 도시별 과거 시간대·서머타임 검증 후 지원할 예정입니다. 현재는 국내 출생만 결과를 확인할 수 있습니다.</p>
+              </div>
+            </div>
+
+            <div class="privacy-note">
+              <span class="privacy-dot" aria-hidden="true"></span>
+              <p><strong>출생정보와 사주 풀이를 별도로 저장하지 않습니다.</strong> 새로고침하면 화면의 결과가 사라집니다. 생성한 전통화와 작품 설명은 서버에 약 1시간 임시 보관합니다. 배포 환경에서는 중복 생성 방지를 위해 익명 이용 쿠키와 생성 횟수 기록을 사용합니다.</p>
+            </div>
+
+            <p class="form-error" id="formError" role="alert" hidden></p>
+            <button class="primary-button" id="submitButton" type="submit">
+              <span>나의 사주와 색 확인하기</span>
+              <span aria-hidden="true">→</span>
+            </button>
+          </form>
+          <div class="loading-result" id="loadingResult" role="status" hidden><div class="loading-ring" aria-hidden="true"></div><p>사주와 나의 여덟 가지 색을 분석하고 있어요.</p></div>
+        </div>
+      </section>
+    </div>
+  </aside>
+
+  <!-- ================= ASTRAL RESULT STUDIO (풀스크린 결과 오버레이) ================= -->
+  <div id="astralStudio" class="astral-studio" role="dialog" aria-modal="true"
+       aria-label="Astral Color 결과 스튜디오" aria-hidden="true" inert>
+    <header class="studio-bar">
+      <span class="studio-brand">MaC <em>Astral Studio</em></span>
+      <nav class="section-nav" aria-label="결과 단계">
+        <a href="#birthSection">← 출생정보</a>
+        <a href="#resultSection">사주 결과</a>
+        <a href="#bojagiSection">나의 전통화</a>
+      </nav>
+      <button class="gallery-close-btn" id="studioCloseBtn" type="button" aria-label="결과 스튜디오 닫기">Close</button>
+    </header>
+
+    <div class="studio-scroll" id="studioScroll">
+      <div class="studio-inner">
+
+        <!-- ===== 사주 결과 ===== -->
+        <section class="paid-report result-section" id="resultSection" hidden aria-labelledby="report-title">
+          <header class="report-heading"><div><p class="eyebrow">Your Astral Reading</p><h2 id="report-title" tabindex="-1">나의 사주와 색</h2><p id="reportMeta"></p></div><button class="secondary-button result-reset" id="resetButton" type="button">출생정보 다시 입력</button></header>
+          <p class="section-placeholder" id="resultPlaceholder">출생정보를 입력하면 사주 요약과 나의 색이 이곳에 나타나요.</p>
+          <div id="reportContent" hidden>
+            <article class="report-overview report-summary" id="reportOverview"><p class="step-label">My Saju in One Line</p><h3 id="overviewHeadline"></h3></article>
+            <div class="notice-list" id="noticeList" hidden></div>
+            <div class="boundary-card" id="boundaryCard" hidden><div class="boundary-heading"><span>경계 확인</span><strong>입력 시각에 따라 후보가 달라질 수 있어요</strong></div><div id="boundaryCandidates"></div></div>
+            <div class="report-section-heading pillar-heading"><p class="step-label">Celestial Four Pillars</p><h3>색으로 읽는 나의 만세력</h3><button class="replay-button" type="button" data-replay="reportPillars">↻ 만세력 다시 펼치기</button></div>
+            <div class="pillar-strip" id="reportPillars" aria-label="색으로 구분한 사주 원국"></div>
+            <div class="spectrum-palette-layout">
+              <div class="spectrum-card"><p class="step-label">Five Element Spectrum</p><h3>오행 컬러 스펙트럼</h3><figure class="element-spectrum"><div id="elementSpectrum"></div><figcaption class="sr-only" id="spectrumScale"></figcaption></figure></div>
+              <div class="result-palette"><p class="step-label">Four Signature Colors</p><h3>나의 대표색 4가지</h3><p class="palette-help">컬러칩을 누르면 두가지 대표색의 의미와 상세 풀이를 볼 수 있어요.</p><div id="stylingGrid" class="styling-grid"></div></div>
+            </div>
+            <article class="fortune-inline" aria-label="오늘의 운세"><span class="fortune-inline-label">오늘의 운세</span><strong id="fortuneScore"></strong><span class="fortune-inline-scale">/100</span><p id="fortuneBrief"></p><time id="fortuneDate"></time></article>
+            <p class="result-disclaimer" id="paidDisclaimer"></p>
+            <div class="result-art-cta">
+              <button id="resultToArtworkButton" class="primary-button result-art-button" type="button">나의 사주 전통화 생성하기 <span aria-hidden="true">→</span></button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== 나의 8색 전통화 ===== -->
+        <section class="paid-report bojagi-section" id="bojagiSection" hidden aria-labelledby="bojagi-title">
+          <div class="card-topline"><div><p class="eyebrow">My Traditional Painting</p><h2 id="bojagi-title" tabindex="-1">나의 8색 전통화</h2><p class="pattern-family" id="patternFamily"></p></div><button class="download-button" id="downloadPatternButton" type="button" disabled>PNG 다운로드</button></div>
+          <p class="section-placeholder" id="bojagiPlaceholder">사주 결과를 확인하면 여덟 가지 색으로 전통화를 제작할 수 있어요.</p>
+          <div id="bojagiContent" hidden>
+            <article class="pattern-card">
+              <div class="art-palette-heading"><h3>당신의 8가지 색</h3><p>이 여덟 가지 색을 담아 나만의 전통화를 그려요.</p></div>
+              <div id="patternToneLegend" class="pattern-tone-legend" role="list" aria-label="전통화에 사용하는 여덟 가지 컬러칩"></div>
+              <p id="artStatus" class="art-status" role="status">전통화 생성 연결을 준비하고 있습니다.</p>
+              <button id="generateArtButton" type="button" class="primary-button" disabled>나의 전통화 생성하기</button>
+              <img id="traditionalArtwork" class="traditional-artwork" alt="나의 사주 결과와 여덟 가지 색을 담은 한국 전통 채색화" hidden />
+              <button id="artworkOpenButton" class="artwork-open-button" type="button" aria-label="나의 전통화 크게 보기" aria-haspopup="dialog" hidden>
+                <svg id="artworkReveal" viewBox="0 0 1152 1768" aria-hidden="true" focusable="false" data-state="waiting">
+                  <defs>
+                    <clipPath id="artworkScrollClip" clipPathUnits="userSpaceOnUse">
+                      <rect class="artwork-scroll-window" width="1152" height="1730" />
+                    </clipPath>
+                    <linearGradient id="artworkRollWood" x2="0" y2="1">
+                      <stop stop-color="#b7a58a" /><stop offset=".16" stop-color="#f6efdf" /><stop offset=".34" stop-color="#eee4ce" /><stop offset=".62" stop-color="#ded0b6" /><stop offset=".88" stop-color="#b8a58b" /><stop offset="1" stop-color="#8e785d" />
+                    </linearGradient>
+                    <linearGradient id="artworkEndWood" x2="0" y2="1">
+                      <stop stop-color="#39271e" /><stop offset=".25" stop-color="#79543b" /><stop offset=".5" stop-color="#5c3d2c" /><stop offset="1" stop-color="#2f211b" />
+                    </linearGradient>
+                    <linearGradient id="artworkPaperLight" x2="1" y2=".5">
+                      <stop stop-color="#faf4e7" /><stop offset=".55" stop-color="#f2e8d6" /><stop offset="1" stop-color="#e9dec8" />
+                    </linearGradient>
+                    <linearGradient id="artworkRollContact" x2="0" y2="1">
+                      <stop stop-color="#735c40" stop-opacity="0" /><stop offset="1" stop-color="#735c40" stop-opacity=".23" />
+                    </linearGradient>
+                    <filter id="artworkPaperFiber" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+                      <feTurbulence type="fractalNoise" baseFrequency=".045 .23" numOctaves="3" seed="19" result="fine" />
+                      <feTurbulence type="fractalNoise" baseFrequency=".007" numOctaves="3" seed="7" result="cloud" />
+                      <feBlend in="fine" in2="cloud" mode="multiply" />
+                      <feColorMatrix type="saturate" values="0" />
+                      <feComponentTransfer><feFuncA type="linear" slope=".14" /></feComponentTransfer>
+                      <feComposite in2="SourceGraphic" operator="in" />
+                    </filter>
+                    <filter id="artworkPaperShadow" x="-8%" y="-3%" width="120%" height="110%">
+                      <feDropShadow dx="9" dy="14" stdDeviation="13" flood-color="#51412c" flood-opacity=".2" />
+                    </filter>
+                  </defs>
+                  <g id="artworkScrollSheet" clip-path="url(#artworkScrollClip)">
+                    <path d="M25 42 Q22 460 25 870 Q28 1280 24 1730 L1128 1730 Q1125 1300 1128 890 Q1130 440 1127 42Z" fill="#F2EBDD" filter="url(#artworkPaperShadow)" />
+                    <path d="M25 42 Q22 460 25 870 Q28 1280 24 1730 L1128 1730 Q1125 1300 1128 890 Q1130 440 1127 42Z" fill="url(#artworkPaperLight)" stroke="#d5c7b0" stroke-width="1.5" />
+                    <rect class="artwork-mount-grain" x="27" y="42" width="1098" height="1688" fill="#9c8c72" filter="url(#artworkPaperFiber)" />
+                    <path d="M27 55 Q24 880 27 1715" fill="none" stroke="#fffaf0" stroke-opacity=".8" stroke-width="2" />
+                    <path d="M1126 55 Q1129 880 1126 1715" fill="none" stroke="#b2a38c" stroke-opacity=".5" stroke-width="2" />
+                    <image id="artworkRevealImage" x="72" y="110" width="1008" height="1512" preserveAspectRatio="xMidYMid meet" />
+                  </g>
+                  <g class="artwork-scroll-top">
+                    <rect x="24" y="43" width="1104" height="13" rx="6" fill="#6b573b" opacity=".13" />
+                    <rect x="8" y="20" width="1136" height="28" rx="12" fill="url(#artworkEndWood)" />
+                    <rect x="27" y="20" width="1098" height="28" rx="5" fill="url(#artworkRollWood)" />
+                    <ellipse cx="9" cy="34" rx="5" ry="13" fill="#3d2b21" /><ellipse cx="1143" cy="34" rx="5" ry="13" fill="url(#artworkEndWood)" />
+                  </g>
+                  <g class="artwork-scroll-roller">
+                    <rect x="24" y="-62" width="1104" height="45" fill="url(#artworkRollContact)" />
+                    <ellipse cx="581" cy="22" rx="557" ry="13" fill="#53412e" opacity=".12" />
+                    <rect x="7" y="-28" width="1138" height="56" rx="19" fill="url(#artworkEndWood)" />
+                    <rect x="27" y="-28" width="1098" height="56" rx="7" fill="url(#artworkRollWood)" />
+                    <path d="M28 -16 Q576 -20 1124 -16" fill="none" stroke="#fff9ed" stroke-width="2" opacity=".55" />
+                    <path d="M28 19 Q576 23 1124 19" fill="none" stroke="#8e795c" stroke-width="1.5" opacity=".4" />
+                    <ellipse cx="8" cy="0" rx="5" ry="25" fill="#3d2b21" /><ellipse cx="1144" cy="0" rx="5" ry="25" fill="url(#artworkEndWood)" />
+                  </g>
+                </svg>
+              </button>
+              <p id="artworkViewHint" class="artwork-view-hint" hidden>그림을 누르면 크게 볼 수 있어요</p>
+              <section id="artExplanation" class="art-explanation" aria-labelledby="artExplanationTitle" hidden>
+                <p class="eyebrow">The Story Behind Your Painting</p>
+                <h3 id="artExplanationTitle">이 전통화에 담은 이야기</h3>
+                <p id="artExplanationSummary"></p>
+                <p id="artExplanationStyle" class="art-explanation-style"></p>
+                <div id="artExplanationObjects" class="art-object-stories"></div>
+                <p id="artExplanationNote" class="card-note"></p>
+              </section>
+              <p id="artError" class="form-error" role="alert" hidden></p>
+              <p class="pattern-source-note">AI 생성 전통 채색화입니다. 팔레트는 계산값을 그대로 사용하며, 실제 작품의 색 표현·글자 없음·상징물은 생성 후 검수해야 합니다.</p>
+            </article>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- 전통화 원본 크게 보기 (top layer 다이얼로그) -->
+  <dialog id="artworkDialog" class="checkout-dialog artwork-dialog" aria-label="나의 전통화 원본 크게 보기. 아무 곳이나 클릭하거나 Escape 키를 누르면 닫힙니다" tabindex="-1">
+    <img id="artworkDialogImage" alt="크게 보는 나의 사주 전통화" />
+  </dialog>
+
+  <!-- ================= JAVASCRIPT : 입력 폼 보조 (IIFE) ================= -->
+  <script>
+    (() => {
+      const yearInput = document.getElementById('birthYear');
+      const monthSelect = document.getElementById('birthMonth');
+      const daySelect = document.getElementById('birthDay');
+      const todayBtn = document.getElementById('btnTodayBirth');
+
+      if (monthSelect) {
+        monthSelect.innerHTML = '';
+        for (let m = 1; m <= 12; m++) {
+          const opt = document.createElement('option');
+          opt.value = String(m).padStart(2, '0');
+          opt.textContent = `${m}월`;
+          monthSelect.appendChild(opt);
+        }
+        monthSelect.value = '05';
+      }
+
+      function updateBirthDays() {
+        if (!yearInput || !monthSelect || !daySelect) return;
+        const inputYear = Number(yearInput.value);
+        const year = Number.isInteger(inputYear) && inputYear > 0 ? inputYear : 1995;
+        const month = Number(monthSelect.value) || 5;
+        const dayCount = new Date(year, month, 0).getDate();
+        const prevSelected = Number(daySelect.value) || 21;
+        const selectedDay = Math.min(prevSelected, dayCount);
+
+        daySelect.innerHTML = '';
+        for (let d = 1; d <= dayCount; d++) {
+          const opt = document.createElement('option');
+          opt.value = String(d).padStart(2, '0');
+          opt.textContent = `${d}일`;
+          daySelect.appendChild(opt);
+        }
+        daySelect.value = String(selectedDay).padStart(2, '0');
+      }
+
+      if (monthSelect && yearInput && daySelect) {
+        monthSelect.addEventListener('change', updateBirthDays);
+        yearInput.addEventListener('input', updateBirthDays);
+        updateBirthDays();
+
+        [monthSelect, daySelect].forEach((sel) => {
+          const openDropdown = () => {
+            sel.focus();
+            if (typeof sel.showPicker === 'function') {
+              try { sel.showPicker(); } catch (_) {}
+            }
+          };
+
+          sel.addEventListener('click', () => {
+            if (typeof sel.showPicker === 'function') {
+              try { sel.showPicker(); } catch (_) {}
+            }
+          });
+
+          const parentWrap = sel.closest('.input-wrap');
+          if (parentWrap) {
+            parentWrap.addEventListener('click', (e) => {
+              if (e.target !== sel) openDropdown();
+            });
+          }
+        });
+
+        if (todayBtn) {
+          todayBtn.addEventListener('click', () => {
+            const now = new Date();
+            yearInput.value = now.getFullYear();
+            monthSelect.value = String(now.getMonth() + 1).padStart(2, '0');
+            updateBirthDays();
+            daySelect.value = String(now.getDate()).padStart(2, '0');
+          });
+        }
+      }
+
+      // 음력 윤달 토글
+      const calendarRadios = document.querySelectorAll('input[name="calendarType"]');
+      const leapMonthGroup = document.getElementById('leapMonthGroup');
+      if (calendarRadios && leapMonthGroup) {
+        calendarRadios.forEach(radio => {
+          radio.addEventListener('change', () => {
+            const isLunar = document.querySelector('input[name="calendarType"]:checked')?.value === 'lunar';
+            leapMonthGroup.hidden = !isLunar;
+          });
+        });
+      }
+
+      // 시간 모름 토글
+      const timeUnknown = document.getElementById('timeUnknown');
+      const birthTime = document.getElementById('birthTime');
+      if (timeUnknown && birthTime) {
+        timeUnknown.addEventListener('change', () => {
+          birthTime.disabled = timeUnknown.checked;
+          birthTime.required = !timeUnknown.checked;
+        });
+      }
+
+      // 해외 출생 토글
+      const birthOverseas = document.getElementById('birthOverseas');
+      const domesticBirthGroup = document.getElementById('domesticBirthGroup');
+      const overseasBirthGroup = document.getElementById('overseasBirthGroup');
+      const birthCityInput = document.getElementById('birthCity');
+      const birthCountry = document.getElementById('birthCountry');
+      const countrySearch = document.getElementById('countrySearch');
+      const birthRegionLabel = document.getElementById('birthRegionLabel');
+      const birthRegionDetail = document.getElementById('birthRegionDetail');
+
+      if (birthOverseas) {
+        birthOverseas.addEventListener('change', () => {
+          const isOverseas = birthOverseas.checked;
+          if (birthRegionLabel) birthRegionLabel.htmlFor = isOverseas ? 'birthCountry' : 'birthCity';
+          if (birthRegionDetail) birthRegionDetail.textContent = isOverseas ? '(국가·지역)' : '(시·군)';
+          if (domesticBirthGroup) domesticBirthGroup.hidden = isOverseas;
+          if (overseasBirthGroup) overseasBirthGroup.hidden = !isOverseas;
+          if (birthCityInput) {
+            birthCityInput.disabled = isOverseas;
+            birthCityInput.required = !isOverseas;
+          }
+          if (birthCountry) {
+            birthCountry.disabled = !isOverseas;
+            birthCountry.required = isOverseas;
+          }
+          if (countrySearch) countrySearch.disabled = !isOverseas;
+        });
+      }
+
+      // 히어로 붓결 다시 보기 & 스크롤
+      const replayHeroPainting = document.getElementById('replayHeroPainting');
+      const heroPaintingEl = document.getElementById('heroPainting');
+      if (replayHeroPainting && heroPaintingEl) {
+        replayHeroPainting.addEventListener('click', () => {
+          heroPaintingEl.setAttribute('data-reveal', 'off');
+          void heroPaintingEl.offsetWidth;
+          heroPaintingEl.setAttribute('data-reveal', 'on');
+        });
+      }
+
+      const heroStartBtn = document.getElementById('heroStartButton');
+      const birthSectionEl = document.getElementById('birthSection');
+      if (heroStartBtn && birthSectionEl) {
+        heroStartBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          birthSectionEl.scrollIntoView({ behavior: 'smooth' });
+        });
+      }
+    })();
+  </script>
+
+  <!-- ================= JAVASCRIPT : 사이트 공통 ================= -->
+  <script>
+    /* ---------- 1. Web Audio 사운드 ---------- */
+    let audioCtx = null;
+    function getAudioContext() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) audioCtx = new AudioContextClass();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(() => {});
+      }
+      return audioCtx;
+    }
+
+    function playArchiveRevealSound() {
+      try {
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+        [440.0, 659.25, 880.0].forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(freq, now + i * 0.045);
+          gain.gain.setValueAtTime(0.0001, now + i * 0.045);
+          gain.gain.exponentialRampToValueAtTime(0.08 / (i + 1), now + i * 0.045 + 0.06);
+          gain.gain.exponentialRampToValueAtTime(0.00001, now + i * 0.045 + 1.25);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + i * 0.045);
+          osc.stop(now + i * 0.045 + 1.3);
+        });
+      } catch (e) {}
+    }
+
+    function playArchiveCloseSound() {
+      try {
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(140, now);
+        osc.frequency.exponentialRampToValueAtTime(40, now + 0.22);
+        gain.gain.setValueAtTime(0.06, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.24);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.25);
+      } catch (e) {}
+    }
+
+    function playChime() {
+      try {
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+        const tones = [1046.5, 1318.5, 1760.0];
+        tones.forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + i * 0.04);
+          gain.gain.setValueAtTime(0.05, now + i * 0.04);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.04 + 0.2);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + i * 0.04);
+          osc.stop(now + i * 0.04 + 0.22);
+        });
+      } catch (e) {}
+    }
+
+    function playToggleSound(isOn) {
+      try {
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "triangle";
+        const startFreq = isOn ? 820 : 1040;
+        const endFreq = isOn ? 1040 : 760;
+        osc.frequency.setValueAtTime(startFreq, now);
+        osc.frequency.exponentialRampToValueAtTime(endFreq, now + 0.04);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.045);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.05);
+      } catch (e) {}
+    }
+
+    function playRecallChimeHover() {
+      try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(2349.3, now);
+        osc.frequency.exponentialRampToValueAtTime(1760.0, now + 0.05);
+        gain.gain.setValueAtTime(0.04, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.052);
+      } catch (e) {}
+    }
+
+    function playMemoryRecallClick() {
+      try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        const notes = [1046.5, 1318.5, 1760.0, 2093.0, 2637.0];
+        const delays = [0.0, 0.038, 0.076, 0.114, 0.152];
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + delays[idx]);
+          osc.frequency.exponentialRampToValueAtTime(freq * 0.99, now + delays[idx] + 0.18);
+          gain.gain.setValueAtTime(0.075, now + delays[idx]);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + delays[idx] + 0.18);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + delays[idx]);
+          osc.stop(now + delays[idx] + 0.185);
+        });
+      } catch (e) {}
+    }
+
+    function playWarningChime() {
+      try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        const notes = [783.99, 1046.50, 1318.51];
+        const delays = [0.0, 0.045, 0.09];
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + delays[idx]);
+          gain.gain.setValueAtTime(0.09, now + delays[idx]);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + delays[idx] + 0.22);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + delays[idx]);
+          osc.stop(now + delays[idx] + 0.23);
+        });
+      } catch (e) {}
+    }
+
+    /* ---------- 2. 상단 네비게이션 모달 & 배너 ---------- */
+    const banner = document.getElementById('heroBanner');
+    const archModal = document.getElementById('archModal');
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+    if (banner) {
+      banner.addEventListener('click', () => {
+        playChime();
+        archModal.classList.add('is-active');
+      });
+    }
+
+    if (modalCloseBtn) {
+      modalCloseBtn.addEventListener('click', () => {
+        archModal.classList.remove('is-active');
+      });
+    }
+
+    if (archModal) {
+      archModal.addEventListener('click', (e) => {
+        if (e.target === archModal) archModal.classList.remove('is-active');
+      });
+    }
+
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileDrawer = document.getElementById('mobileDrawer');
+    const mobileDrawerCloseBtn = document.getElementById('mobileDrawerCloseBtn');
+    const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+
+    function openMobileDrawer() {
+      playChime();
+      mobileDrawer.classList.add('is-open');
+    }
+
+    function closeMobileDrawer() {
+      mobileDrawer.classList.remove('is-open');
+    }
+
+    if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', openMobileDrawer);
+    if (mobileDrawerCloseBtn) mobileDrawerCloseBtn.addEventListener('click', closeMobileDrawer);
+
+    mobileNavLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        if (link.id !== 'mobileNavAstral' && link.id !== 'mobileNavMemory') {
+          closeMobileDrawer();
+        }
+      });
+    });
+
+    const navMemory = document.getElementById('navMemory');
+    const mobileNavMemory = document.getElementById('mobileNavMemory');
+    const memoryModal = document.getElementById('memoryModal');
+    const memoryCloseBtn = document.getElementById('memoryCloseBtn');
+
+    function openMemoryModal() {
+      playChime();
+      closeMobileDrawer();
+      memoryModal.classList.add('is-active');
+    }
+
+    if (navMemory) navMemory.addEventListener('click', openMemoryModal);
+    if (mobileNavMemory) mobileNavMemory.addEventListener('click', openMemoryModal);
+
+    if (memoryCloseBtn) {
+      memoryCloseBtn.addEventListener('click', () => {
+        memoryModal.classList.remove('is-active');
+      });
+    }
+
+    if (memoryModal) {
+      memoryModal.addEventListener('click', (e) => {
+        if (e.target === memoryModal) memoryModal.classList.remove('is-active');
+      });
+    }
+
+    const navAstral = document.getElementById('navAstral');
+    const mobileNavAstral = document.getElementById('mobileNavAstral');
+    const astralModal = document.getElementById('astralModal');
+    const astralCloseBtn = document.getElementById('astralCloseBtn');
+
+    function openAstralModal() {
+      playChime();
+      closeMobileDrawer();
+      astralModal.classList.add('is-active');
+      const win = astralModal.querySelector('.arch-modal-window');
+      if (win) win.scrollTop = 0;
+      const heroPainting = document.getElementById('heroPainting');
+      if (heroPainting) {
+        heroPainting.setAttribute('data-reveal', 'off');
+        void heroPainting.offsetWidth;
+        heroPainting.setAttribute('data-reveal', 'on');
+      }
+    }
+
+    if (navAstral) navAstral.addEventListener('click', openAstralModal);
+    if (mobileNavAstral) mobileNavAstral.addEventListener('click', openAstralModal);
+
+    if (astralCloseBtn) {
+      astralCloseBtn.addEventListener('click', () => {
+        astralModal.classList.remove('is-active');
+      });
+    }
+
+    if (astralModal) {
+      astralModal.addEventListener('click', (e) => {
+        if (e.target === astralModal) astralModal.classList.remove('is-active');
+      });
+    }
+
+    /* ---------- 3. 4색 결과 모달 제어 ---------- */
+    const modalBackdrop = document.getElementById("modalBackdrop");
+
+    function openDynamicModal() {
+      if (!modalBackdrop) return;
+      playArchiveRevealSound();
+      modalBackdrop.classList.remove("hidden");
+      modalBackdrop.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeDynamicModal() {
+      if (!modalBackdrop || modalBackdrop.classList.contains("hidden")) return;
+      playArchiveCloseSound();
+      modalBackdrop.classList.add("hidden");
+      modalBackdrop.setAttribute('aria-hidden', 'true');
+    }
+
+    if (modalBackdrop) {
+      modalBackdrop.addEventListener("click", (e) => {
+        if (e.target === modalBackdrop) closeDynamicModal();
+      });
+    }
+
+    let showRatio = true;
+    function toggleRatio() {
+      showRatio = !showRatio;
+      playToggleSound(showRatio);
+
+      const spectrum = document.getElementById('spectrumSection');
+      const pills = document.querySelectorAll('.ratio-pill');
+
+      if (showRatio) {
+        spectrum.classList.remove('collapsed');
+        pills.forEach(p => p.classList.remove('collapsed'));
+      } else {
+        spectrum.classList.add('collapsed');
+        pills.forEach(p => p.classList.add('collapsed'));
+      }
+    }
+
+    /* ---------- 4. 아카이브 갤러리 ---------- */
+    const memoryStories = [
+      {
+        title: "초여름 수국 골목",
+        tag: "SPECIMEN NO. 01",
+        viewBox: "90 104 282 282",
+        story: "장마가 오기 직전, 비를 머금은 흙냄새를 맡으며 하굣길 돌담 밑에 활짝 피어난 수국 꽃송이를 가만히 쓰다듬던 축축하고 싱그럽던 오후.",
+        hexes: ["#7CA5B8", "#B497D6", "#9BC495", "#C4D4BA"]
+      },
+      {
+        title: "어린 시절 골목길 가로등",
+        tag: "SPECIMEN NO. 02",
+        viewBox: "485 104 282 282",
+        story: "어둑해진 골목에서 숨바꼭질을 하다 멀리서 들려오는 엄마의 부름에 아쉽게 발걸음을 돌릴 때, 낡은 주황빛으로 우리를 비춰주던 가로등 불빛.",
+        hexes: ["#FFB703", "#023047", "#FB8500"]
+      },
+      {
+        title: "가을날 단풍 운동장",
+        tag: "SPECIMEN NO. 03",
+        viewBox: "880 104 282 282",
+        story: "가을 운동회 날 만국기가 펄럭이던 높고 푸른 하늘 아래, 흙먼지 날리며 달리기를 마치고 플라타너스 붉은 낙엽을 모아 하늘 높이 던지던 날.",
+        hexes: ["#C85D38", "#DAB049", "#4DA7E8", "#9B381E"]
+      },
+      {
+        title: "여름 바닷가",
+        tag: "SPECIMEN NO. 04",
+        viewBox: "1275 104 282 282",
+        story: "발가락 사이로 스며들던 따뜻한 모래와 귓가를 맴돌던 파도소리.",
+        hexes: ["#E3C594", "#48CAE4", "#F8F9FA"]
+      },
+      {
+        title: "비 오는 날 창밖",
+        tag: "SPECIMEN NO. 05",
+        viewBox: "1670 104 282 282",
+        story: "유리창에 맺힌 빗방울을 손끝으로 가만히 잇다가, 라디오에서 흘러나오던 '비처럼 음악처럼' 을 듣던 비오는 어느 오후.",
+        hexes: ["#6C757D", "#4682B4", "#8C7A6B", "#34495E"]
+      },
+      {
+        title: "봄날 벚꽃길",
+        tag: "SPECIMEN NO. 06",
+        viewBox: "90 608 282 282",
+        story: "새 학기 새 책가방을 메고 걷던 등굣길, 봄바람이 훅 불어올 때마다 눈처럼 머리 위로 쏟아져 내리던 연분홍 꽃잎을 두 손 모아 받아내던 설렘.",
+        hexes: ["#FFC8DD", "#F8F9FA", "#D4A373", "#FFAFCC"]
+      },
+      {
+        title: "겨울날 아침 햇살",
+        tag: "SPECIMEN NO. 07",
+        viewBox: "485 608 282 282",
+        story: "유리창에 낀 성에를 하얗게 녹여 밖을 내다보고, 두꺼운 솜이불 속에서 발만 쏙 내민 채 거실 장판 위로 길게 쏟아져 들어오던 햇살을 쬐던 아침.",
+        hexes: ["#FDF0D5", "#E9D8A6", "#EE9B00"]
+      },
+      {
+        title: "노을 지는 제방길",
+        tag: "SPECIMEN NO. 08",
+        viewBox: "880 608 282 282",
+        story: "동생 손을 꼭 잡고 자전거를 끌며 둑길을 걷다 마주친, 강물까지 온통 붉게 물들이며 세상을 따스하게 안아주던 장엄한 저녁노을.",
+        hexes: ["#F4A261", "#E76F51", "#264653", "#E9C46A"]
+      },
+      {
+        title: "할머니 댁 수박",
+        tag: "SPECIMEN NO. 09",
+        viewBox: "1275 608 282 282",
+        story: "시골 할머니 댁 우물물에 차갑게 담가두었던 수박을 쪼개어, 마당에서 시원하게 등목을 하고 평상에 둘러앉아 씨를 뱉으며 깨어먹던 여름날.",
+        hexes: ["#E63946", "#2A9D8F", "#A98467", "#1D3557"]
+      },
+      {
+        title: "늦은 밤 독서실 스탠드",
+        tag: "SPECIMEN NO. 10",
+        viewBox: "1670 608 282 282",
+        story: "칸막이 책상 위 조그만 초록색 스탠드 불빛 아래, 사각거리는 샤프 소리와 함께 차가운 새벽 공기를 마시며 미래를 꿈꾸던 고요한 밤.",
+        hexes: ["#FFB703", "#212529", "#432818"]
+      }
+    ];
+
+    const archiveCards = document.querySelectorAll('.gallery-card');
+    const archiveDetailModal = document.getElementById('archiveDetailModal');
+    const archiveModalSvg = document.getElementById('archiveModalSvg');
+    const archiveModalTag = document.getElementById('archiveModalTag');
+    const archiveModalTitle = document.getElementById('archiveModalTitle');
+    const archiveModalMemoryText = document.getElementById('archiveModalMemoryText');
+    const archiveModalPaletteRow = document.getElementById('archiveModalPaletteRow');
+    const modalHangerBtn = document.getElementById('modalHangerBtn');
+
+    archiveCards.forEach(card => {
+      card.addEventListener('mouseenter', () => playRecallChimeHover());
+
+      card.addEventListener('click', () => {
+        playMemoryRecallClick();
+
+        const idx = parseInt(card.dataset.id, 10);
+        const data = memoryStories[idx];
+        if (!data) return;
+
+        if (archiveModalSvg) archiveModalSvg.setAttribute('viewBox', data.viewBox);
+        if (archiveModalTag) archiveModalTag.textContent = data.tag;
+        if (archiveModalTitle) archiveModalTitle.textContent = data.title;
+        if (archiveModalMemoryText) archiveModalMemoryText.textContent = data.story;
+
+        if (archiveModalPaletteRow) {
+          archiveModalPaletteRow.innerHTML = '';
+          data.hexes.forEach(hex => {
+            const chip = document.createElement('span');
+            chip.className = 'badge-chip';
+            chip.innerHTML = `<span class="dot" style="background-color: ${hex}"></span>${hex}`;
+            archiveModalPaletteRow.appendChild(chip);
+          });
+        }
+
+        if (archiveDetailModal) {
+          archiveDetailModal.classList.add('is-active');
+          archiveDetailModal.setAttribute('aria-hidden', 'false');
+        }
+      });
+    });
+
+    function closeArchiveDetailModal() {
+      if (archiveDetailModal) {
+        archiveDetailModal.classList.remove('is-active');
+        archiveDetailModal.setAttribute('aria-hidden', 'true');
+      }
+    }
+
+    if (modalHangerBtn) modalHangerBtn.addEventListener('click', closeArchiveDetailModal);
+    if (archiveDetailModal) {
+      archiveDetailModal.addEventListener('click', (e) => {
+        if (e.target === archiveDetailModal) closeArchiveDetailModal();
+      });
+    }
+
+    // Escape: 결과 스튜디오가 열려 있으면 astral.js가 처리하므로 여기서는 아무것도 닫지 않음
+    window.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      if (document.body.classList.contains('studio-open')) return;
+      archModal.classList.remove('is-active');
+      memoryModal.classList.remove('is-active');
+      astralModal.classList.remove('is-active');
+      closeDynamicModal();
+      closeMobileDrawer();
+      closeArchiveDetailModal();
+    });
+
+    /* ---------- 5. 컨시어지 폼 ---------- */
+    const selectElem = document.getElementById('inquirySubject');
+    const updateOptionsByDevice = () => {
+      if (!selectElem) return;
+      const isSmallScreen = window.innerWidth <= 768;
+      Array.from(selectElem.options).forEach(opt => {
+        if (opt.dataset && (opt.dataset.short || opt.dataset.full)) {
+          opt.text = isSmallScreen ? (opt.dataset.short || opt.text) : (opt.dataset.full || opt.text);
+        }
+      });
+    };
+    updateOptionsByDevice();
+    window.addEventListener('resize', updateOptionsByDevice);
+
+    const conciergeForm = document.getElementById('conciergeForm');
+    const conciergeSubmitBtn = document.getElementById('conciergeSubmitBtn');
+    const btnNotifyBar = document.getElementById('btnNotifyBar');
+    const btnNotifyText = document.getElementById('btnNotifyText');
+
+    let tooltipTimer = null;
+    let notifyBarTimer = null;
+
+    function resetFormUIFeedback() {
+      document.querySelectorAll('.field-tooltip-bubble').forEach(t => t.classList.remove('is-visible'));
+      document.querySelectorAll('.field-input, .field-select, .field-textarea').forEach(i => i.classList.remove('field-invalid'));
+    }
+
+    function hideButtonNotification() {
+      if (!btnNotifyBar) return;
+      btnNotifyBar.classList.remove('is-active', 'status-connecting', 'status-failed');
+    }
+
+    function showButtonNotification(message, status = 'connecting') {
+      if (!btnNotifyBar || !btnNotifyText) return;
+
+      if (notifyBarTimer) clearTimeout(notifyBarTimer);
+
+      btnNotifyBar.className = 'btn-notify-bar is-active';
+      if (status === 'failed') {
+        btnNotifyBar.classList.add('status-failed');
+      } else {
+        btnNotifyBar.classList.add('status-connecting');
+      }
+      btnNotifyText.textContent = message;
+    }
+
+    if (conciergeForm) {
+      const formInputs = conciergeForm.querySelectorAll('.field-input, .field-select, .field-textarea');
+      formInputs.forEach(input => {
+        input.addEventListener('input', resetFormUIFeedback);
+        input.addEventListener('change', resetFormUIFeedback);
+      });
+
+      conciergeForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        resetFormUIFeedback();
+
+        if (conciergeSubmitBtn && conciergeSubmitBtn.disabled) return;
+
+        const nameElem = document.getElementById('clientName');
+        const contactElem = document.getElementById('clientContact');
+        const subjectElem = document.getElementById('inquirySubject');
+        const messageElem = document.getElementById('clientMessage');
+
+        const name = nameElem ? nameElem.value.trim() : '';
+        const contact = contactElem ? contactElem.value.trim() : '';
+        const subjectVal = subjectElem ? subjectElem.value : '';
+        const message = messageElem ? messageElem.value.trim() : '';
+
+        let firstEmptyField = null;
+        let targetTooltip = null;
+
+        if (!name && nameElem) {
+          firstEmptyField = nameElem;
+          targetTooltip = document.getElementById('nameTooltip');
+        } else if (!contact && contactElem) {
+          firstEmptyField = contactElem;
+          targetTooltip = document.getElementById('contactTooltip');
+        } else if (!subjectVal && subjectElem) {
+          firstEmptyField = subjectElem;
+          targetTooltip = document.getElementById('subjectTooltip');
+        } else if (!message && messageElem) {
+          firstEmptyField = messageElem;
+          targetTooltip = document.getElementById('messageTooltip');
+        }
+
+        if (firstEmptyField && targetTooltip) {
+          playWarningChime();
+          firstEmptyField.classList.add('field-invalid');
+          targetTooltip.classList.add('is-visible');
+          firstEmptyField.focus();
+
+          hideButtonNotification();
+
+          if (tooltipTimer) clearTimeout(tooltipTimer);
+          tooltipTimer = setTimeout(() => {
+            targetTooltip.classList.remove('is-visible');
+          }, 3200);
+          return;
+        }
+
+        playWarningChime();
+        if (conciergeSubmitBtn) {
+          conciergeSubmitBtn.disabled = true;
+          conciergeSubmitBtn.textContent = 'CONNECTING DESK...';
+        }
+
+        showButtonNotification('MaC 컨시어지 데스크로 전송 중입니다...', 'connecting');
+
+        const payload = {
+          type: 'concierge_inquiry',
+          client_name: name,
+          client_contact: contact,
+          subject: subjectVal,
+          message: message
+        };
+
+        const startTime = Date.now();
+        let isSuccess = false;
+
+        try {
+          const response = await fetch('/api/analyze', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          const result = await response.json();
+          if (response.ok && result.status === 'success') {
+            isSuccess = true;
+          }
+        } catch (err) {
+          isSuccess = false;
+        }
+
+        const elapsedTime = Date.now() - startTime;
+        const minimumNoticeTime = 4000;
+        if (elapsedTime < minimumNoticeTime) {
+          await new Promise(resolve => setTimeout(resolve, minimumNoticeTime - elapsedTime));
+        }
+
+        playWarningChime();
+
+        if (isSuccess) {
+          showButtonNotification('전송이 완료되었습니다. 곧 연락드리겠습니다.', 'connecting');
+          conciergeForm.reset();
+        } else {
+          showButtonNotification('일시적인 통신 지연이 발생했습니다.\n잠시 후 다시 시도해 주시기 바랍니다.', 'failed');
+        }
+
+        if (conciergeSubmitBtn) {
+          conciergeSubmitBtn.disabled = false;
+          conciergeSubmitBtn.textContent = 'SUBMIT PRIVATE REQUEST';
+        }
+
+        notifyBarTimer = setTimeout(() => {
+          hideButtonNotification();
+        }, 5000);
+      });
+    }
+
+    /* ---------- 6. 섹션 1 알림 툴팁 ---------- */
+    const inlineTooltip = document.getElementById('formInlineTooltip');
+    const tooltipText = document.getElementById('tooltipText');
+
+    function showInlineNotice(message) {
+      if (!inlineTooltip || !tooltipText) return;
+      tooltipText.textContent = message;
+      inlineTooltip.classList.add('is-active');
+      inlineTooltip.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function hideInlineNotice() {
+      if (!inlineTooltip) return;
+      inlineTooltip.classList.remove('is-active');
+    }
+
+    document.getElementById('userMemory').addEventListener('input', hideInlineNotice);
+    document.getElementById('userEmail').addEventListener('input', hideInlineNotice);
+
+    /* ---------- 7. API 응답 -> 4색 결과 모달 렌더링 ---------- */
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, ch => (
+        { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
+      ));
+    }
+
+    function renderDynamicSpecimen(result) {
+      const specimenHash = result.hash || result.specimen_code || "MaC-Archive";
+      const summary = result.memory_summary || result.data?.memory_summary || "";
+      const palette = result.palette || result.data?.palette || [];
+
+      document.getElementById("specimenHash").textContent = specimenHash;
+      document.getElementById("memorySummary").textContent = `"${summary}"`;
+
+      document.getElementById("ratioLabel").textContent = palette.map(p => {
+        const w = p.weight !== undefined ? p.weight : (p.area_ratio !== undefined ? p.area_ratio : 0.25);
+        return `${Math.round(w * 100)}%`;
+      }).join(" : ");
+
+      document.getElementById("spectrumBar").innerHTML = palette.map(p => {
+        const w = p.weight !== undefined ? p.weight : (p.area_ratio !== undefined ? p.area_ratio : 0.25);
+        return `<div class="spectrum-segment" style="width: ${w * 100}%; background-color: ${escapeHtml(p.hex)};"></div>`;
+      }).join("");
+
+      document.getElementById("specimenList").innerHTML = palette.map(p => {
+        const w = p.weight !== undefined ? p.weight : (p.area_ratio !== undefined ? p.area_ratio : 0.25);
+        return `
+          <div class="specimen-card">
+            <div class="swatch" style="background-color: ${escapeHtml(p.hex)};"></div>
+            <div class="specimen-info">
+              <div class="info-top">
+                <span class="color-name">${escapeHtml(p.color_name || 'Color')}</span>
+                <div>
+                  <span class="hex-code">${escapeHtml(String(p.hex).toUpperCase())}</span>
+                  <span class="ratio-pill">${Math.round(w * 100)}%</span>
+                </div>
+              </div>
+              <p class="reason-text">${escapeHtml(p.reason || '')}</p>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      openDynamicModal();
+    }
+
+    /* ---------- 8. 섹션 1 폼 전송 -> /api/analyze ---------- */
+    // 주의: astral.js 가 전역 const form 을 쓰므로 이름을 colorForm 으로 분리
+    const colorForm = document.getElementById('colorArchForm');
+    const submitBtn = document.getElementById('submitBtn');
+
+    colorForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      getAudioContext();
+
+      const memoryInputField = document.getElementById('userMemory');
+      const emailInputField = document.getElementById('userEmail');
+      const memoryInput = memoryInputField.value.trim();
+      const emailInput = emailInputField.value.trim();
+
+      if (memoryInput.length < 10) {
+        showInlineNotice("장소, 시간, 계절, 행동, 기분 등의 그날의 뉘앙스가 느껴지는 기억을 채워주세요. 좀 더 구체적일수록 잘 보여드릴게요.");
+        memoryInputField.focus();
+        return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailInput || !emailRegex.test(emailInput)) {
+        showInlineNotice("결과를 전송받으실 올바른 이메일 주소 형식을 입력해 주세요.");
+        emailInputField.focus();
+        return;
+      }
+
+      hideInlineNotice();
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Synthesizing...';
+
+      try {
+        const response = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            memory: memoryInput,
+            email: emailInput
+          })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          showInlineNotice(result.error || "색채 표본 추출에 실패했습니다. 문장을 조금 더 구체적으로 작성해 주세요.");
+          return;
+        }
+
+        if (result.status === 'success' && result.palette && result.palette.length === 4) {
+          renderDynamicSpecimen(result);
+          colorForm.reset();
+
+          if (result.email_sent === false) {
+            console.warn("[Resend Warning] 이메일 발송 로그:", result.email_error);
+          }
+        } else {
+          showInlineNotice(result.error || '분석 결과 형식이 올바르지 않습니다. 다시 시도해 주세요.');
+        }
+
+      } catch (err) {
+        showInlineNotice('서버와 통신할 수 없습니다. 잠시 후 다시 시도해 주세요.');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Synthesize Palette';
+      }
+    });
+  </script>
+
+  <!-- ================= ASTRAL JS MODULES ================= -->
+  <script src="js/astral-sound.js"></script>
+  <script src="js/astral-report-ui.js"></script>
+  <script src="js/astral-artwork-view.js"></script>
+  <script src="js/astral-jogakbo.js"></script>
+  <script src="js/astral-hero.js"></script>
+  <script src="js/astral.js"></script>
+</body>
+</html>

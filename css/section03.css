@@ -1,0 +1,188 @@
+/* ============================================================
+   section03.css — Color Concierge & Contact 섹션 전용 스타일
+   (문의 폼 필드, 알림 바, 제출 버튼)
+   ============================================================ */
+
+.concierge-section {
+  width: 100%;
+  max-width: 1160px;
+  margin: 70px auto 90px auto;
+  padding: 0 24px;
+  scroll-margin-top: 80px;
+}
+
+.concierge-grid { display: grid; grid-template-columns: 1fr 1.15fr; gap: 64px; align-items: start; }
+.concierge-narrative { display: flex; flex-direction: column; gap: 18px; }
+
+.concierge-tag-orig { font-size: 12.5px; font-weight: 700; letter-spacing: 0.28em; color: var(--gold-primary); text-transform: uppercase; }
+
+.concierge-headline-orig { font-size: clamp(20px, 3.2vw, 25px); font-weight: 750; color: #2b2725; letter-spacing: -0.015em; line-height: 1.45; }
+
+.concierge-desc-orig { font-size: clamp(13.5px, 1.8vw, 14.5px); color: #6e6660; line-height: 1.85; font-weight: 400; }
+
+.contact-minimal-list {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border-top: 1px solid rgba(140, 130, 122, 0.18);
+  padding-top: 22px;
+}
+
+.contact-row { display: flex; align-items: baseline; font-size: 14.5px; line-height: 1.5; }
+.contact-row .label { width: 95px; font-weight: 700; letter-spacing: 0.1em; color: #8c827a; text-transform: uppercase; font-size: 12px; flex-shrink: 0; }
+.contact-row .val { font-size: 15px; font-weight: 600; color: #2b2725; letter-spacing: 0.01em; }
+
+.concierge-form { display: flex; flex-direction: column; gap: 22px; padding-top: 4px; position: relative; }
+.field-wrap { position: relative; display: flex; flex-direction: column; gap: 8px; }
+.field-label { font-size: 12.5px; font-weight: 650; letter-spacing: 0.16em; color: #786b5c; text-transform: uppercase; }
+
+.field-input, .field-select, .field-textarea {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(140, 130, 122, 0.22);
+  border-bottom: 2px solid rgba(140, 130, 122, 0.45);
+  border-radius: 8px 8px 0 0;
+  padding: 12px 14px;
+  font-size: 15px;
+  font-weight: 450;
+  color: #2b2725;
+  font-family: inherit;
+  outline: none;
+  box-shadow: inset 0 2px 4px rgba(43, 39, 37, 0.02), 0 2px 6px rgba(0, 0, 0, 0.02);
+  transition: all 0.3s ease;
+}
+
+.field-input::placeholder, .field-textarea::placeholder { color: #9c948d; font-weight: 400; font-size: 13.5px; }
+
+.field-input:focus, .field-select:focus, .field-textarea:focus {
+  background: rgba(255, 255, 255, 0.92);
+  border-bottom-color: var(--gold-primary);
+  box-shadow: inset 0 2px 4px rgba(43, 39, 37, 0.03), 0 4px 12px rgba(140, 112, 66, 0.08);
+}
+
+.field-invalid { border-bottom-color: #c45b38 !important; background: rgba(255, 245, 240, 0.85) !important; }
+
+.field-tooltip-bubble {
+  position: absolute;
+  top: calc(100% + 7px);
+  left: 6px;
+  z-index: 100;
+  background: #fdfaf7;
+  color: #8c3b20;
+  border: 1px solid rgba(196, 91, 56, 0.35);
+  box-shadow: 0 6px 16px rgba(184, 93, 56, 0.12), 0 2px 5px rgba(0, 0, 0, 0.04);
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  display: none;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  animation: tooltipSlide 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.field-tooltip-bubble::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: 14px;
+  width: 8px;
+  height: 8px;
+  background: #fdfaf7;
+  border-left: 1px solid rgba(196, 91, 56, 0.35);
+  border-top: 1px solid rgba(196, 91, 56, 0.35);
+  transform: rotate(45deg);
+}
+
+.field-tooltip-bubble.is-visible { display: inline-flex; }
+
+@keyframes tooltipSlide {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.field-select {
+  font-size: 14.5px;
+  font-weight: 450;
+  color: #3b3530;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: 32px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%2378716c' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+}
+
+.field-select:invalid, .field-select option[value=""] { color: #9c948d; font-weight: 400; }
+.field-select option { font-size: 14px; font-weight: 450; color: #2b2725; background: #faf8f5; padding: 10px 14px; }
+.field-textarea { resize: none; min-height: 84px; line-height: 1.65; }
+
+.submit-anchor-wrap { position: relative; display: flex; flex-direction: column; align-items: flex-start; margin-top: 4px; gap: 10px; }
+
+.btn-notify-bar {
+  width: 100%;
+  background: rgba(253, 251, 248, 0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(140, 112, 66, 0.22);
+  border-radius: 8px;
+  padding: 12px 18px;
+  box-shadow: 0 4px 16px rgba(43, 39, 37, 0.05);
+  display: none;
+  align-items: center;
+  transition: all 0.3s ease;
+  animation: notifySlideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.btn-notify-bar.is-active { display: flex; }
+.btn-notify-bar.status-connecting { border-left: 3.5px solid var(--gold-primary); background: rgba(253, 251, 248, 0.96); }
+.btn-notify-bar.status-failed { border-left: 3.5px solid #c45b38; background: rgba(255, 246, 243, 0.97); }
+
+.btn-notify-text { font-size: 12.5px; font-weight: 550; color: #383330; letter-spacing: -0.01em; line-height: 1.5; white-space: pre-line; }
+
+@keyframes notifySlideUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.request-btn {
+  align-self: flex-start;
+  padding: 14px 42px;
+  background: #2b2725;
+  color: #f7f6f4;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 40px;
+  font-size: 12.5px;
+  font-weight: 650;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(43, 39, 37, 0.14);
+  transition: all 0.25s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.request-btn:hover { background: #403a37; transform: translateY(-2px); box-shadow: 0 6px 18px rgba(43, 39, 37, 0.2); }
+.request-btn:disabled { opacity: 0.65; cursor: not-allowed; transform: none !important; }
+
+/* -------------------- 반응형 -------------------- */
+@media (max-width: 960px) {
+  .concierge-grid { grid-template-columns: 1fr; gap: 40px; }
+  .request-btn { width: 100%; text-align: center; }
+}
+
+@media (max-width: 768px) {
+  .contact-row { flex-direction: column; align-items: flex-start; gap: 2px; }
+  .contact-row .label { width: 100%; font-size: 11.5px; }
+}
+
+@media (max-width: 480px) {
+  .concierge-headline-orig { font-size: 19.5px; line-height: 1.4; }
+  .btn-notify-bar { padding: 10px 14px; }
+  .btn-notify-text { font-size: 12px; }
+}

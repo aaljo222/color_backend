@@ -1,0 +1,10 @@
+{
+  "framework": null,
+  "rewrites": [
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/api/analyze", "destination": "/api/analyze" },
+    { "source": "/api/astral_report", "destination": "/api/astral_report" },
+    { "source": "/api/astral_art", "destination": "/api/astral_art" },
+    { "source": "/api/astral", "destination": "/api/astral" }
+  ]
+}

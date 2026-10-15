@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>MaC — Header Logo 6 Selection Specimen</title>
+
+  <!-- 브라우저 탭 파비콘 -->
+  <link rel="icon" type="image/png" href="images/reference.png">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #faf8f5;
+      font-family: -apple-system, BlinkMacSystemFont, "Pretendard", sans-serif;
+      padding: 60px 24px;
+      color: #141211;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .header-wrap {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    h1 {
+      font-size: 21px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #8c7042;
+      margin-bottom: 6px;
+    }
+    p.sub {
+      font-size: 13px;
+      color: #78716c;
+    }
+
+    .specimen-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      max-width: 1080px;
+      width: 100%;
+    }
+
+    .specimen-card {
+      background: #ffffff;
+      border: 1px solid #e7e3dc;
+      border-radius: 12px;
+      padding: 22px 24px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .specimen-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+    .specimen-title {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #8c7042;
+    }
+    .specimen-desc {
+      font-size: 11.5px;
+      color: #a8a29e;
+    }
+
+    /* 공통 로고 베이스 */
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      text-decoration: none;
+      cursor: pointer;
+      width: fit-content;
+      padding: 10px 14px;
+      border-radius: 6px;
+      background: #faf9f7;
+      border: 1px solid #f0ebe4;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+    .brand-logo:hover {
+      background: #f4ede2;
+      border-color: #ded4c5;
+    }
+
+    /* 원화 파비콘 칩 */
+    .logo-favicon-chip {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      object-fit: cover;
+      display: block;
+      box-shadow: 0 2px 5px rgba(20, 18, 17, 0.12);
+      border: 1px solid rgba(140, 112, 66, 0.3);
+      transition: transform 0.2s ease;
+    }
+    .brand-logo:hover .logo-favicon-chip {
+      transform: scale(1.08);
+    }
+
+    /* 볼드 MaC */
+    .brand-name {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: #141211;
+      line-height: 1;
+    }
+
+    /* 구분 기호 공통 */
+    .divider {
+      color: #c5a880;
+      user-select: none;
+      line-height: 1;
+    }
+    .divider-pipe {
+      font-size: 11px;
+      font-weight: 300;
+      opacity: 0.7;
+      margin: 0 1px;
+    }
+    .divider-slash {
+      font-size: 13px;
+      font-weight: 400;
+      opacity: 0.8;
+      margin: 0 1px;
+    }
+
+    /* 서브 텍스트 공통 */
+    .brand-sub {
+      font-size: 13px;
+      color: #8c7042;
+      letter-spacing: 0.03em;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* 타입별 정체/이탤릭 처리 */
+    .is-upright .sub-text {
+      font-style: normal;
+      font-weight: 600;
+    }
+    .is-italic .sub-text {
+      font-style: italic;
+      font-weight: 500;
+    }
+
+    .brand-logo:hover .brand-sub {
+      color: #6e552f;
+    }
+
+    /* 코드 복사 버튼 */
+    .btn-copy {
+      width: 100%;
+      padding: 9px 0;
+      background: #141211;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .btn-copy:hover { background: #383431; }
+    .btn-copy:active { transform: scale(0.98); }
+  </style>
+</head>
+<body>
+
+  <div class="header-wrap">
+    <h1>MaC — Header Logo 6 Selection Specimen</h1>
+    <p class="sub">구분 기호( | vs / ), 타이포 형태(정체 vs 기울임), 접속사(&amp; vs and) 6종 비교</p>
+  </div>
+
+  <div class="specimen-grid">
+
+    <!-- TYPE 1 -->
+    <div class="specimen-card">
+      <div class="specimen-info">
+        <span class="specimen-title">No. 01</span>
+        <span class="specimen-desc">파이프 | + 정체 + &amp;</span>
+      </div>
+      <a href="#" class="brand-logo is-upright">
+        <img src="images/reference.png" alt="칩" class="logo-favicon-chip" onerror="this.src='https://picsum.photos/40/40'">
+        <span class="brand-name">MaC</span>
+        <span class="brand-sub">
+          <span class="divider divider-pipe">|</span>
+          <span class="sub-text">Memory &amp; Color</span>
+        </span>
+      </a>
+      <button class="btn-copy" onclick="copyCode(1)">HTML 복사</button>
+    </div>
+
+    <!-- TYPE 2 -->
+    <div class="specimen-card">
+      <div class="specimen-info">
+        <span class="specimen-title">No. 02</span>
+        <span class="specimen-desc">파이프 | + 기울임 + &amp;</span>
+      </div>
+      <a href="#" class="brand-logo is-italic">
+        <img src="images/reference.png" alt="칩" class="logo-favicon-chip" onerror="this.src='https://picsum.photos/40/40'">
+        <span class="brand-name">MaC</span>
+        <span class="brand-sub">
+          <span class="divider divider-pipe">|</span>
+          <span class="sub-text">Memory &amp; Color</span>
+        </span>
+      </a>
+      <button class="btn-copy" onclick="copyCode(2)">HTML 복사</button>
+    </div>
+
+    <!-- TYPE 3 -->
+    <div class="specimen-card">
+      <div class="specimen-info">
+        <span class="specimen-title">No. 03</span>
+        <span class="specimen-desc">슬래시 / + 기울임 + &amp;</span>
+      </div>
+      <a href="#" class="brand-logo is-italic">
+        <img src="images/reference.png" alt="칩" class="logo-favicon-chip" onerror="this.src='https://picsum.photos/40/40'">
+        <span class="brand-name">MaC</span>
+        <span class="brand-sub">
+          <span class="divider divider-slash">/</span>
+          <span class="sub-text">Memory &amp; Color</span>
+        </span>
+      </a>
+      <button class="btn-copy" onclick="copyCode(3)">HTML 복사</button>
+    </div>
+
+    <!-- TYPE 4 -->
+    <div class="specimen-card">
+      <div class="specimen-info">
+        <span class="specimen-title">No. 04</span>
+        <span class="specimen-desc">파이프 | + 정체 + and</span>
+      </div>
+      <a href="#" class="brand-logo is-upright">
+        <img src="images/reference.png" alt="칩" class="logo-favicon-chip" onerror="this.src='https://picsum.photos/40/40'">
+        <span class="brand-name">MaC</span>
+        <span class="brand-sub">
+          <span class="divider divider-pipe">|</span>
+          <span class="sub-text">Memory and Color</span>
+        </span>
+      </a>
+      <button class="btn-copy" onclick="copyCode(4)">HTML 복사</button>
+    </div>
+
+    <!-- TYPE 5 -->
+    <div class="specimen-card">
+      <div class="specimen-info">
+        <span class="specimen-title">No. 05</span>
+        <span class="specimen-desc">파이프 | + 기울임 + and</span>
+      </div>
+      <a href="#" class="brand-logo is-italic">
+        <img src="images/reference.png" alt="칩" class="logo-favicon-chip" onerror="this.src='https://picsum.photos/40/40'">
+        <span class="brand-name">MaC</span>
+        <span class="brand-sub">
+          <span class="divider divider-pipe">|</span>
+          <span class="sub-text">Memory and Color</span>
+        </span>
+      </a>
+      <button class="btn-copy" onclick="copyCode(5)">HTML 복사</button>
+    </div>
+
+    <!-- TYPE 6 -->
+    <div class="specimen-card">
+      <div class="specimen-info">
+        <span class="specimen-title">No. 06</span>
+        <span class="specimen-desc">슬래시 / + 기울임 + and</span>
+      </div>
+      <a href="#" class="brand-logo is-italic">
+        <img src="images/reference.png" alt="칩" class="logo-favicon-chip" onerror="this.src='https://picsum.photos/40/40'">
+        <span class="brand-name">MaC</span>
+        <span class="brand-sub">
+          <span class="divider divider-slash">/</span>
+          <span class="sub-text">Memory and Color</span>
+        </span>
+      </a>
+      <button class="btn-copy" onclick="copyCode(6)">HTML 복사</button>
+    </div>
+
+  </div>
+
+  <script>
+    const codes = {
+      1: `<a href="#" class="brand-logo is-upright">\n  <img src="images/reference.png" alt="MaC Favicon" class="logo-favicon-chip">\n  <span class="brand-name">MaC</span>\n  <span class="brand-sub">\n    <span class="divider divider-pipe">|</span>\n    <span class="sub-text">Memory &amp; Color</span>\n  </span>\n</a>`,
+      2: `<a href="#" class="brand-logo is-italic">\n  <img src="images/reference.png" alt="MaC Favicon" class="logo-favicon-chip">\n  <span class="brand-name">MaC</span>\n  <span class="brand-sub">\n    <span class="divider divider-pipe">|</span>\n    <span class="sub-text">Memory &amp; Color</span>\n  </span>\n</a>`,
+      3: `<a href="#" class="brand-logo is-italic">\n  <img src="images/reference.png" alt="MaC Favicon" class="logo-favicon-chip">\n  <span class="brand-name">MaC</span>\n  <span class="brand-sub">\n    <span class="divider divider-slash">/</span>\n    <span class="sub-text">Memory &amp; Color</span>\n  </span>\n</a>`,
+      4: `<a href="#" class="brand-logo is-upright">\n  <img src="images/reference.png" alt="MaC Favicon" class="logo-favicon-chip">\n  <span class="brand-name">MaC</span>\n  <span class="brand-sub">\n    <span class="divider divider-pipe">|</span>\n    <span class="sub-text">Memory and Color</span>\n  </span>\n</a>`,
+      5: `<a href="#" class="brand-logo is-italic">\n  <img src="images/reference.png" alt="MaC Favicon" class="logo-favicon-chip">\n  <span class="brand-name">MaC</span>\n  <span class="brand-sub">\n    <span class="divider divider-pipe">|</span>\n    <span class="sub-text">Memory and Color</span>\n  </span>\n</a>`,
+      6: `<a href="#" class="brand-logo is-italic">\n  <img src="images/reference.png" alt="MaC Favicon" class="logo-favicon-chip">\n  <span class="brand-name">MaC</span>\n  <span class="brand-sub">\n    <span class="divider divider-slash">/</span>\n    <span class="sub-text">Memory and Color</span>\n  </span>\n</a>`
+    };
+
+    function copyCode(num) {
+      navigator.clipboard.writeText(codes[num]);
+      alert(`[No. 0${num}] 로고 HTML 코드가 복사되었습니다.\nindex.html의 <header> 안 로고 위치에 붙여넣으세요.`);
+    }
+  </script>
+</body>
+</html>

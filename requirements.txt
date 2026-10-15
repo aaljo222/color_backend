@@ -1,23 +1,4 @@
-fastapi>=0.115,<1.0
-uvicorn[standard]>=0.34,<1.0
-pydantic[email]>=2.10,<3.0
-python-dotenv>=1.0,<2.0
-PyJWT>=2.8,<3.0
-slowapi>=0.1.9,<1.0
-supabase>=2.9,<3.0
-httpx>=0.27,<1.0
-anthropic>=1.0,<2.0
-voyageai>=0.3.7       # 임베딩(비슷한 문장 추천) — Anthropic 은 자체 임베딩 모델이 없다
-# 선택: PAINTER=gemini(그림 먼저) 또는 임베딩 검색(RETRIEVER=embedding|supabase)을 쓸 때만 아래 줄의 맨 앞 '# ' 를 지운다 (1.x 는 Interactions 옛 형식이라 400)
-google-genai>=2.29,<3.0
-numpy>=1.26
-scipy>=1.11
-scikit-learn>=1.4
-pillow>=10.0
-cryptography>=42.0
-kiwipiepy==0.24.0     # eng-2.3 '같은 문장급' 형태소 분석 (모델 ~105MB, 메모리 ~300MB). 버전을 고정한다 — 바뀌면 문장급 키가 바뀐다
-
-# Astral Color (사주 컬러, astral_color/)
-astronomy-engine==2.1.19
-korean-lunar-calendar==0.4.0
-tzdata==2026.5
+google-genai>=0.1.0
+python-dotenv>=1.0.0
+requests>=2.31.0
+resend>=0.8.0

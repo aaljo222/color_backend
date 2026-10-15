@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>MaC | 𝑀𝑒𝓂𝑜𝓇𝓎 𝒶𝓃𝒹 𝒞𝑜𝓁𝑜𝓇</title>
+
+  <link rel="icon" type="image/png" href="images/reference.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Pretendard:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- 공용 스타일 (리셋, 변수, 헤더, 모바일 드로어, 유니버설 모달 껍데기) -->
+  <link rel="stylesheet" href="css/shared.css">
+  <!-- 섹션별 스타일: 반드시 shared.css 다음, 이 순서로 로드 -->
+  <link rel="stylesheet" href="css/section01.css">
+  <link rel="stylesheet" href="css/section02.css">
+  <link rel="stylesheet" href="css/section03.css">
+</head>
+<body>
+
+  <!-- 각 섹션의 HTML은 아래 자리표시자(placeholder)에 fetch로 삽입됩니다. -->
+  <div id="section01-mount"></div>
+  <div id="section02-mount"></div>
+  <div id="section03-mount"></div>
+
+  <script>
+    /* ============================================================
+       섹션 로더: html/sectionXX.html 을 순서대로 불러와
+       각 mount 지점에 삽입한 뒤, 전용 JS를 로드합니다.
+       모든 섹션이 DOM에 삽입된 다음에야 shared.js를 마지막으로 실행합니다
+       (shared.js가 각 섹션의 요소를 getElementById로 참조하기 때문입니다).
+       ============================================================ */
+    async function loadSectionHTML(mountId, path) {
+      const res = await fetch(path);
+      if (!res.ok) {
+        console.error(`섹션 로드 실패: ${path} (status ${res.status})`);
+        return;
+      }
+      const html = await res.text();
+      document.getElementById(mountId).innerHTML = html;
+    }
+
+    function loadScript(src) {
+      return new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = src;
+        s.onload = resolve;
+        s.onerror = () => reject(new Error(`스크립트 로드 실패: ${src}`));
+        document.body.appendChild(s);
+      });
+    }
+
+    (async function bootstrap() {
+      try {
+        // 1. 세 섹션의 HTML을 모두 DOM에 삽입 (순서 고정: 01 -> 02 -> 03)
+        await loadSectionHTML('section01-mount', 'html/section01.html');
+        await loadSectionHTML('section02-mount', 'html/section02.html');
+        await loadSectionHTML('section03-mount', 'html/section03.html');
+
+        // 2. 모든 HTML이 삽입된 뒤 섹션별 JS를 순서대로 로드
+        await loadScript('js/section01.js');
+        await loadScript('js/section02.js');
+        await loadScript('js/section03.js');
+
+        // 3. 마지막으로 공용 JS 로드 (사운드 엔진, 모바일 드로어, 헤더 모달, Escape 키 통합)
+        await loadScript('js/shared.js');
+      } catch (err) {
+        console.error('[MaC] 페이지 조립 중 오류가 발생했습니다:', err);
+      }
+    })();
+  </script>
+</body>
+</html>

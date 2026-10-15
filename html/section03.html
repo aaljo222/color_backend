@@ -1,0 +1,81 @@
+<!-- ================= SECTION 3 : COLOR CONCIERGE & CONTACT ================= -->
+<section class="concierge-section" id="concierge">
+  <div class="glass-card">
+
+    <div class="concierge-grid">
+      <div class="concierge-narrative">
+        <span class="concierge-tag-orig">MaC Concierge</span>
+
+        <h3 class="concierge-headline-orig">
+          당신만의 기억을<br>
+          색채 언어로 조색합니다
+        </h3>
+
+        <p class="concierge-desc-orig">
+          마음에 오래 머물던 순간, 잊히지 않는 장면의 정서를 색채 언어로 기록합니다. 원화 에디션의 프라이빗 소장 및 비스포크 조색 의뢰는 MaC 컨시어지 데스크를 통해 비공개로 조율됩니다.
+        </p>
+
+        <div class="contact-minimal-list">
+          <div class="contact-row">
+            <span class="label">CONTACT</span>
+            <span class="val"><a href="mailto:concierge@mac.ai.kr" style="color:inherit; text-decoration:none;">concierge@mac.ai.kr</a></span>
+          </div>
+          <div class="contact-row">
+            <span class="label">ATELIER</span>
+            <span class="val">Private Salon, Seoul (By Appointment Only)</span>
+          </div>
+        </div>
+      </div>
+
+      <form class="concierge-form" id="conciergeForm" novalidate>
+        <div class="field-wrap">
+          <label class="field-label" for="clientName">CLIENT NAME</label>
+          <input type="text" id="clientName" class="field-input" placeholder="성함 또는 칭호를 남겨주세요" required>
+          <div class="field-tooltip-bubble" id="nameTooltip">이 항목을 입력해 주세요.</div>
+        </div>
+
+        <div class="field-wrap">
+          <label class="field-label" for="clientContact">CONTACT INFO</label>
+          <input type="text" id="clientContact" class="field-input" placeholder="회신받으실 이메일 또는 연락처" required>
+          <div class="field-tooltip-bubble" id="contactTooltip">이 항목을 입력해 주세요.</div>
+        </div>
+
+        <div class="field-wrap">
+          <label class="field-label" for="inquirySubject">NATURE OF REQUEST</label>
+          <select id="inquirySubject" class="field-select" required>
+            <option value="" disabled selected
+                    data-short="Select Inquiry Type (문의 유형 선택)"
+                    data-full="Select Inquiry Type (문의 유형 선택)">Select Inquiry Type (문의 유형 선택)</option>
+            <option value="artwork"
+                    data-short="Curated Artwork - 전시작 원화 소장"
+                    data-full="Acquisition of Curated Artwork - 전시작 원화 소장">Acquisition of Curated Artwork - 전시작 원화 소장</option>
+            <option value="bespoke"
+                    data-short="Bespoke Color - 1:1 맞춤 조색 의뢰"
+                    data-full="Bespoke Memory Color Commission - 1:1 맞춤 조색 의뢰">Bespoke Memory Color Commission - 1:1 맞춤 조색 의뢰</option>
+            <option value="partnership"
+                    data-short="Partnership - 비공개 협업 및 대관"
+                    data-full="Confidential Partnership & Curation - 비공개 협업 및 전시 대관">Confidential Partnership & Curation - 비공개 협업 및 전시 대관</option>
+            <option value="viewing"
+                    data-short="Private Viewing - 살롱 프라이빗 뷰잉"
+                    data-full="Private Salon Viewing - 프라이빗 뷰잉 세션 예약">Private Salon Viewing - 프라이빗 뷰잉 세션 예약</option>
+          </select>
+          <div class="field-tooltip-bubble" id="subjectTooltip">목록에서 항목을 선택해 주세요.</div>
+        </div>
+
+        <div class="field-wrap">
+          <label class="field-label" for="clientMessage">PRIVATE NOTE</label>
+          <textarea id="clientMessage" class="field-textarea" placeholder="문의를 남겨주세요." required></textarea>
+          <div class="field-tooltip-bubble" id="messageTooltip">이 항목을 입력해 주세요.</div>
+        </div>
+
+        <div class="submit-anchor-wrap">
+          <aside id="btnNotifyBar" class="btn-notify-bar" role="status" aria-live="polite">
+            <span class="btn-notify-text" id="btnNotifyText"></span>
+          </aside>
+          <button type="submit" class="request-btn" id="conciergeSubmitBtn">SUBMIT PRIVATE REQUEST</button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</section>

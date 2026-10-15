@@ -1,0 +1,236 @@
+<!-- ================= TOP HEADER NAVIGATION ================= -->
+<header class="arch-header">
+  <a href="#" class="brand-logo">
+    MaC <span>/ Memory <em>&amp;</em> Color</span>
+  </a>
+
+  <ul class="nav-menu">
+    <li class="nav-item"><a id="navMemory">Memory</a></li>
+    <li class="nav-item"><a href="#archive">archive</a></li>
+    <li class="nav-item"><a href="#concierge">Concierge</a></li>
+    <li class="nav-item"><a id="navAstral">Astral</a></li>
+  </ul>
+
+  <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="메뉴 열기">
+    <span></span>
+    <span></span>
+  </button>
+</header>
+
+<!-- ================= MOBILE FULLSCREEN DRAWER ================= -->
+<div class="mobile-drawer" id="mobileDrawer">
+  <div class="drawer-top-bar">
+    <button class="gallery-close-btn" id="mobileDrawerCloseBtn" aria-label="메뉴 닫기">Close</button>
+  </div>
+
+  <div class="drawer-center-stage">
+    <ul class="mobile-nav-list">
+      <li class="mobile-nav-item">
+        <a class="mobile-nav-link" id="mobileNavMemory">
+          <span><span class="brand-prefix">M</span>emory</span>
+          <span class="nav-arrow">↗</span>
+        </a>
+      </li>
+      <li class="mobile-nav-item">
+        <a class="mobile-nav-link" href="#archive">
+          <span><span class="brand-prefix">a</span>rchive</span>
+          <span class="nav-arrow">↗</span>
+        </a>
+      </li>
+      <li class="mobile-nav-item">
+        <a class="mobile-nav-link" href="#concierge">
+          <span><span class="brand-prefix">C</span>oncierge</span>
+          <span class="nav-arrow">↗</span>
+        </a>
+      </li>
+      <li class="mobile-nav-item astral-nav-item">
+        <a class="mobile-nav-link" id="mobileNavAstral">
+          <span><span class="brand-prefix">A</span>stral</span>
+          <span class="nav-arrow">—</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="drawer-footer">
+    MaC | Memory and Color
+  </div>
+</div>
+
+<!-- ================= WIDE ARCHITECTURAL HERO BANNER ================= -->
+<section class="arch-hero-banner" id="heroBanner" title="클릭하여 레퍼런스 원화 확대 감상">
+  <div class="banner-img-wrap">
+    <img src="images/generReference.png" alt="Color Reference" onerror="this.src='https://picsum.photos/1920/1080?grayscale'" />
+  </div>
+  <div class="banner-overlay-caption">Reference No. 01 / View Artwork ↗</div>
+</section>
+
+<!-- ================= 2-COLUMN SECTION 1 : ABOUT COLOR & 분석 입력 폼 ================= -->
+<main class="content-container">
+
+  <div class="left-column">
+    <h1 class="section-main-title">About Color</h1>
+    <div class="social-links">
+      <a href="#archive" class="social-btn" aria-label="Archive">Ar</a>
+      <a href="#" class="social-btn" aria-label="Instagram">In</a>
+      <a href="#concierge" class="social-btn" aria-label="Mail">@</a>
+    </div>
+  </div>
+
+  <div class="right-column">
+
+    <article class="statement-block">
+      <div class="headline-stack">
+        <div class="headline-lead-wrap">
+          <span class="headline-lead">당신의 추억을 남겨 주세요</span>
+          <span class="lead-baseline-tail" aria-hidden="true"></span>
+        </div>
+
+        <h2 class="headline-main">추억을<span class="headline-dots">...</span>색으로 돌려드립니다.</h2>
+      </div>
+
+      <p class="statement-body">
+        기억 속 장면과 정서를 한 줄의 문장과 색채 언어로 시각화합니다. 공간과 순간에 머물던 기억의 파편은 색면 추상으로 재구성되어 <span class="br-desktop"></span>형태 너머 내면 깊은 곳의 여운을 관조합니다.
+      </p>
+    </article>
+
+    <form class="arch-form-wrapper" id="colorArchForm" novalidate>
+
+      <div class="form-inline-tooltip" id="formInlineTooltip" role="alert" aria-live="polite">
+        <span class="tooltip-icon">✦</span>
+        <span class="tooltip-text" id="tooltipText">장소, 시간, 계절, 행동, 기분 등의 그날의 뉘앙스가 느껴지는 기억을 채워주세요. 좀 더 구체적일수록 잘 보여드릴게요.</span>
+      </div>
+
+      <div class="form-row">
+        <label for="userMemory">Your Memory Statement</label>
+        <input type="text" id="userMemory" class="input-strong" placeholder="당신의 기억을 한 줄로 적어 주세요." />
+      </div>
+
+      <div class="form-row">
+        <label for="userEmail">Recipient Email</label>
+        <input type="email" id="userEmail" class="input-standard" placeholder="결과를 전송받으실 이메일 주소" />
+      </div>
+
+      <div class="submit-wrap">
+        <button type="submit" class="submit-arch-btn" id="submitBtn">Synthesize Palette</button>
+        <span class="form-guide-txt">메일을 남겨 주시면 Hex 컬러칩을 전송해드립니다.</span>
+      </div>
+    </form>
+
+  </div>
+
+</main>
+
+<!-- ================= 1ST NAV: MEMORY PHILOSOPHY MODAL ================= -->
+<aside id="memoryModal" class="arch-modal-overlay" aria-hidden="true">
+  <div class="arch-modal-window">
+    <button class="gallery-close-btn" id="memoryCloseBtn" aria-label="닫기">Close</button>
+
+    <div class="modal-head-group">
+      <span class="modal-badge">Philosophy</span>
+      <h3 class="modal-main-title">박제된 시간, 불멸의 색채</h3>
+      <p class="modal-subtitle">MaC | Memory and Color</p>
+    </div>
+
+    <div class="modal-narrative-box">
+      형태는 소멸하고 시간은 흐르지만, 색채는 무의식의 가장 깊은 심연에 남아 영원히 박제됩니다.
+    </div>
+
+    <p class="statement-body" style="font-size: 14.5px; line-height: 1.85; font-weight: 400;">
+      망각의 파편으로 흩어지는 기억 속에서 찰나의 빛과 온도를 건져 올리는 일.<br>
+      MaC은 당신이 지나온 시간을, 한 편의 색채 표본으로 결코 바래지 않을 고유의 암호로 보존합니다.
+    </p>
+
+    <div style="font-family: var(--font-serif); font-style: italic; font-size: 13px; color: var(--gold-primary); margin-top: 4px;">
+      MaC Curatorial Archive
+    </div>
+  </div>
+</aside>
+
+<!-- ================= REFERENCE LIGHTBOX MODAL ================= -->
+<aside id="archModal" class="arch-modal-overlay" aria-hidden="true">
+  <div class="arch-modal-window">
+    <button class="gallery-close-btn" id="modalCloseBtn" aria-label="닫기">Close</button>
+
+    <div class="modal-head-group">
+      <span class="modal-badge" id="modalBadge">Reference Mood</span>
+      <h3 class="modal-main-title" id="modalTitle">놀이공원 추억: 슈가 핑크와 웜 브라운</h3>
+      <p class="modal-subtitle" id="modalSubtitle">Curated Reference &amp; Palette</p>
+    </div>
+
+    <div class="easel-halo-stage" id="modalImageStage">
+      <img class="easel-artwork-img" id="modalArtworkImg" src="images/generReference.png" alt="놀이공원 추억: 슈가 핑크와 웜 브라운" onerror="this.src='https://picsum.photos/1000/1200?grayscale'" />
+    </div>
+
+    <div class="modal-narrative-box" id="modalNarrative">
+      늘 바쁘던 아빠의 손을 잡고 나선 눈부신 5월의 휴일. 입안 가득 사르르 녹아내리던 달콤한 솜사탕, 회전목마의 황금빛 불빛과 왁자지껄한 음악 소리 속에서 마주 보며 웃던 따스하고 설렜던 오후.
+    </div>
+
+    <div class="modal-palette-grid" id="modalPaletteGrid">
+      <div class="palette-item"><span class="swatch-dot" style="background:#FFB7C5;"></span><span>#FFB7C5 Sugar Pink</span></div>
+      <div class="palette-item"><span class="swatch-dot" style="background:#87CEEB;"></span><span>#87CEEB May Sky</span></div>
+      <div class="palette-item"><span class="swatch-dot" style="background:#FFD700;"></span><span>#FFD700 Carousel Gold</span></div>
+      <div class="palette-item"><span class="swatch-dot" style="background:#A0522D;"></span><span>#A0522D Warm Brown</span></div>
+    </div>
+  </div>
+</aside>
+
+<!-- ================= 4TH NAV: ASTRAL MODAL ================= -->
+<aside id="astralModal" class="arch-modal-overlay" aria-hidden="true">
+  <div class="arch-modal-window">
+    <button class="gallery-close-btn" id="astralCloseBtn" aria-label="닫기">Close</button>
+
+    <div class="modal-head-group">
+      <span class="modal-badge">- 서비스 준비중 -</span>
+      <h3 class="modal-main-title">Astral Color</h3>
+      <p class="modal-subtitle">사주 / 오행 기반 고유색 · 수호색 엄선</p>
+    </div>
+
+    <div class="astral-field">
+      <label for="astralBirth">Date of Birth</label>
+      <input type="text" id="astralBirth" placeholder="생년월일을 입력해 주세요. (예: 1995.05.21)" />
+    </div>
+
+    <div class="modal-narrative-box">
+      타고난 사주 오행의 기운을 분석하여 본연의 파동을 북돋워 주는 고유색과 수호색(보호색) 큐레이션 서비스가 곧 공개됩니다.
+    </div>
+
+    <button type="button" class="astral-disabled-btn" disabled>Coming Soon</button>
+  </div>
+</aside>
+
+<!-- ================= SYNTHESIZED SPECIMEN MODAL (결과 출력 전용 지니 모달) ================= -->
+<div id="modalBackdrop" class="mac-modal-backdrop hidden" aria-hidden="true">
+  <div class="mac-modal">
+
+    <div class="modal-close-handle-wrap" onclick="closeDynamicModal()" title="닫기">
+      <div class="modal-close-handle-bar"></div>
+    </div>
+
+    <div class="specimen-header">
+      <span class="brand">MaC Specimen Archive</span>
+      <span id="specimenHash" class="hash-chip">MaC-00.00.000</span>
+    </div>
+
+    <div class="specimen-body">
+      <div class="summary-box">
+        <p id="memorySummary" class="summary-text"></p>
+      </div>
+
+      <div class="spectrum-section" id="spectrumSection">
+        <div class="spectrum-label">
+          <span>Chromatic Balance (Area Ratio)</span>
+          <span id="ratioLabel">45% : 30% : 15% : 10%</span>
+        </div>
+        <div class="spectrum-bar" id="spectrumBar"></div>
+      </div>
+
+      <div class="specimen-list" id="specimenList"></div>
+
+      <div class="control-panel">
+        <span style="font-size: 11px; color: #78716c;">면적비 유무 비교:</span>
+        <button type="button" onclick="toggleRatio()">면적비 토글(ON/OFF)</button>
+      </div>
+    </div>
+  </div>
+</div>
