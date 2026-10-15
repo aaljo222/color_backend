@@ -5,6 +5,7 @@
   - EmbeddingRetriever  : data/kb_embeddings.json(scripts/build_kb_embeddings.py가 생성) + Gemini 임베딩.
   - SupabaseRetriever   : pgvector RPC match_color_kb (sql/schema.sql).
 환경변수 RETRIEVER = ngram | embedding | supabase  (기본 ngram)
+  embedding = 테이블 mac_embeddings(core/vector_store.py, 지금 모델로 자동 생성) → 없으면 data/kb_embeddings.json
 """
 from __future__ import annotations
 import json, math, os, logging
@@ -110,6 +111,28 @@ class EmbeddingRetriever:
         q = np.array(self._embed([phrase], task="RETRIEVAL_QUERY")[0], float)
         q = q / (np.linalg.norm(q) or 1)
         sims = self.mat @ q
+        out = [(float(s), i) for s, i in zip(sims, self.ids) if self.kb.by_id[i]["axis"] == axis]
+        return sorted(out, reverse=True)
+
+
+class StoreRetriever:
+    """KB 항목 임베딩을 테이블(mac_embeddings)에서 — 지금 서버 모델로 없으면 만들어 저장한다 (emb-1).
+    질의도 같은 모델(oracle/similar.py)이라 파일 모델 불일치로 꺼지는 일이 없다."""
+    name = "embedding"
+
+    def __init__(self, kb: KB):
+        from core import vector_store
+        vec = vector_store.vectors("kb", [(e["id"], kb.text_of(e)) for e in kb.items])
+        if vec is None:
+            raise RuntimeError("임베딩 테이블 사용 불가 (키 없음·VECTOR_STORE=off·장애)")
+        self.kb, self.ids, self._query = kb, [e["id"] for e in kb.items], vector_store.query
+        m = np.array([vec[i] for i in self.ids], float)
+        self.mat = m / np.linalg.norm(m, axis=1, keepdims=True)
+        self.source = "store"
+
+    def search(self, phrase: str, axis: str) -> list[tuple[float, str]]:
+        q = np.array(self._query(phrase), float)
+        sims = self.mat @ (q / (np.linalg.norm(q) or 1))
         out = [(float(s), i) for s, i in zip(sims, self.ids) if self.kb.by_id[i]["axis"] == axis]
         return sorted(out, reverse=True)
 
@@ -232,6 +255,11 @@ class Resolver:
 
 def make_retriever(kb: KB, kind: Optional[str] = None):
     kind = (kind or os.getenv("RETRIEVER") or "ngram").lower()
+    if kind == "embedding":                       # ① 테이블 (지금 모델로 맞춰 저장) → ② 레포 파일 → ③ ngram
+        try:
+            return StoreRetriever(kb)
+        except Exception as ex:
+            logger.warning(f"[KB] 임베딩 테이블 검색기 사용 불가({ex}) → 파일")
     try:
         if kind == "embedding":
             return EmbeddingRetriever(kb)

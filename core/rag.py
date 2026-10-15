@@ -83,11 +83,12 @@ class _Ngram:
 class _Embedding:
     name = "embedding"
 
-    def __init__(self, ids: list[str], data: dict, embed):
+    def __init__(self, ids: list[str], data: dict, embed, source: str = "file"):
         pos = {i: n for n, i in enumerate(data["ids"])}
         m = np.array([data["vectors"][pos[i]] for i in ids], float)
         self.mat = m / np.linalg.norm(m, axis=1, keepdims=True)
         self._embed = embed
+        self.source = source                                  # store (mac_embeddings) | file (corpus_embeddings.json)
 
     def scores(self, query: str) -> np.ndarray:
         q = np.array(self._embed(query), float)
@@ -99,7 +100,15 @@ def _embedding_backend(corpus: Corpus, ids: list[str]):
     method = (os.getenv("CORPUS_METHOD") or "auto").lower()
     if method == "ngram":
         return None
-    try:
+    try:                                                      # ① 테이블(mac_embeddings) — 지금 모델로 없으면 만들어 저장 (emb-1)
+        from core import vector_store
+        texts = {s["id"]: s["text"] for s in corpus.scenes}
+        vec = vector_store.vectors("corpus", [(i, texts[i]) for i in ids])
+        if vec is not None:
+            return _Embedding(ids, {"ids": ids, "vectors": [vec[i] for i in ids]}, vector_store.query, source="store")
+    except Exception as ex:
+        logger.warning(f"[RAG] 임베딩 테이블 사용 불가 → 파일: {type(ex).__name__}")
+    try:                                                      # ② 레포 파일 (모델·버전이 같을 때만)
         from oracle import similar
         model = similar.model_name()
         if model is None or not EMBED_PATH.exists():
@@ -123,6 +132,7 @@ class CorpusRAG:
         self.ngram = _Ngram([s["text"] for s in self.scenes])
         self.emb = _embedding_backend(corpus, ids)
         self.method = self.emb.name if self.emb else "ngram"
+        self.emb_source = getattr(self.emb, "source", None)
         env_tau = os.getenv("CORPUS_TAU")
         wanted = (os.getenv("CORPUS_METHOD") or "auto").lower()
         if env_tau and tau is None and self.method == "ngram" and wanted != "ngram":

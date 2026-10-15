@@ -136,6 +136,7 @@ def test_embedding_backend_used_only_when_model_and_version_match(tmp_path, monk
     data = {"model": "fake:bag:1", "corpus_version": c.version, "ids": [s["id"] for s in c.scenes],
             "vectors": fake_embed([s["text"] for s in c.scenes])}
     path.write_text(json.dumps(data), encoding="utf-8")
+    monkeypatch.setenv("VECTOR_STORE", "off")                   # 이 테스트는 레포 파일 경로의 안전장치만 본다 (테이블 경로는 test_vector_store.py)
     r = CorpusRAG(c)
     assert r.method == "embedding" and r.tau == ragmod.DEFAULT_TAU["embedding"]
     assert r.search("어제 일처럼 또렷하게", axis="quality", k=1)[0].passage["kb_id"] == "vivid"
