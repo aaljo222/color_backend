@@ -1,4 +1,4 @@
-"""scripts/eval_ten.py — 같은 10문장을 eng-2.5(측정) 와 eng-2.6(후보 스냅) 으로 실제 화가·Claude 로 그려 비교 (2026-10-13 팀장 요청).
+"""scripts/eval_ten.py — 같은 10문장을 eng-2.5(측정) 와 eng-2.6(후보 스냅) 으로 실제 화가·Claude 로 그려 비교 (2026-10-13 요구사항).
 
   python scripts/eval_ten.py                 # .env 의 키로 10문장 × 2엔진 (Claude 추출 20번 · 그림 20~40장)
   python scripts/eval_ten.py --only 2.6      # eng-2.6 만

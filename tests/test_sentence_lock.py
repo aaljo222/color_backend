@@ -1,4 +1,4 @@
-"""문장 고정 (eng-2.1) — 팀장 기준: 같은 문장을 두 번(동시에) 뽑아도 해시·HEX·색상·색 이름이 같아야 한다."""
+"""문장 고정 (eng-2.1) — 요구사항: 같은 문장을 두 번(동시에) 뽑아도 해시·HEX·색상·색 이름이 같아야 한다."""
 import itertools, threading, time, random
 import pytest
 from core import pipeline, sentence_lock, store, image_first

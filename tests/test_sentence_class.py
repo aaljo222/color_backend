@@ -1,4 +1,4 @@
-"""eng-2.3 — 같은 문장급이면 같은 해시·HEX·색상·색 이름 / 해시는 문장 + 4색에서 태어난다 (팀장 기준 2026-10-10)."""
+"""eng-2.3 — 같은 문장급이면 같은 해시·HEX·색상·색 이름 / 해시는 문장 + 4색에서 태어난다 (요구사항 2026-10-10)."""
 import itertools, threading, time
 import pytest
 from core import pipeline, sentence_lock, sentence_class, store, image_first

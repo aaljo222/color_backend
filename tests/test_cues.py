@@ -56,7 +56,7 @@ def test_compounds_of_short_keywords_are_listed(resolver):
     assert pick(resolver, "space", "외할머니가 가꾸던 텃밭이 있는 집") == "grandma_house"
 
 
-# ── 같은 낱말, 다른 정서 (팀장 요청) ────────────────────────────────────
+# ── 같은 낱말, 다른 정서 (요구사항) ────────────────────────────────────
 @pytest.mark.parametrize("phrase", ["아빠의 발소리가 들리면 무서워서 숨을 죽이던", "가족끼리 말다툼이 커지던 밤",
                                     "불 꺼진 건물에 혼자 남아 불안하던", "실수한 나를 비웃던 웃음소리"])
 def test_unsupported_emotions_are_blocked(resolver, phrase):

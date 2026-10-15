@@ -681,10 +681,10 @@ def run(masked: str, summary: str, res: dict, kb, objects: list, affect, base_pa
         st, sp = sum(tg) or 1, sum(pt) or 1
         rows = [{"hex": p["hex"], "target": round(a / st, 3), "painted": round(b / sp, 3), "diff": round(b / sp - a / st, 3)}
                 for p, a, b in zip(palette, tg, pt)]
-        from core.candidates import WEIGHT_MODE, COLOR_MAPPING_PRIORITY, APPLIED
-        weight_fit = {"source": "COLOR_MAPPING_PRIORITY (MaC color_association.py v1.0)" if WEIGHT_MODE == "team" else "eng-2.6 감정 가중치",
+        from core.candidates import WEIGHT_MODE, COLOR_MAPPING_PRIORITY, APPLIED, PRIORITY_VERSION
+        weight_fit = {"source": "COLOR_MAPPING_PRIORITY (data/mapping_priority.json)" if WEIGHT_MODE == "team" else "eng-2.6 감정 가중치",
                       "chips": rows, "max_abs_diff": round(max(abs(r["diff"]) for r in rows), 3),
-                      **({"priority": COLOR_MAPPING_PRIORITY, "applied": APPLIED} if WEIGHT_MODE == "team" else {})}
+                      **({"priority": COLOR_MAPPING_PRIORITY, "priority_version": PRIORITY_VERSION, "applied": APPLIED} if WEIGHT_MODE == "team" else {})}
     verification = {"status": "PASS" if rv["ok"] else "FAIL", "max_de00": round(m["de_p90"], 2),
                     "max_ratio_err": 0.0, "attempts": len(tries), "renderer": f"image:{tries[-1]['painter']}",
                     "coverage": round(m["coverage"], 3), "review": rv,

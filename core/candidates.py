@@ -1,6 +1,6 @@
 """core/candidates.py — 그리기 전 후보 색 (eng-2.6): 그림 뒤 4색은 반드시 이 후보 HEX 중에서 나온다.
 
-왜 (2026-10-13 팀장 요구 9번)
+왜 (2026-10-13 요구사항 9번)
   eng-2.0~2.5 는 그림을 그린 뒤 픽셀에서 4색을 '쟀다'. 그래서 4색이 문장 분석에서 나온 색과 아무 관계가 없을 수 있었다
   (예: 수박 껍질 문장 → 탁한 보라 #847… 가 주조색). 문장 → 색의 근거 사슬이 그림에서 끊긴 것이다.
   eng-2.6 은 문장 분석이 '후보 색'을 먼저 정하고, 화가는 그 후보로 그리고, 그림 뒤에는 후보 중에서 4색을 고른다(core/image_first 스냅).
@@ -13,16 +13,14 @@
   word     문장에 직접 쓴 색 말 ("모스 그린", "붉은", "노란") — 사람이 색을 말했으면 가장 강한 단서
   shade    위 색들의 밝은·짙은 형제색 — 작은 붓질용. 그림이 다채로워져도 4색은 여전히 후보 안에 있게 하려는 자리
 
-팀 입력 가중치 (cand-4, 2026-10-15 김외진 요구 — 기본값)
-  MaC color_association.py v1.0 의 COLOR_MAPPING_PRIORITY 를 그대로 후보 HEX 의 비중으로 쓴다.
-    감정 .30 · 기억 질감 .20 · 시간 .15 · 공간 .15 · 체감 온도 .10 · 빛 .05 · 감각 .05  (합 1.00)
-  색을 직접 내는 축(감정·시간·공간·빛·감각)은 그 가중치로 후보 비중을 받는다.
-  기억 질감(.20)은 색이 아니라 채도·대비 보정(quality KB modifiers)으로 이미 들어간다. 체감 온도(.10)는 아직 미구현.
-  사물·문장 속 색 말은 이 표에 없다 → PALETTE_HIERARCHY 의 accent(.10, "기억 속 가장 강렬한 대상·오브젝트") 비중.
+팀 입력 가중치 (cand-4, 기본값)
+  팀 기준표의 COLOR_MAPPING_PRIORITY(7개 입력 가중치)를 후보 HEX 의 비중으로 쓴다. 값은 data/mapping_priority.json 에 있다.
+  감정·시간·공간 = 그 축의 KB 색 · 기억 질감 = 기억색·물체색(사물 색) · 빛 = 빛 사물 · 감각 = 감각 사물 · 체감 온도 = 미구현.
+  표에 없는 문장 속 색 말·감정 강조색은 팀 PALETTE_HIERARCHY accent(.10).
   이 비중이 그리기 전 HEX 의 면적 목표가 되고, 그림 뒤 4색 칩의 실제 비중과 비교된다 (image_first weight_fit).
   CAND_WEIGHTS=legacy 면 아래 eng-2.6 감정 가중치(cand-3)로 돌아간다.
 
-감정 가중치 (legacy, 2026-10-13 이재오 제안)
+감정 가중치 (legacy, eng-2.6)
   감정 강도 = (|쾌−3| + |각성−3|) / 4   (0 = 담담, 1 = 아주 강함)
   감정 색 가중치 = 1 + EMO_GAIN × (0.5 + 강도)        → 감정이 강할수록 넓은 면을 받는다
   가중치 상위 LARGE_N 색 = '넓게'(면적 목표 합 LARGE_SHARE), 나머지 = '작게'(붓질·튐)
@@ -45,13 +43,19 @@ LARGE_SHARE = float(os.getenv("CAND_LARGE_SHARE", "0.80"))
 MERGE_DE = float(os.getenv("CAND_MERGE_DE", "7"))            # 이보다 가까운 두 후보는 하나로 (가중치는 큰 쪽)
 MAX_CANDS = int(os.getenv("CAND_MAX", "12"))
 WEIGHT_MODE = os.getenv("CAND_WEIGHTS", "team")   # team (팀 COLOR_MAPPING_PRIORITY) | legacy (eng-2.6 감정 가중치)
-# 팀 기준표 MaC color_association.py v1.0 (2026-10-06 메일) — 값을 바꾸지 않는다
-COLOR_MAPPING_PRIORITY = {"emotion": 0.30, "memory_quality": 0.20, "time": 0.15, "space": 0.15,
-                          "temperature": 0.10, "light": 0.05, "sensory": 0.05}
-PALETTE_ACCENT_W = 0.10   # 팀 PALETTE_HIERARCHY accent: 기억 속 가장 강렬한 대상·오브젝트 → 사물·문장 속 색 말·감정 강조색
-APPLIED = {"emotion": "후보 비중", "time": "후보 비중", "space": "후보 비중", "light": "후보 비중(빛 사물)",
-           "sensory": "후보 비중(감각 사물)", "memory_quality": "채도·대비 보정 (색 후보 아님)", "temperature": "미구현"}
-CAND_VERSION = "cand-4" if WEIGHT_MODE == "team" else "cand-3"   # cand-4: 팀 입력 가중치 · cand-3: 시간·장소 색 늘 후보
+# 팀 입력 가중치 — data/mapping_priority.json 에서 읽는다 (코드에 숫자를 두지 않는다. 팀이 실험하며 이 파일만 고친다)
+import hashlib as _hl, json as _json
+from pathlib import Path as _Path
+PRIORITY_PATH = _Path(os.getenv("MAPPING_PRIORITY_PATH", _Path(__file__).resolve().parent.parent / "data" / "mapping_priority.json"))
+_PRIORITY_RAW = PRIORITY_PATH.read_text(encoding="utf-8")
+_PRIORITY = _json.loads(_PRIORITY_RAW)
+COLOR_MAPPING_PRIORITY = dict(_PRIORITY["weights"])
+PRIORITY_VERSION = f"{_PRIORITY.get('version', 'mp')}+{_hl.sha256(_PRIORITY_RAW.encode()).hexdigest()[:8]}"
+PALETTE_ACCENT_W = 0.10   # 표에 없는 문장 속 색 말·감정 강조색 → 팀 PALETTE_HIERARCHY accent 비중 (팀 결정 대상)
+APPLIED = {"emotion": "후보 비중 (감정 색)", "time": "후보 비중 (시간 색)", "space": "후보 비중 (장소 색)",
+           "memory_quality": "후보 비중 (기억색·물체색) + 채도·대비 보정", "light": "후보 비중 (빛 사물)",
+           "sensory": "후보 비중 (감각 사물)", "temperature": "미구현"}
+CAND_VERSION = f"cand-4+{PRIORITY_VERSION}" if WEIGHT_MODE == "team" else "cand-3"   # cand-4: 팀 입력 가중치 · cand-3: 시간·장소 색 늘 후보
 
 # 문장 속 색 말 → 등급 (색상 계열·밝기 1~9·채도 0~5). 설계값 — 코퍼스 팀 검토 대상. 긴 말 먼저 찾는다.
 COLOR_TERMS = {
@@ -141,7 +145,7 @@ def _weights(affect) -> dict:
         P = COLOR_MAPPING_PRIORITY
         return {"emotion": P["emotion"], "emotion_accent": PALETTE_ACCENT_W, "space": P["space"], "time": P["time"],
                 "fallback_mult": FALLBACK_W, "object": {"light": P["light"], "sensory": P["sensory"]},
-                "object_default": PALETTE_ACCENT_W, "word": PALETTE_ACCENT_W, "shade": SHADE_W * min(P["space"], P["time"])}
+                "object_default": P["memory_quality"], "word": PALETTE_ACCENT_W, "shade": SHADE_W * min(P["space"], P["time"])}
     w_emo = 1 + EMO_GAIN * (0.5 + intensity(affect))
     return {"emotion": w_emo, "emotion_accent": 0.5 * w_emo, "space": AXIS_W, "time": AXIS_W, "fallback_mult": FALLBACK_W / AXIS_W,
             "object": {}, "object_default": OBJECT_W, "word": WORD_W, "shade": SHADE_W}
@@ -204,7 +208,7 @@ def build(res: dict, kb, objects: list, affect, base_palette: list, masked: str)
         cat = _object_category(o.name) if WEIGHT_MODE == "team" else ""
         ow = W["object"].get(cat, W["object_default"])
         add("object", o.lch, o.name, ow * (1.1 if i == 0 else 1.0), tuple(o.descriptor),
-            category=cat if cat in ("light", "sensory") else "accent")
+            category=cat if cat in ("light", "sensory") else "memory_quality")
     for w, d in find_color_terms(masked):
         add("word", _from_descriptor(d), w, W["word"], d, category="accent")
     # 같은 색 합치기 — 가중치 큰 쪽이 남고, 합쳐진 출처를 기록

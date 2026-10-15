@@ -242,22 +242,22 @@ def _res4():
             "quality": Resolution("quality", "", "cherished", "label", 1.0)}
 
 
-def test_team_weights_are_color_mapping_priority():            # cand-4: 팀 color_association.py v1.0 값 그대로
-    assert cd.WEIGHT_MODE == "team" and cd.CAND_VERSION == "cand-4"
-    assert cd.COLOR_MAPPING_PRIORITY == {"emotion": 0.30, "memory_quality": 0.20, "time": 0.15, "space": 0.15,
-                                         "temperature": 0.10, "light": 0.05, "sensory": 0.05}
-    assert abs(sum(cd.COLOR_MAPPING_PRIORITY.values()) - 1.0) < 1e-9
+def test_team_weights_come_from_mapping_priority_file():       # cand-4: 가중치는 data/mapping_priority.json 에서 (값은 팀이 조정)
+    import json
+    f = json.loads(cd.PRIORITY_PATH.read_text(encoding="utf-8"))["weights"]
+    assert cd.WEIGHT_MODE == "team" and cd.COLOR_MAPPING_PRIORITY == f
+    assert set(f) == {"emotion", "memory_quality", "time", "space", "temperature", "light", "sensory"}
+    assert abs(sum(f.values()) - 1.0) < 1e-9
+    assert cd.CAND_VERSION.startswith("cand-4+") and cd.PRIORITY_VERSION in cd.CAND_VERSION
     from core.synth import synthesize
     kb, res = KB(), _res4()
     cs = cd.build(res, kb, [], None, synthesize(res, kb, [], None)["palette"], "")
     w = {c.category: c.weight for c in cs if c.origin != "shade"}
-    assert w["emotion"] == 0.30 and w["time"] == 0.15 and w["space"] == 0.15 and w["accent"] == 0.10
-    # 감정 강도와 상관없이 같은 비중 (가중치는 팀 표가 정한다)
+    assert w["emotion"] == f["emotion"] and w["time"] == f["time"] and w["space"] == f["space"]
     a1 = cd.build(res, kb, [], _aff(5, 5, (3, 3)), synthesize(res, kb, [], _aff(5, 5, (3, 3)))["palette"], "")
     assert [c.weight for c in a1 if c.origin == "emotion"] == [c.weight for c in cs if c.origin == "emotion"]
-    # 넓게 칠할 4색의 면적 목표 비 = 가중치 비 (감정 : 시간 = 2 : 1)
     t = {c.category: c.area for c in cs if c.tier == "large"}
-    assert abs(t["emotion"] / t["time"] - 2.0) < 1e-6
+    assert abs(t["emotion"] / t["space"] - f["emotion"] / f["space"]) < 1e-6   # 넓게 칠할 면적 비 = 가중치 비
 
 
 def test_weight_fit_compares_targets_with_chips():             # 가중치로 정한 HEX 비중 ↔ 그림 뒤 4색 칩 비중

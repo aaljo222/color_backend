@@ -1,0 +1,23 @@
+{
+  "version": "mp-2026-10-15",
+  "source": "MaC color_association.py COLOR_MAPPING_PRIORITY (2026-10-15 수정본)",
+  "note": "입력 가중치는 고정값이 아니다. 실험으로 조정할 때 이 파일의 weights 만 바꾼다 (합 1.00). 바꾸면 후보 규칙 버전이 바뀌어 같은 문장도 새 가중치로 다시 계산된다.",
+  "weights": {
+    "emotion": 0.15,
+    "memory_quality": 0.20,
+    "time": 0.10,
+    "space": 0.15,
+    "temperature": 0.10,
+    "light": 0.20,
+    "sensory": 0.10
+  },
+  "meaning": {
+    "emotion": "감정/정서, 계절에 기반한 채도·명도 조율",
+    "memory_quality": "기억색·물체색 — 기억 선명도/풍화 정도, 대상 고유 색상(ΔE) 보존 및 중심 앵커",
+    "time": "시간대(명도 결정), 계절 및 시간의 고유 파장",
+    "space": "공간적 배경 — 바다·벽면 등 물리적 배경 텍스처",
+    "temperature": "체감 온도 (Warm/Cool 축 결정)",
+    "light": "광원 특성 — 화폭 전체 명암비 및 기저 톤",
+    "sensory": "미각/촉각 등 공감각적 요소"
+  }
+}
